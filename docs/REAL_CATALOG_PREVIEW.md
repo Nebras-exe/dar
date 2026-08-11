@@ -105,3 +105,76 @@ and `/ar/preview` on desktop + mobile and correct any mismatch via `overrides.ts
 - Honest: representative + category-accurate, clearly labelled "Local preview"; decor keeps
   art rather than risk a wrong subject.
 - Free: Unsplash CDN only — no API keys, no credits, no generation.
+
+---
+
+# Real Furniture Color Variants (local prototype)
+
+A prototype that demonstrates how real furniture customization will work: high-value products
+gain **2–4 realistic colour/material variants**, each with its **own product photo**. Selecting
+a swatch updates the image, gallery, variant label, price, and the cart selection — no reload.
+
+**Same isolation + zero-cost guarantees as above.** Turning off `NEXT_PUBLIC_REAL_CATALOG_PREVIEW`
+also hides variants (products fall back to their plain colour options).
+
+## Model (adapts the existing option system — no duplication)
+
+`src/lib/catalog-preview/variants.ts` — `PRODUCT_VARIANTS: Record<slug, PreviewVariant[]>`:
+
+```ts
+interface PreviewVariant {
+  colorId: ColorId;      // an EXISTING product colour → cart/designer/label compatible;
+                         //   bilingual name via the colorSwatches taxonomy
+  materialId?: MaterialId; // material/finish → bilingual via materialLabels
+  priceDelta?: number;   // OMR change vs base price
+  image: string;         // this variant's OWN verified photo (Unsplash id or URL)
+  gallery?: string[];    // extra angles
+}
+```
+
+Each variant maps to one of the product's **existing catalog colours**, so the cart, colour
+labels, and the AI Designer stay fully compatible with **no new option system** and no new
+colour/label data (colour + material names already exist bilingually in the taxonomy). Resolver
+helpers in `variant-resolve.ts`; the exact-photo escape hatch is a variant's `image` field.
+
+## Coverage
+
+- **Products with variants: 21** (sofas ×6, armchairs/lounge ×3, dining/office chairs ×2, beds ×3,
+  dining/coffee tables ×4, sideboard, TV console, writing desk).
+- **Total variants: 59.** Products with 2 variants: **4**; with 3+ variants: **17**.
+- **Variants with a price delta: 9** (premium finishes — leather cognac, dark marble, walnut, etc.).
+
+## Wiring
+
+- **Product page** (`product-gallery` + `add-to-cart-panel`, glued by `variant-context`):
+  visual colour swatches (+ a material/finish line); clicking one cross-fades the gallery image,
+  updates the swatch/label, and updates the price (`variant-price`) — all via shared context, no
+  reload, reduced-motion respected.
+- **Product cards** already show the product's colour swatch dots (variant colours ⊆ product
+  colours), so cards communicate the palette without clutter.
+- **Cart**: each variant is a distinct line (keyed by `slug::colorId`) showing "Colour: X ·
+  Finish: Y" (the finish is a display-only lookup — the cart's stored data model is unchanged, so
+  checkout/orders/payment are untouched).
+- **AI Designer** (`design-item-card`): a recommended piece with variants shows colour swatches;
+  selecting one updates the reference image and the design item's colour (existing
+  `SET_ITEM_COLOR`), which flows to the cart when the design is added.
+
+## Honest limitations
+
+- Variant photos are **representative** real furniture photos of the same product form — the
+  swatch carries the exact colour (real hex from the taxonomy) and the photo genuinely changes
+  per variant, but the photo isn't guaranteed to be that exact colour (no retailer browsing /
+  no vision here). Pin an exact colour-matched photo by editing a variant's `image`.
+- **Price:** the variant price delta updates live on the product page, but the **cart, checkout,
+  and orders use the catalog base price** — deliberately, so the completed order/payment pipeline
+  is not modified. This is a preview illustration of variant pricing, not a change to billing.
+- **Before/After:** the Demo visualization references design items; variant colour changes update
+  the item reference, but the Demo preview is a deterministic composition, not a photorealistic
+  re-render (unchanged, honest).
+- All variant images HTTP-verified (35 unique ids, 0 broken).
+
+## Future production architecture
+
+This prototype models the shape a real supplier upload would take: SKU + variant SKU, colour,
+material, price, stock, dimensions, main image, and per-variant images — swapped in behind the
+same `PreviewVariant`/`ProductImage` seam with no UI change.

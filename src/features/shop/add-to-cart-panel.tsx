@@ -5,12 +5,13 @@ import Link from "next/link";
 import { Check, Heart, Minus, Plus, ShoppingBag, Sparkles } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { label, type ColorId, type Product } from "@/lib/catalog";
+import { label, colorSwatches, materialLabels, type ColorId, type Product } from "@/lib/catalog";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/features/cart/cart-context";
 import { useFavorites } from "@/features/favorites/favorites-context";
 import { cn } from "@/lib/utils";
+import { useVariant } from "./variant-context";
 
 /**
  * The product buy-box: colour selection, an accessible quantity stepper, the
@@ -28,9 +29,17 @@ export function AddToCartPanel({
 }) {
   const cart = useCart();
   const { isFavorite, toggle, hydrated } = useFavorites();
-  const [colorId, setColorId] = React.useState<ColorId | undefined>(
+  const variant = useVariant();
+  const hasVariants = (variant?.variants.length ?? 0) > 0;
+
+  // The selected colour: driven by the shared variant context when the product has
+  // variants (so the swatch, gallery image, and price stay in sync), else local.
+  const [localColorId, setLocalColorId] = React.useState<ColorId | undefined>(
     product.colors[0]?.id,
   );
+  const colorId = hasVariants ? variant!.selected?.colorId : localColorId;
+  const setColorId = (id: ColorId) => (hasVariants ? variant!.selectByColor(id) : setLocalColorId(id));
+
   const [qty, setQty] = React.useState(1);
   const [announce, setAnnounce] = React.useState("");
 
@@ -43,42 +52,47 @@ export function AddToCartPanel({
     setAnnounce(t.product.added);
   };
 
+  // Swatch source: variant colours (with per-variant material/finish) or plain colours.
+  const swatches = hasVariants
+    ? variant!.variants.map((v) => ({
+        id: v.colorId,
+        hex: colorSwatches[v.colorId].hex,
+        colorLabel: label(colorSwatches[v.colorId].label, locale),
+        finishLabel: v.materialId ? label(materialLabels[v.materialId], locale) : undefined,
+      }))
+    : product.colors.map((c) => ({ id: c.id, hex: c.hex, colorLabel: label(c.label, locale), finishLabel: undefined as string | undefined }));
+
+  const activeSwatch = swatches.find((s) => s.id === colorId);
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Colours */}
-      {product.colors.length > 0 && (
+      {/* Colours / variants */}
+      {swatches.length > 0 && (
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold text-foreground">
               {t.product.colorsTitle}
             </h3>
-            <span className="text-sm text-muted">
-              {colorId
-                ? label(
-                    product.colors.find((c) => c.id === colorId)?.label ??
-                      product.colors[0].label,
-                    locale,
-                  )
-                : null}
-            </span>
+            <span className="text-sm text-muted">{activeSwatch?.colorLabel}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2.5" role="group" aria-label={t.product.selectColor}>
-            {product.colors.map((c) => {
-              const selected = c.id === colorId;
+            {swatches.map((s) => {
+              const selected = s.id === colorId;
+              const aria = s.finishLabel ? `${s.colorLabel} — ${s.finishLabel}` : s.colorLabel;
               return (
                 <button
-                  key={c.id}
+                  key={s.id}
                   type="button"
                   aria-pressed={selected}
-                  aria-label={label(c.label, locale)}
-                  title={label(c.label, locale)}
-                  onClick={() => setColorId(c.id)}
+                  aria-label={aria}
+                  title={aria}
+                  onClick={() => setColorId(s.id)}
                   className={cn(
-                    "relative inline-flex size-9 items-center justify-center rounded-full ring-1 ring-inset ring-black/10 transition-transform",
+                    "relative inline-flex size-9 items-center justify-center rounded-full ring-1 ring-inset ring-black/10 transition-transform hover:scale-105",
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
                     selected && "ring-2 ring-brand ring-offset-2 ring-offset-background",
                   )}
-                  style={{ backgroundColor: c.hex }}
+                  style={{ backgroundColor: s.hex }}
                 >
                   {selected && (
                     <Check className="size-4 text-white mix-blend-difference" strokeWidth={3} />
@@ -87,6 +101,13 @@ export function AddToCartPanel({
               );
             })}
           </div>
+
+          {/* Material / finish for the selected variant */}
+          {hasVariants && activeSwatch?.finishLabel && (
+            <p className="mt-3 text-sm text-muted">
+              <span className="font-medium text-foreground">{t.product.finishLabel}:</span> {activeSwatch.finishLabel}
+            </p>
+          )}
         </div>
       )}
 

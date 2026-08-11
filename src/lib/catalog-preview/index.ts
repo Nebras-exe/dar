@@ -7,7 +7,16 @@
  * are hotlink-permitted, license-clean Unsplash references (no paid API/credits).
  */
 
-export { previewImageFor, hasPreviewPhoto, previewEnabled, type PreviewInput } from "./resolve";
+export { previewImageFor, hasPreviewPhoto, previewEnabled, previewImageUrl, type PreviewInput } from "./resolve";
 export { referenceKind } from "./kind";
 export { PREVIEW_POOLS, ALL_PREVIEW_IDS } from "./pools";
 export { PREVIEW_OVERRIDES } from "./overrides";
+export { PRODUCT_VARIANTS, type PreviewVariant } from "./variants";
+export {
+  variantsFor,
+  hasVariants,
+  defaultVariant,
+  variantImageUrl,
+  variantGalleryUrls,
+  variantPrice,
+} from "./variant-resolve";

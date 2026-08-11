@@ -5,7 +5,8 @@ import Link from "next/link";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { formatOmr, label } from "@/lib/catalog";
+import { formatOmr, label, materialLabels } from "@/lib/catalog";
+import { variantsFor } from "@/lib/catalog-preview";
 import { ImageFrame } from "@/components/ui/image-frame";
 import { ProductImage } from "@/components/shop/product-image";
 import { Button, buttonClasses } from "@/components/ui/button";
@@ -60,6 +61,11 @@ export function CartView({
           const color = line.colorId
             ? line.product.colors.find((c) => c.id === line.colorId)
             : undefined;
+          // Display-only: the material/finish of the selected colour variant (local
+          // preview). Derived from the isolated variant data — no cart-storage change.
+          const variantMaterialId = line.colorId
+            ? variantsFor(line.product.slug).find((v) => v.colorId === line.colorId)?.materialId
+            : undefined;
           return (
             <li key={line.key} className="flex gap-4 py-5 first:pt-0">
               <Link
@@ -83,6 +89,9 @@ export function CartView({
                     {color && (
                       <p className="mt-0.5 text-sm text-muted">
                         {t.cart.colorLabel}: {label(color.label, locale)}
+                        {variantMaterialId && (
+                          <> · {t.product.finishLabel}: {label(materialLabels[variantMaterialId], locale)}</>
+                        )}
                       </p>
                     )}
                     <p className="mt-0.5 text-sm text-subtle tabular">

@@ -14,7 +14,6 @@ import {
   getCategory,
   getProductBySlug,
   getRelatedProducts,
-  formatOmr,
   label,
   materialLabels,
   roomLabels,
@@ -23,6 +22,8 @@ import {
 import { ProductGallery } from "@/features/shop/product-gallery";
 import { AddToCartPanel } from "@/features/shop/add-to-cart-panel";
 import { DimensionsDisplay } from "@/features/shop/dimensions-display";
+import { VariantProvider } from "@/features/shop/variant-context";
+import { VariantPrice } from "@/features/shop/variant-price";
 
 export function generateStaticParams() {
   return locales.flatMap((locale) =>
@@ -104,6 +105,7 @@ export default async function ProductPage({
           <span className="text-foreground">{name}</span>
         </nav>
 
+        <VariantProvider slug={product.slug}>
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {/* Gallery — sticky on desktop so the piece stays in view while reading specs */}
           <div className="lg:sticky lg:top-24 lg:self-start">
@@ -123,9 +125,7 @@ export default async function ProductPage({
             <h1 className="text-3xl sm:text-4xl">{name}</h1>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
-              <span className="text-2xl font-semibold text-foreground tabular">
-                {formatOmr(product.price, typedLocale)}
-              </span>
+              <VariantPrice basePrice={product.price} locale={typedLocale} />
               <Badge tone={availabilityTone[product.stockStatus]}>
                 {t.availability[product.stockStatus]}
               </Badge>
@@ -238,6 +238,7 @@ export default async function ProductPage({
             <p className="mt-6 text-xs text-subtle">{tp.demoNote}</p>
           </div>
         </div>
+        </VariantProvider>
 
         {/* Related */}
         {related.length > 0 && (

@@ -301,6 +301,19 @@
     animation: fade-up var(--duration-slow) var(--ease-out) both;
   }
 
+  /* Gentle cross-fade — used when a colour variant swaps the product image. */
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .animate-fade {
+    animation: fade var(--duration-base, 220ms) var(--ease-out) both;
+  }
+
   /* Scroll-reveal: elements start hidden and rise into place when observed.
      Only the "hidden" state dims — so anything without JS/observer stays visible. */
   [data-reveal="hidden"] {

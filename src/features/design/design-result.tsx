@@ -252,11 +252,16 @@ export function DesignResult({
                     input={input}
                     otherSlugs={itemSlugs.filter((_, idx) => idx !== i)}
                     t={tr}
+                    colorsTitle={tr.colourLabel}
                     locale={locale}
+                    colorId={item.colorId}
                     onReplace={(index, newSlug) =>
                       dispatch({ type: "REPLACE_ITEM", index, slug: newSlug })
                     }
                     onRemove={(index) => dispatch({ type: "REMOVE_ITEM", index })}
+                    onColorChange={(index, color) =>
+                      dispatch({ type: "SET_ITEM_COLOR", index, color })
+                    }
                   />
                 ))}
               </div>

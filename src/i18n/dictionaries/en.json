@@ -449,7 +449,10 @@
       "unitCm": "cm",
       "customizableBadge": "Customisable",
       "customizableNote": "This piece can be customised — full options arrive in a later phase.",
-      "customLink": "Request a custom version"
+      "customLink": "Request a custom version",
+      "finishLabel": "Finish",
+      "variantColours": "{count} colours",
+      "variantNote": "Demo preview — variant photos are representative real furniture references."
     },
     "cart": {
       "title": "Your cart",
@@ -768,7 +771,8 @@
       "empty": "No products matched this brief. Try a higher budget, a different style, or keeping fewer pieces.",
       "kept": "Kept",
       "customPrompt": "Want something bespoke instead?",
-      "customLink": "Request custom furniture"
+      "customLink": "Request custom furniture",
+      "colourLabel": "Colour"
     }
   },
   "auth": {

@@ -13,6 +13,8 @@ export interface ProductImageProps {
   variant?: number;
   /** Responsive `sizes` hint for real photography. */
   sizes?: string;
+  /** An explicit image URL to show (e.g. a selected colour variant), highest priority. */
+  overrideSrc?: string;
   className?: string;
 }
 
@@ -31,9 +33,11 @@ export function ProductImage({
   alt,
   variant = 0,
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
+  overrideSrc,
   className,
 }: ProductImageProps) {
   const src =
+    overrideSrc ??
     product.images?.[variant] ??
     product.images?.[0] ??
     previewImageFor({ slug: product.slug, category: product.category, subcategory: product.subcategory }, variant) ??

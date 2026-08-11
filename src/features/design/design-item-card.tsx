@@ -9,11 +9,15 @@ import {
   formatOmr,
   getProductBySlug,
   label,
+  colorSwatches,
   materialLabels,
   styleLabels,
+  type ColorId,
   type Localized,
 } from "@/lib/catalog";
 import { pickReplacement, type DesignInput, type ReplacementMode } from "@/lib/design";
+import { variantsFor, variantImageUrl } from "@/lib/catalog-preview";
+import { cn } from "@/lib/utils";
 import { ImageFrame } from "@/components/ui/image-frame";
 import { ProductImage } from "@/components/shop/product-image";
 
@@ -30,9 +34,12 @@ export function DesignItemCard({
   input,
   otherSlugs,
   t,
+  colorsTitle,
   locale,
+  colorId,
   onReplace,
   onRemove,
+  onColorChange,
 }: {
   slug: string;
   reason: Localized;
@@ -41,11 +48,20 @@ export function DesignItemCard({
   /** Slugs already in the design (excluded from replacement results). */
   otherSlugs: string[];
   t: Dictionary["design"]["result"];
+  /** "Colour" label (from the shop dictionary). */
+  colorsTitle: string;
   locale: Locale;
+  /** The item's current colour, if any. */
+  colorId?: ColorId;
   onReplace: (index: number, newSlug: string) => void;
   onRemove: (index: number) => void;
+  /** Change the item's colour variant (updates the design selection). */
+  onColorChange?: (index: number, colorId: ColorId) => void;
 }) {
   const product = getProductBySlug(slug);
+  // Local preview: colour variants for this piece (own image per colour).
+  const variants = variantsFor(slug);
+  const activeVariant = variants.find((v) => v.colorId === colorId) ?? variants[0] ?? null;
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [message, setMessage] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -102,7 +118,12 @@ export function DesignItemCard({
         className="w-24 shrink-0 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand sm:w-28"
       >
         <ImageFrame ratio="square" rounded="lg" className="border border-border-subtle">
-          <ProductImage product={product} alt={name} sizes="120px" />
+          <ProductImage
+            product={product}
+            alt={name}
+            overrideSrc={activeVariant ? variantImageUrl(activeVariant, 400) : undefined}
+            sizes="120px"
+          />
         </ImageFrame>
       </Link>
 
@@ -130,6 +151,35 @@ export function DesignItemCard({
             {label(reason, locale)}
           </span>
         </p>
+
+        {/* Colour variants (local preview) — switching updates the item + reference image */}
+        {variants.length > 1 && onColorChange && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-medium text-muted">{colorsTitle}:</span>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label={colorsTitle}>
+              {variants.map((v) => {
+                const selected = v.colorId === (activeVariant?.colorId);
+                const cl = label(colorSwatches[v.colorId].label, locale);
+                return (
+                  <button
+                    key={v.colorId}
+                    type="button"
+                    aria-pressed={selected}
+                    aria-label={cl}
+                    title={cl}
+                    onClick={() => onColorChange(index, v.colorId)}
+                    className={cn(
+                      "size-6 rounded-full ring-1 ring-inset ring-black/10 transition-transform hover:scale-110",
+                      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+                      selected && "ring-2 ring-brand ring-offset-2 ring-offset-elevated",
+                    )}
+                    style={{ backgroundColor: colorSwatches[v.colorId].hex }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Controls */}
         <div className="mt-auto flex items-center gap-2 pt-3">

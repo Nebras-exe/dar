@@ -28,15 +28,16 @@ export function previewEnabled(): boolean {
   return v !== "0" && v !== "false";
 }
 
-/** Build an optimised, cropped Unsplash CDN URL from a photo id. */
-function unsplashUrl(id: string, w: number, h: number): string {
-  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&crop=entropy&q=70&w=${w}&h=${h}`;
+/** Build an optimised, cropped image URL from an Unsplash id (or pass through a full URL). */
+export function previewImageUrl(idOrUrl: string, size = 800): string {
+  if (idOrUrl.startsWith("http")) return idOrUrl;
+  return `https://images.unsplash.com/photo-${idOrUrl}?auto=format&fit=crop&crop=entropy&q=70&w=${size}&h=${size}`;
 }
 
 /** Normalise an override entry (id | full-url | array) to a URL for a given angle. */
-function resolveOverride(entry: string | string[], variant: number, w: number, h: number): string {
+function resolveOverride(entry: string | string[], variant: number, size: number): string {
   const pick = Array.isArray(entry) ? entry[variant % entry.length] : entry;
-  return pick.startsWith("http") ? pick : unsplashUrl(pick, w, h);
+  return previewImageUrl(pick, size);
 }
 
 export interface PreviewInput extends PreviewKindInput {
@@ -52,7 +53,7 @@ export function previewImageFor(product: PreviewInput, variant = 0, size = 800):
   if (!previewEnabled()) return null;
 
   const override = PREVIEW_OVERRIDES[product.slug];
-  if (override) return resolveOverride(override, variant, size, size);
+  if (override) return resolveOverride(override, variant, size);
 
   const kind = referenceKind(product);
   if (!kind) return null; // no confident pool → generated art
@@ -61,7 +62,7 @@ export function previewImageFor(product: PreviewInput, variant = 0, size = 800):
   if (!pool || pool.length === 0) return null;
 
   const idx = (hash(product.slug) + variant) % pool.length;
-  return unsplashUrl(pool[idx], size, size);
+  return previewImageUrl(pool[idx], size);
 }
 
 /** True when a product would get a real photo (used by the /preview report + UI). */
