@@ -2063,5 +2063,14 @@
     },
     "empty": "Nothing needs your attention right now.",
     "readOnlyNote": "The assistant can guide you, but you always confirm actions yourself."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you're looking for doesn't exist or may have moved.",
+    "home": "Back to home",
+    "shop": "Browse the shop",
+    "errorTitle": "Something went wrong",
+    "errorBody": "An unexpected error occurred. Please try again.",
+    "retry": "Try again"
   }
 }

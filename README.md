@@ -16,7 +16,13 @@ Athathi turns a room photo, a budget, and a taste into a real, budget-aware furn
 - **AI Agent** — a tool-using assistant that adjusts the current design in natural language (EN + AR); the LLM orchestrates, deterministic code validates, the catalog is truth, the user approves the cart.
 - **Before/After visualization** — a design preview over the room, with a deterministic "stale" state; never claims exact scale/fit.
 - **Backend, auth & supplier marketplace** — a Supabase-ready schema + migrations + Row Level Security, an email/password auth foundation, a customer account, a public supplier marketplace, and a supplier dashboard with product CRUD.
-- **Custom furniture + RFQ** (`/custom`) — describe a piece → structured spec → matched suppliers → request for quotes → compare → accept (no payment yet).
+- **Custom furniture + RFQ** (`/custom`) — describe a piece → structured spec → matched suppliers → request for quotes → compare → accept.
+- **Orders, checkout & Demo Payment** — a unified checkout (catalog cart or accepted quote) → an immutable, supplier-grouped order → an honest **Demo Payment** (server-authoritative totals, no card fields; a certified gateway drops in without changing checkout).
+- **Fulfillment, manufacturing & QC** — per-supplier acceptance → preparing → ready; custom items continue through manufacturing milestones + a real **quality-check** checklist with a rework loop (append-only QC history).
+- **Delivery, installation & tracking** — demo delivery scheduling → assign a **Demo Delivery Team** → out-for-delivery → delivered → optional installation → handover → completed, with a customer-friendly per-supplier **tracking timeline** (no fake GPS).
+- **Notifications, memory & Agent follow-up** — a real **in-app notification center**; opt-in, editable **design memory** (stores only preferences, never card/payment data); and an Agent that surfaces the user's most useful **next action** from deterministic state.
+
+> **Competition build:** everything runs in **Demo Mode** with zero external services or credits. See **`docs/COMPETITION_DEMO.md`** for the 3-minute and 5-minute judge demo scripts, and **`docs/FINAL_PRODUCT_STATUS.md`** for the honest competition-ready / demo-only / future map.
 
 Everything runs **fully in Demo Mode with zero credentials** — see below.
 
@@ -127,12 +133,13 @@ Locale is in the URL (`/en`, `/ar`); every page mirrors in both.
 | --- | --- |
 | `/[locale]` | Home |
 | `/[locale]/shop` · `/shop/[category]` · `/product/[slug]` | Catalog, category, product detail |
-| `/[locale]/cart` | Local cart |
+| `/[locale]/cart` · `/checkout` | Local cart + unified checkout |
 | `/[locale]/design` | AI Room Designer + Agent + Before/After |
 | `/[locale]/custom` | Custom furniture + RFQ |
-| `/[locale]/login` · `/signup` · `/account` | Auth + customer account |
+| `/[locale]/orders/[id]` · `/orders/[id]/payment` | Order detail + tracking · Demo Payment |
+| `/[locale]/login` · `/signup` · `/account` | Auth + customer account (orders, memory, follow-up, notifications) |
 | `/[locale]/suppliers` · `/suppliers/[slug]` · `/suppliers/apply` | Public supplier marketplace + apply |
-| `/[locale]/supplier` | Supplier dashboard (products, inventory, RFQs) |
+| `/[locale]/supplier` | Supplier dashboard (products, inventory, orders, manufacturing, delivery, RFQs) |
 | `/api/vision/analyze` · `/api/agent` · `/api/visualization/generate` · `/api/auth/session` | Server routes (capability probes + processing) |
 
 ---

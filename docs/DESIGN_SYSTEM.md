@@ -243,3 +243,9 @@ Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`. No tiny t
 - **Memory offered, never imposed.** The AI Designer shows a **"Use your saved style?"** card (*Modern · Walnut · Beige*) with **Use saved preferences** / **Start fresh** — surfaced only with consent, applied only on click.
 - **A helpful next step.** Account → **Continue where you left off**: the single most useful next action (Pay for order / Choose a delivery time / Review your new quote / Continue your design) as a deep-linked row with a priority label, plus a "you always confirm actions yourself" note. Quiet when nothing needs attention.
 - **Honest channels.** In-app notifications are available; email / WhatsApp / push read **Not connected** — no toggle implies real delivery.
+
+## 26. Phase 14 additions (competition polish)
+
+- **The demo never breaks the spell.** A branded, bilingual **404** and **runtime error boundary** render *inside* the premium shell (logo mark, editorial heading, home/shop CTAs, calm "Try again") — a judge who mistypes a URL or hits a transient error sees Athathi, not an unstyled Next default. Any unmatched path under a locale is routed to it via a catch-all that still lets named routes win.
+- **Findable + shareable.** Production-safe metadata across both locales: per-locale canonical, bilingual `hreflang` (en/ar/x-default), and `og:url`/`og:site_name`/`og:locale:alternate` on absolute URLs — no unavailable feature is ever claimed.
+- **One product, not stitched phases.** The status-chip, card, timeline, and empty-state systems read consistently from shop → design → order → supplier → tracking; five status domains (order · payment · fulfillment · manufacturing · delivery) stay visually distinct but clearly part of one continuous journey.

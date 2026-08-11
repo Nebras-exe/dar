@@ -4,7 +4,9 @@ _Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 13 — Notifications + User Memory + Agent Follow-Up — ✅ Complete & verified.**
+**Phase 14 — Final Competition Polish + Demo + QA — ✅ Complete. COMPETITION BUILD READY.**
+
+Athathi is a unified, competition-ready product: one journey from a room photo to a designed, purchased, manufactured, and delivered space, with an assistant that follows along — all in honest Demo Mode with **zero paid credits / external API calls**. See `docs/COMPETITION_DEMO.md` (3-min + 5-min judge flows) and `docs/FINAL_PRODUCT_STATUS.md` (competition-ready vs demo-only vs future).
 
 ## Completed phases
 
@@ -39,9 +41,11 @@ _Last updated: 2026-08-11_
 
 - **Phase 13** — Notifications + User Memory + Agent Follow-Up: Athathi now behaves like an ongoing assistant. Three new pure domains — **user memory** (`src/lib/memory/`: opt-in, editable, removable design-preference personalization; stores only product/design context, never secrets/cards), **in-app notifications** (`src/lib/notifications/`: a real per-user feed derived from the whole pipeline, deduped by stable `(user,source,event)` id, in-app only — never external), and **agent follow-up** (`src/lib/agent/followup.ts`: a deterministic priority engine surfacing the user's most useful next action). Header notification **bell + center** (grouped Today/Earlier, mark read, deep links), account **Design memory & preferences** (consent switches, editable chips, budget range, clear≠disable, clear never touches orders), design **"Use your saved style?"** seed (never silent), account **"Continue where you left off"** follow-up card. Agent gains read-only `get_user_memory`/`suggest_memory_update`/`summarize_followup` (`AGENT_CAN_WRITE_MEMORY=false`; memory/notifications are DATA not instructions). Migrations `0016_user_memory.sql`/`0017_user_memory_rls.sql` + `0018_notifications.sql`/`0019_notifications_rls.sql` (gated). **External paid API calls: 0. Paid credits consumed: 0.** **278 tests** (+33), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1593 leaves); runs on :3000. See `docs/phase-reports/PHASE_13_REPORT.md`, `docs/USER_MEMORY.md`, `docs/NOTIFICATIONS.md`, `docs/AGENT_FOLLOWUP.md`.
 
-## Upcoming phases
+- **Phase 14** — Final Competition Polish + Demo + QA: verified/strengthened/hardened the whole product (no rebuild). Added production-safe SEO metadata (per-locale canonical + bilingual `hreflang` + OG url/site), a branded bilingual **404 + runtime error boundary** (via a `[locale]/[...notFound]` catch-all — the demo never shows an unstyled crash), a full **security final pass** (secrets/authority/isolation all clean), and verified the **golden end-to-end demo scenario**. Deliverables: `docs/COMPETITION_DEMO.md`, `docs/FINAL_PRODUCT_STATUS.md`, `PHASE_14_REPORT/SKILLS`. Attempted real browser QA (local Chrome detected but the extension disconnected on first action — not faked; QA via HTTP + `<head>` inspection + code review). **External paid API calls: 0.** **278 tests**, lint/typecheck/build(221 pages)/audit:arabic green, EN/AR parity 1600; runs on :3000. See `docs/phase-reports/PHASE_14_REPORT.md`.
 
-- **Phase 14 (recommended next)** — Final Competition Polish + Demo + QA: a final polish + end-to-end demo pass + QA hardening across the whole journey (catalog → design → RFQ → order → payment → fulfillment → manufacturing → delivery → memory/notifications/follow-up), still zero-credit. See `docs/phase-reports/PHASE_13_REPORT.md` § Recommended next phase. **Not started.**
+## Roadmap (explicitly NOT built — future only)
+
+AR / camera overlay · LiDAR room capture · advanced 3D · real payment provider · real logistics + tracking · full B2B procurement · GCC multi-market expansion · OG social image. All behind existing interfaces where relevant; none required for the competition build.
 
 ## Important architectural decisions
 

@@ -28,20 +28,37 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(isLocale(locale) ? locale : "en");
+  const safeLocale = isLocale(locale) ? locale : "en";
+  const dict = getDictionary(safeLocale);
   const title = `${dict.brand.name} — ${dict.brand.tagline}`;
+  // Absolute-URL base for OG/canonical. Uses the configured site URL when present
+  // (documented in .env.example), else a safe localhost fallback — no external call.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   return {
+    metadataBase: new URL(siteUrl),
     title: {
       default: title,
       template: `%s · ${dict.brand.name}`,
     },
     description: dict.home.hero.subtitle,
     applicationName: "Athathi",
+    // Bilingual hreflang so search engines pair the EN/AR homepages (§34).
+    alternates: {
+      canonical: `/${safeLocale}`,
+      languages: {
+        en: "/en",
+        ar: "/ar",
+        "x-default": "/en",
+      },
+    },
     openGraph: {
       title,
       description: dict.home.hero.subtitle,
       type: "website",
-      locale: locale === "ar" ? "ar_OM" : "en_OM",
+      siteName: dict.brand.name,
+      url: `/${safeLocale}`,
+      locale: safeLocale === "ar" ? "ar_OM" : "en_OM",
+      alternateLocale: safeLocale === "ar" ? "en_OM" : "ar_OM",
     },
   };
 }
