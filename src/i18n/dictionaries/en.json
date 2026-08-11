@@ -1893,5 +1893,175 @@
       "allCompleted": "All deliveries completed",
       "needsAttention": "A delivery needs attention"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "bell": "Notifications",
+    "unread": "{count} unread",
+    "none": "You're all caught up. New updates about your orders and designs appear here.",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "dismiss": "Dismiss",
+    "today": "Today",
+    "earlier": "Earlier",
+    "new": "New",
+    "viewAll": "View all notifications",
+    "open": "Open",
+    "demoNote": "In-app notifications only. Email, WhatsApp and push are not connected.",
+    "channels": {
+      "title": "Delivery channels",
+      "in_app": "In-app",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "push": "Push",
+      "available": "Available",
+      "notConnected": "Not connected"
+    },
+    "events": {
+      "quote_received": {
+        "title": "New quote received",
+        "body": "A supplier sent a quote for your custom request."
+      },
+      "quote_accepted": {
+        "title": "Quote accepted",
+        "body": "You accepted a quote. It's ready to order."
+      },
+      "payment_confirmed": {
+        "title": "Payment confirmed",
+        "body": "Payment for order {orderNumber} is confirmed."
+      },
+      "payment_failed": {
+        "title": "Payment needs attention",
+        "body": "Payment for order {orderNumber} didn't go through."
+      },
+      "supplier_accepted": {
+        "title": "Supplier accepted your order",
+        "body": "A supplier accepted their part of order {orderNumber}."
+      },
+      "supplier_declined": {
+        "title": "A supplier can't fulfil part of your order",
+        "body": "Please review order {orderNumber}."
+      },
+      "preparing_started": {
+        "title": "Your order is being prepared",
+        "body": "A supplier started preparing order {orderNumber}."
+      },
+      "ready_for_next_stage": {
+        "title": "Part of your order is ready",
+        "body": "An item in order {orderNumber} is ready for the next stage."
+      },
+      "manufacturing_started": {
+        "title": "Manufacturing started",
+        "body": "Your custom piece in order {orderNumber} is now in production."
+      },
+      "quality_review": {
+        "title": "Quality review in progress",
+        "body": "Your custom piece in order {orderNumber} is being quality checked."
+      },
+      "manufacturing_ready": {
+        "title": "Your custom piece is ready",
+        "body": "An item in order {orderNumber} has passed quality check."
+      },
+      "delivery_scheduled": {
+        "title": "Delivery scheduled",
+        "body": "Delivery for order {orderNumber} is scheduled."
+      },
+      "out_for_delivery": {
+        "title": "On the way",
+        "body": "An item from order {orderNumber} is out for delivery."
+      },
+      "delivered": {
+        "title": "Delivered",
+        "body": "An item from order {orderNumber} was delivered."
+      },
+      "delivery_reschedule": {
+        "title": "Delivery needs a new time",
+        "body": "We're arranging a new delivery time for order {orderNumber}."
+      },
+      "installation_completed": {
+        "title": "Installation completed",
+        "body": "Installation for order {orderNumber} is complete."
+      },
+      "order_completed": {
+        "title": "Order completed",
+        "body": "Order {orderNumber} is complete. Thank you!"
+      }
+    }
+  },
+  "memory": {
+    "title": "Design memory & preferences",
+    "subtitle": "Athathi can remember your design preferences to improve future suggestions. You control what's saved and can delete it anytime.",
+    "enable": "Remember my design preferences",
+    "enableHint": "Opt in to save your preferred styles, colours, materials and budget on this browser.",
+    "useInDesign": "Use my saved preferences in new designs",
+    "useInDesignHint": "Let Athathi and the assistant suggest your saved style when you start a room.",
+    "enabled": "Memory is on",
+    "disabled": "Memory is off",
+    "localNote": "Saved on this browser only in Demo Mode. Nothing is sent anywhere.",
+    "sections": {
+      "styles": "Preferred styles",
+      "colors": "Preferred colours",
+      "materials": "Preferred materials",
+      "budget": "Typical budget",
+      "rooms": "Saved rooms"
+    },
+    "empty": {
+      "styles": "No saved styles yet.",
+      "colors": "No saved colours yet.",
+      "materials": "No saved materials yet.",
+      "budget": "No budget range saved yet.",
+      "rooms": "No saved rooms yet."
+    },
+    "add": "Add",
+    "remove": "Remove",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "budgetRange": "{min} - {max} OMR",
+    "budgetMin": "Typical minimum (OMR)",
+    "budgetMax": "Typical maximum (OMR)",
+    "clearAll": "Clear all saved memory",
+    "clearAllConfirm": "Clear all saved preferences and rooms? This won't affect your orders, payments or requests.",
+    "clearAllConfirmYes": "Clear memory",
+    "disableConfirm": "Turn off memory? Your saved preferences stay but won't be used until you turn it back on.",
+    "disable": "Turn off memory",
+    "sourceLabels": {
+      "explicit_user_choice": "You chose this",
+      "style_onboarding": "From style setup",
+      "approved_design": "From a design you liked",
+      "completed_purchase": "From a purchase",
+      "room_project": "From a room project"
+    },
+    "safety": "We never store passwords, payment or card details in memory - only design preferences.",
+    "sourceFooter": "Source"
+  },
+  "designMemory": {
+    "useSavedTitle": "Use your saved style?",
+    "useSavedBody": "Your saved style leans {summary}. Use it for this room?",
+    "useSaved": "Use saved preferences",
+    "editForRoom": "Edit for this room",
+    "ignore": "Start fresh",
+    "applied": "Applied your saved preferences.",
+    "separator": " · "
+  },
+  "followup": {
+    "title": "Continue where you left off",
+    "greetingMemory": "Your saved style leans {summary}. Want me to use it for a new room?",
+    "nextTitle": "Suggested next step",
+    "actions": {
+      "pay_order": "Pay for order {orderNumber}",
+      "review_quote": "Review your new quote",
+      "choose_delivery_slot": "Choose a delivery time",
+      "reschedule_delivery": "Arrange a new delivery time",
+      "view_order": "View order {orderNumber}",
+      "continue_design": "Continue your design"
+    },
+    "priority": {
+      "high": "Needs attention",
+      "medium": "Suggested",
+      "low": "When you're ready"
+    },
+    "empty": "Nothing needs your attention right now.",
+    "readOnlyNote": "The assistant can guide you, but you always confirm actions yourself."
   }
 }

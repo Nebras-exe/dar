@@ -28,6 +28,7 @@ import {
 } from "./steps";
 import { DemoAnalysis } from "./demo-analysis";
 import { DesignResult } from "./design-result";
+import { MemorySeedCard } from "./memory-seed";
 import { RoomImageProvider } from "./room-image-context";
 
 /**
@@ -155,6 +156,14 @@ function DesignWizardInner({
           <h1 className="text-3xl sm:text-4xl">{t.title}</h1>
           <p className="mt-3 text-lg text-muted">{t.subtitle}</p>
         </div>
+
+        {/* Saved-style offer (Phase 13) — surfaced with consent, never applied silently. */}
+        {state.step <= 3 && (
+          <MemorySeedCard
+            t={dict.designMemory}
+            onApplyStyle={(style) => dispatch({ type: "SET_PRIMARY_STYLE", style })}
+          />
+        )}
 
         {/* Progress */}
         <div className="mb-8">

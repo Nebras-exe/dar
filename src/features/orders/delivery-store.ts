@@ -171,6 +171,11 @@ export function useOrderDeliveries(order: Order | null) {
   return { deliveries, hydrated, chooseSlot };
 }
 
+/** Plain read of an order's deliveries (non-hook; used by the notification feed). */
+export function getOrderDeliveries(orderId: string): Delivery[] {
+  return store.get().filter((d) => d.orderId === orderId);
+}
+
 /** Deterministic order-level delivery summary for the account cards. Read-only. */
 export function useDeliverySummary(order: Order | null): { summary: DeliverySummary; hydrated: boolean } {
   const { deliveries, hydrated } = useOrderDeliveries(order);

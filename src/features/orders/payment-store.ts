@@ -108,6 +108,12 @@ export function usePayment(order: Order | null) {
   return { intent, hydrated, start, verify, retry };
 }
 
+/** Plain read of the payment status for an order (non-hook; used by the notification feed). */
+export function getPaymentStatus(orderId: string): PaymentStatus {
+  const intent = findReusableIntent(store.get(), orderId);
+  return intent?.status ?? "not_started";
+}
+
 /** Read the payment status for an order (used by order/account/supplier views). */
 export function usePaymentStatus(orderId: string | null): { status: PaymentStatus; intent: PaymentIntent | null; hydrated: boolean } {
   const all = React.useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);

@@ -187,11 +187,28 @@ have no update/delete policy (append-only). `completed` is terminal — a real
 courier/GPS provider is a future phase (§16/§28). Each group delivers independently
 (§9).
 
+## Phase 13 tables (`0016`/`0017` memory, `0018`/`0019` notifications)
+
+Personalization + notifications (full detail in `docs/USER_MEMORY.md` +
+`docs/NOTIFICATIONS.md`). **Memory** (`0016_user_memory.sql`): `memory_consent`
+(opt-in switches), `user_memory_preferences` (typed style/color/material,
+`unique(user, category, value)` dedupe, provenance), `user_memory_budget` (a RANGE,
+`numeric(12,3)` OMR), `user_room_memories` (user-supplied dimensions only). Stores ONLY
+design context — never passwords/cards/tokens/secrets (§5). RLS (`0017`): owner-only on
+every table; **no supplier or public policy** (default deny) — a supplier can never read
+a customer's private memory. **Notifications** (`0018_notifications.sql`): `notifications`
+(`source_type`/`source_id`/`event_key`/`category`/`priority`/`params` jsonb/`link` jsonb/
+`read_at`) with `unique(user_id, source_type, source_id, event_key)` for dedupe (§25) —
+a client can't forge or duplicate a high-priority system notification. RLS (`0019`):
+owner-only select/update/delete/insert; no cross-user access. All gated (no live Supabase);
+the demo `localStorage` stores are the running mode.
+
 ## Future tables (documented, intentionally NOT built)
 
 `refunds` (a documented, auditable transition off a `paid` intent), plus real
-courier/logistics provider tables, driver assignment, and GPS/delivery-proof tracking
-(a future phase). The current schema is designed to extend cleanly.
+courier/logistics provider tables, driver assignment, GPS/delivery-proof tracking, and
+real notification-channel delivery logs (email/WhatsApp/push) — all future phases. The
+current schema is designed to extend cleanly.
 
 ## Secrets (§30/§47)
 

@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { AccountLists, AccountPlaceholders } from "@/features/account/account-lists";
 import { AccountCustomRequests } from "@/features/custom/account-requests";
 import { AccountOrders } from "@/features/orders/order-views";
+import { MemorySettings } from "@/features/account/memory-settings";
+import { FollowUpCard } from "@/features/account/followup-card";
 
 export async function generateMetadata({
   params,
@@ -59,7 +61,9 @@ export default async function AccountPage({
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_18rem]">
           <div className="flex flex-col gap-10">
+            <FollowUpCard t={dict.followup} locale={locale} customerId={user.id} />
             <AccountOrders t={dict.orders} tPay={dict.payment} tFul={dict.fulfillment} tDel={dict.delivery} locale={locale} customerId={user.id} />
+            <MemorySettings t={dict.memory} locale={locale} userId={user.id} />
             <AccountLists t={t} tRoom={dict.design.room.types} locale={locale} />
             <AccountCustomRequests t={dict.custom} locale={locale} customerId={user.id} />
             <AccountPlaceholders t={t} />

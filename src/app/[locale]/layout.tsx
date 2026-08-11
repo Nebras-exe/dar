@@ -93,6 +93,7 @@ export default async function LocaleLayout({
               login: dict.nav.login,
               supplierDashboard: dict.nav.supplierDashboard,
             }}
+            tNotifications={dict.notifications}
           />
           <main id="main" className="flex-1">
             {children}

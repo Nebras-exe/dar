@@ -58,6 +58,7 @@ import { paymentMode } from "@/lib/payments/providers";
 import { AGENT_CAN_MANAGE_FULFILLMENT, type FulfillmentStatus } from "@/lib/fulfillment";
 import { AGENT_CAN_MANAGE_MANUFACTURING, type ManufacturingStatus } from "@/lib/manufacturing";
 import { AGENT_CAN_MANAGE_DELIVERY, type DeliveryStatus } from "@/lib/delivery";
+import { AGENT_CAN_WRITE_MEMORY, isValidMemoryValue, isMemoryCategory, type MemoryContext } from "@/lib/memory";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -435,6 +436,74 @@ function summarizeDeliveryTool(args: Record<string, unknown>) {
   };
 }
 
+// ── Phase 13: user memory (READ-ONLY) + suggestion (never persists) ───────────
+/**
+ * Read the user's SAFE, approved memory context (§15/§17). The Agent may read
+ * approved preferences to improve recommendations, but the context contains ONLY
+ * preference values — never payment info, secrets, or private data. Returns a
+ * disabled context when the client passes no consented memory. This tool NEVER
+ * writes memory (§16) — `agentCanWrite` is always false.
+ */
+function getUserMemory(args: Record<string, unknown>) {
+  const ctx = (args.memory ?? null) as MemoryContext | null;
+  const enabled = Boolean(ctx?.enabled && ctx?.useInDesign);
+  return {
+    enabled,
+    preferredStyles: enabled ? ctx!.preferredStyles ?? [] : [],
+    preferredColors: enabled ? ctx!.preferredColors ?? [] : [],
+    preferredMaterials: enabled ? ctx!.preferredMaterials ?? [] : [],
+    typicalBudget: enabled ? ctx!.typicalBudget ?? null : null,
+    agentCanWrite: AGENT_CAN_WRITE_MEMORY, // always false — read-only (§16)
+    note: "read-only",
+  };
+}
+
+/**
+ * Propose saving a preference (§8/§17). This ONLY validates + echoes a suggestion;
+ * it NEVER persists. Deterministic app code saves it later, and only after the
+ * user explicitly approves. An invalid (non-taxonomy) value is rejected so the
+ * Agent can't propose an invented "fact".
+ */
+function suggestMemoryUpdate(args: Record<string, unknown>) {
+  const category = args.category;
+  const value = args.value;
+  if (!isMemoryCategory(category) || !isValidMemoryValue(category, value)) {
+    return { ok: false as const, reason: "invalid-value" };
+  }
+  return {
+    ok: true as const,
+    suggestion: { category, value: value as string, reasonKey: typeof args.reasonKey === "string" ? args.reasonKey : "suggest.generic" },
+    requiresApproval: true as const, // never auto-saved (§8/§16)
+    persisted: false as const,
+  };
+}
+
+// ── Phase 13: summarize_followup (READ-ONLY next actions) ─────────────────────
+/**
+ * Summarize the user's most useful next actions from deterministic state (§30–§34).
+ * The Agent may surface these ("review your new quote", "choose a delivery slot"),
+ * but it may never perform an operational write — it respects every existing
+ * boundary (no pay / accept / QC / mark delivered / write memory). Takes a
+ * pre-built, user-scoped follow-up summary from the client; never invents progress.
+ */
+function summarizeFollowup(args: Record<string, unknown>) {
+  const actions = Array.isArray(args.actions) ? args.actions : [];
+  const ALLOWED = new Set(["pay_order", "review_quote", "choose_delivery_slot", "reschedule_delivery", "view_order", "continue_design"]);
+  const PRI = new Set(["high", "medium", "low"]);
+  const safe = actions
+    .map((a) => (a && typeof a === "object" ? a as Record<string, unknown> : null))
+    .filter((a): a is Record<string, unknown> => a !== null && ALLOWED.has(String(a.kind)) && PRI.has(String(a.priority)))
+    .slice(0, 8)
+    .map((a) => ({ kind: String(a.kind), priority: String(a.priority) }));
+  return {
+    actions: safe,
+    top: safe[0] ?? null,
+    // The Agent recommends; it never executes these (authorization unchanged).
+    canExecute: false as const,
+    note: "read-only",
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -620,6 +689,21 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "summarize_delivery",
     description: "Read-only: summarize an order's per-supplier delivery + installation progress and the customer-safe next step (e.g. scheduled window). The Agent can NEVER schedule, change the address, assign a driver, mark out-for-delivery/delivered, complete installation, or confirm handover.",
     run: summarizeDeliveryTool,
+  },
+  get_user_memory: {
+    name: "get_user_memory",
+    description: "Read-only: read the user's approved design preferences (styles/colours/materials/typical budget) to improve recommendations. Returns nothing unless the user enabled memory + use-in-design. The Agent can NEVER write memory.",
+    run: getUserMemory,
+  },
+  suggest_memory_update: {
+    name: "suggest_memory_update",
+    description: "Propose saving a preference (validates the value; never persists). Persistence requires the user's explicit approval in the app — the Agent cannot save memory itself.",
+    run: suggestMemoryUpdate,
+  },
+  summarize_followup: {
+    name: "summarize_followup",
+    description: "Read-only: surface the user's most useful next actions (review quote, pay order, choose delivery slot, view order, continue design) from deterministic state. The Agent recommends only — it never performs pay/accept/QC/deliver actions.",
+    run: summarizeFollowup,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

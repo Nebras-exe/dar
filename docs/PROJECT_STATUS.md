@@ -4,7 +4,7 @@ _Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 12 — Delivery + Installation + Tracking — ✅ Complete & verified.**
+**Phase 13 — Notifications + User Memory + Agent Follow-Up — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -37,9 +37,11 @@ _Last updated: 2026-08-11_
 
 - **Phase 12** — Delivery + Installation + Tracking: the operational journey finishes — a ready supplier group (custom `ready_for_delivery` or catalog `ready_for_next_stage`) flows through scheduling → assignment → out-for-delivery → delivered → optional installation → handover → **`completed`** (`src/lib/delivery/`: types/status-machine/slots/delivery/authorization/notifications). A FIFTH separate domain (order · payment · fulfillment · manufacturing · delivery). Each group delivers independently. Deterministic delivery + installation state machines (failure/reschedule loop; completion rule gates `delivered → completed` on required installation), append-only event + attempt history (failed attempts preserved), an IMMUTABLE delivery-address snapshot, owner/supplier authorization mirrored in RLS, supplier **Delivery** dashboard tab (stage board + detail + failure/installation/handover), a strong customer **Delivery & tracking** section + demo slot picker (customer-friendly language, NO fake GPS/map), read-only Agent (`summarize_delivery`), Demo/Log notifier + labelled Demo Delivery Team. Migrations `0014_delivery.sql` (+ eligibility insert trigger) + `0015_delivery_rls.sql` (gated). **External paid API calls: 0. Paid credits consumed: 0.** **245 tests** (+24), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1479 leaves); runs on :3000. See `docs/phase-reports/PHASE_12_REPORT.md`, `docs/DELIVERY_INSTALLATION_WORKFLOW.md`.
 
+- **Phase 13** — Notifications + User Memory + Agent Follow-Up: Athathi now behaves like an ongoing assistant. Three new pure domains — **user memory** (`src/lib/memory/`: opt-in, editable, removable design-preference personalization; stores only product/design context, never secrets/cards), **in-app notifications** (`src/lib/notifications/`: a real per-user feed derived from the whole pipeline, deduped by stable `(user,source,event)` id, in-app only — never external), and **agent follow-up** (`src/lib/agent/followup.ts`: a deterministic priority engine surfacing the user's most useful next action). Header notification **bell + center** (grouped Today/Earlier, mark read, deep links), account **Design memory & preferences** (consent switches, editable chips, budget range, clear≠disable, clear never touches orders), design **"Use your saved style?"** seed (never silent), account **"Continue where you left off"** follow-up card. Agent gains read-only `get_user_memory`/`suggest_memory_update`/`summarize_followup` (`AGENT_CAN_WRITE_MEMORY=false`; memory/notifications are DATA not instructions). Migrations `0016_user_memory.sql`/`0017_user_memory_rls.sql` + `0018_notifications.sql`/`0019_notifications_rls.sql` (gated). **External paid API calls: 0. Paid credits consumed: 0.** **278 tests** (+33), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1593 leaves); runs on :3000. See `docs/phase-reports/PHASE_13_REPORT.md`, `docs/USER_MEMORY.md`, `docs/NOTIFICATIONS.md`, `docs/AGENT_FOLLOWUP.md`.
+
 ## Upcoming phases
 
-- **Phase 13 (recommended next)** — Notifications + User Memory + Agent Follow-up: wire the fulfillment/manufacturing/delivery Demo/Log notification abstractions to a real in-app notification centre + user memory + agent follow-up, behind the same interfaces, still zero-credit until real providers are supplied. See `docs/phase-reports/PHASE_12_REPORT.md` § Recommended next phase. **Not started.**
+- **Phase 14 (recommended next)** — Final Competition Polish + Demo + QA: a final polish + end-to-end demo pass + QA hardening across the whole journey (catalog → design → RFQ → order → payment → fulfillment → manufacturing → delivery → memory/notifications/follow-up), still zero-credit. See `docs/phase-reports/PHASE_13_REPORT.md` § Recommended next phase. **Not started.**
 
 ## Important architectural decisions
 

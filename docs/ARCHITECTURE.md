@@ -1,6 +1,6 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 12 (Delivery + Installation)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), the manufacturing layer (Phase 11B, §5.10), the delivery layer (Phase 12, §5.11), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 13 (Notifications + Memory + Agent Follow-Up)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), the manufacturing layer (Phase 11B, §5.10), the delivery layer (Phase 12, §5.11), the personalization + notifications + follow-up layer (Phase 13, §5.12), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
 **Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
@@ -357,6 +357,27 @@ supabase/migrations/{0014_delivery,0015_delivery_rls}.sql
 - **Authorization (§33).** Customer reads own + sets only the slot; supplier reads/manages own supplier only (incl. the customer phone/address snapshot); customer never writes status; `AGENT_CAN_MANAGE_DELIVERY=false`; `summarize_delivery` is read-only. Mirrored in `0015` RLS.
 - **No fake GPS (§28).** Tracking is status + timeline only; assignment is a labelled Demo Delivery Team; notifications are Demo/Log (`delivered:false`) — ZERO external.
 - **Mode.** Demo: a labelled `localStorage` store (`athathi.deliveries.v1`, `isDemo`). Supabase: `deliveries`/`delivery_events`/`delivery_attempts`/`installations`/`installation_events` (RLS-scoped). Real courier/GPS is a future phase.
+
+### 5.12 Personalization + notifications + follow-up (Phase 13)
+
+Three pure domains make Athathi an ongoing assistant. Full detail in
+`docs/USER_MEMORY.md`, `docs/NOTIFICATIONS.md`, `docs/AGENT_FOLLOWUP.md`.
+
+```
+src/lib/memory/         types.ts memory.ts validation.ts authorization.ts index.ts memory.test.ts
+src/lib/notifications/  types.ts mapping.ts notifications.ts authorization.ts adapter.ts index.ts notifications.test.ts
+src/lib/agent/followup.ts (+ followup.test.ts)  new agent tools in tools.ts
+src/features/account/  memory-store.ts memory-settings.tsx followup-card.tsx
+src/features/notifications/  notification-store.ts notification-center.tsx
+src/features/design/  memory-seed.tsx
+supabase/migrations/{0016_user_memory,0017_user_memory_rls,0018_notifications,0019_notifications_rls}.sql
+```
+
+- **Memory (opt-in, §4).** Preferences (styles/colours/materials — real taxonomy values), a budget RANGE, and saved rooms — stored ONLY with consent, with provenance + confidence; a suggested preference is never auto-persisted (§8/§9). Stores no secrets/cards/tokens/raw reasoning (§5). `buildMemoryContext` exposes a SAFE, approved-values-only context to the design flow + Agent. Clear ≠ disable; clearing never touches orders (§37/§38).
+- **Notifications (in-app only, §20).** Domain events → a per-user feed, deduped by a stable `(user, source, event)` id (the id IS the dedupe key, §25), with structured localization payloads (§26), priority + category mapping, grouping, and read state. The in-app sink is the only connected channel; email/whatsapp/push are "not connected" (§29). No external send.
+- **Agent follow-up (§30).** `buildFollowUpContext` turns per-user order/quote/design state into a deterministic priority list of customer-safe next actions; never invents progress. Agent tools `get_user_memory`/`suggest_memory_update`/`summarize_followup` are READ-ONLY; the Agent can never write memory or perform operational actions, and memory/notifications are treated as DATA not instructions (§40).
+- **Authorization (§11/§27/§39).** Owner-only everywhere; suppliers/public have no access to private memory; cross-user reads/forged sources are rejected. Mirrored in `0017`/`0019` RLS.
+- **Mode.** Demo: labelled `localStorage` stores (`athathi.memory.v1` per user, `athathi.notifications.v1`). Supabase: memory tables + `notifications` (RLS-scoped) gated.
 
 ## 6. AI agent architecture (direction)
 

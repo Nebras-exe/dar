@@ -11,6 +11,8 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart/cart-context";
 import { cn } from "@/lib/utils";
+import type { Dictionary } from "@/i18n/dictionaries";
+import { NotificationBell } from "@/features/notifications/notification-center";
 
 export interface HeaderLabels {
   home: string;
@@ -33,6 +35,7 @@ export interface HeaderLabels {
 export interface HeaderProps {
   locale: Locale;
   labels: HeaderLabels;
+  tNotifications: Dictionary["notifications"];
 }
 
 /**
@@ -40,22 +43,25 @@ export interface HeaderProps {
  * links to the cart and shows a live item count. Design My Space still points
  * to the Phase 02 showcase until its own phase.
  */
-export function Header({ locale, labels }: HeaderProps) {
+export function Header({ locale, labels, tNotifications }: HeaderProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [signedIn, setSignedIn] = React.useState(false);
   const [isSupplier, setIsSupplier] = React.useState(false);
+  const [userId, setUserId] = React.useState<string | null>(null);
   const home = `/${locale}`;
   const cart = useCart();
 
-  // Reflect auth state without making pages dynamic — booleans only, no secrets.
+  // Reflect auth state without making pages dynamic — no secrets. `userId` is the
+  // user's OWN id, used to scope their own in-app notifications (§23).
   React.useEffect(() => {
     let alive = true;
     fetch("/api/auth/session")
       .then((r) => r.json())
-      .then((d: { signedIn?: boolean; isSupplier?: boolean }) => {
+      .then((d: { signedIn?: boolean; isSupplier?: boolean; userId?: string | null }) => {
         if (!alive) return;
         setSignedIn(Boolean(d.signedIn));
         setIsSupplier(Boolean(d.isSupplier));
+        setUserId(d.userId ?? null);
       })
       .catch(() => {});
     return () => {
@@ -129,6 +135,9 @@ export function Header({ locale, labels }: HeaderProps) {
             >
               <Search className="size-5" strokeWidth={1.75} />
             </Link>
+            {signedIn && userId && (
+              <NotificationBell userId={userId} t={tNotifications} locale={locale} />
+            )}
             <Link
               href={accountHref}
               aria-label={signedIn ? labels.account : labels.login}
