@@ -56,6 +56,7 @@ import { buildCartDraft } from "@/lib/orders";
 import { isPaid, AGENT_CAN_PAY, type PaymentStatus } from "@/lib/payments";
 import { paymentMode } from "@/lib/payments/providers";
 import { AGENT_CAN_MANAGE_FULFILLMENT, type FulfillmentStatus } from "@/lib/fulfillment";
+import { AGENT_CAN_MANAGE_MANUFACTURING, type ManufacturingStatus } from "@/lib/manufacturing";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -347,6 +348,48 @@ function summarizeFulfillmentTool(args: Record<string, unknown>) {
   };
 }
 
+// ── Phase 11B: summarize_manufacturing (READ-ONLY; the Agent never manages) ───
+/**
+ * Summarize a custom order's manufacturing/QC progress and explain the next step,
+ * in customer-safe terms. The Agent is strictly READ-ONLY on manufacturing (§23):
+ * it may summarize (e.g. "your custom sofa has completed manufacturing and is
+ * undergoing quality review"), but it can NEVER start/complete manufacturing, pass
+ * or fail QC, create a QC result, or mark ready for delivery — those are the
+ * supplier's explicit actions. Takes the client's own manufacturing statuses.
+ */
+const MANUFACTURING_STATUSES: readonly ManufacturingStatus[] = [
+  "not_started", "manufacturing", "manufacturing_completed", "quality_check",
+  "qc_passed", "qc_failed", "rework", "ready_for_delivery",
+];
+function summarizeManufacturingTool(args: Record<string, unknown>) {
+  const raw = Array.isArray(args.statuses) ? args.statuses : (args.status !== undefined ? [args.status] : []);
+  const statuses = raw.filter((s): s is ManufacturingStatus =>
+    typeof s === "string" && (MANUFACTURING_STATUSES as readonly string[]).includes(s));
+  const counts = { notStarted: 0, inProduction: 0, inQualityReview: 0, readyForDelivery: 0, completed: 0 };
+  for (const s of statuses) {
+    if (s === "not_started") counts.notStarted++;
+    else if (s === "manufacturing" || s === "rework") counts.inProduction++;
+    else if (s === "quality_check" || s === "qc_failed") counts.inQualityReview++;
+    else if (s === "ready_for_delivery") counts.readyForDelivery++;
+    else if (s === "manufacturing_completed" || s === "qc_passed") counts.completed++;
+  }
+  const total = statuses.length;
+  const allReady = total > 0 && counts.readyForDelivery === total;
+  // Customer-safe next-step hint — never exposes "failed"/"rework" (calm wording).
+  const nextStep =
+    total === 0 ? "no-custom-manufacturing"
+    : allReady ? "ready-for-delivery"
+    : counts.inQualityReview > 0 ? "quality-review-in-progress"
+    : counts.inProduction > 0 ? "in-production"
+    : counts.notStarted > 0 ? "manufacturing-to-begin"
+    : "in-progress";
+  return {
+    total, counts, allReady, nextStep,
+    agentCanManage: AGENT_CAN_MANAGE_MANUFACTURING, // always false — read-only
+    note: "read-only",
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -522,6 +565,11 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "summarize_fulfillment",
     description: "Read-only: summarize an order's per-supplier fulfillment progress and the next step. The Agent can NEVER accept, decline, mark preparing, or mark ready — the supplier does that in the UI.",
     run: summarizeFulfillmentTool,
+  },
+  summarize_manufacturing: {
+    name: "summarize_manufacturing",
+    description: "Read-only: summarize a custom order's manufacturing + quality-check progress and the customer-safe next step. The Agent can NEVER start/complete manufacturing, pass/fail QC, or mark ready for delivery — the supplier does that in the UI.",
+    run: summarizeManufacturingTool,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

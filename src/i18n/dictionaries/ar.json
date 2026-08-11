@@ -890,7 +890,8 @@
       "orders": "الطلبات",
       "requests": "الطلبات",
       "analytics": "التحليلات",
-      "settings": "الإعدادات"
+      "settings": "الإعدادات",
+      "manufacturing": "التصنيع"
     },
     "overview": {
       "activeProducts": "المنتجات النشطة",
@@ -1584,6 +1585,152 @@
       "declinedCount": "{count} مرفوض",
       "inProgress": "قيد التحضير مع المورّدين",
       "label": "التنفيذ"
+    }
+  },
+  "manufacturing": {
+    "demoNote": "يعمل التصنيع في الوضع التجريبي — تُسجَّل إشعارات المورّد والعميل ولا تُرسَل فعليًا.",
+    "navLabel": "التصنيع",
+    "status": {
+      "not_started": "جاهز للتصنيع",
+      "manufacturing": "قيد الإنتاج",
+      "manufacturing_completed": "اكتمل التصنيع",
+      "quality_check": "فحص الجودة",
+      "qc_passed": "اجتاز الجودة",
+      "qc_failed": "تم اكتشاف مشكلة جودة",
+      "rework": "إعادة العمل",
+      "ready_for_delivery": "جاهز للتسليم"
+    },
+    "groups": {
+      "toStart": "للبدء",
+      "inProduction": "قيد الإنتاج",
+      "qualityCheck": "فحص الجودة",
+      "needsRework": "يحتاج إعادة عمل",
+      "ready": "جاهز للتسليم"
+    },
+    "card": {
+      "customItem": "أثاث مخصّص",
+      "qty": "الكمية",
+      "estimate": "تقدير {count} يوم",
+      "stage": "المرحلة",
+      "updated": "آخر تحديث",
+      "viewDetail": "فتح المهمة",
+      "spec": "المواصفات",
+      "empty": "لا توجد مهام تصنيع بعد. تظهر هنا الطلبات المخصّصة التي حُدّدت جاهزة للمرحلة التالية."
+    },
+    "actions": {
+      "start_manufacturing": "بدء التصنيع",
+      "complete_manufacturing": "اكتمال التصنيع",
+      "submit_for_qc": "إرسال لفحص الجودة",
+      "qc_pass": "اجتياز",
+      "qc_fail": "توجد مشكلة",
+      "start_rework": "بدء إعادة العمل",
+      "complete_rework": "إكمال إعادة العمل",
+      "mark_ready_for_delivery": "تحديد جاهز للتسليم"
+    },
+    "milestones": {
+      "title": "مراحل الإنتاج",
+      "hint": "علّم المراحل عند إكمالها. اختياري — لتتبّعك الخاص.",
+      "progress": "{done} من {total} مراحل",
+      "materials_prepared": "تجهيز المواد",
+      "frame": "الهيكل / البنية",
+      "assembly": "التجميع",
+      "upholstery_finish": "التنجيد / التشطيب",
+      "final_finishing": "اللمسات النهائية"
+    },
+    "qc": {
+      "title": "فحص الجودة",
+      "checklistTitle": "قائمة الفحص",
+      "checklistHint": "أكّد كل معيار لاجتياز الفحص. إذا كان هناك خطأ، سجّل مشكلة بدلاً من ذلك.",
+      "allRequired": "يجب تأكيد جميع المعايير للاجتياز.",
+      "criteria": {
+        "dimensions_match": "الأبعاد مطابقة للمواصفات",
+        "correct_material": "الخامة صحيحة",
+        "correct_colour": "اللون صحيح",
+        "correct_finish": "التشطيب صحيح",
+        "construction_ok": "البناء / التجميع مقبول",
+        "no_damage": "لا يوجد تلف ظاهر",
+        "components_included": "جميع المكوّنات المطلوبة موجودة",
+        "customization_matches": "التخصيص مطابق للمواصفات المعتمدة"
+      },
+      "pass": "اجتياز فحص الجودة",
+      "issueFound": "تسجيل مشكلة والرفض",
+      "issuesTitle": "مشكلات الجودة",
+      "addIssue": "إضافة مشكلة",
+      "removeIssue": "إزالة",
+      "category": "الفئة",
+      "severity": "الخطورة",
+      "description": "الوصف",
+      "descriptionPlaceholder": "ما الخطأ وما الذي يجب تغييره (داخلي — لا يراه العميل).",
+      "minor": "بسيطة",
+      "major": "كبيرة",
+      "categories": {
+        "dimensions": "الأبعاد",
+        "material": "الخامة",
+        "colour": "اللون",
+        "finish": "التشطيب",
+        "construction": "البناء",
+        "damage": "التلف",
+        "missing_component": "مكوّن ناقص",
+        "customization_mismatch": "عدم تطابق التخصيص",
+        "other": "أخرى"
+      },
+      "historyTitle": "سجل فحص الجودة",
+      "attempt": "فحص #{n}",
+      "passed": "اجتاز",
+      "failed": "رسب",
+      "pending": "قيد التنفيذ",
+      "noHistory": "لا توجد فحوصات جودة بعد.",
+      "issueRequired": "سجّل مشكلة واحدة على الأقل لرفض الفحص.",
+      "checklistIncomplete": "أكّد كل معيار للاجتياز، أو سجّل مشكلة.",
+      "cancel": "إلغاء"
+    },
+    "detail": {
+      "title": "مهمة تصنيع",
+      "back": "العودة إلى التصنيع",
+      "orderInfo": "الطلب",
+      "customerRef": "مرجع العميل",
+      "spec": "المواصفات المخصّصة",
+      "acceptedQuote": "العرض المقبول",
+      "dimensions": "الأبعاد",
+      "materials": "الخامات والتشطيب",
+      "options": "الخيارات",
+      "reference": "تم تقديم صورة مرجعية",
+      "timelineTitle": "الجدول الزمني للتصنيع",
+      "qualityTitle": "الجودة",
+      "actionsTitle": "الإجراءات",
+      "noActions": "لا توجد إجراءات متاحة في هذه الحالة.",
+      "quantity": "الكمية",
+      "quoteBase": "التصنيع",
+      "quoteDelivery": "التوصيل",
+      "quoteInstall": "التركيب",
+      "quoteTotal": "إجمالي العرض",
+      "manufacturingDays": "تقدير التصنيع",
+      "warranty": "الضمان",
+      "days": "{count} يوم",
+      "cm": "{value} سم",
+      "specImmutable": "هذه هي المواصفات المعتمدة. أي تغيير يتطلب أمر تغيير مستقبلي — لا يمكن تعديله هنا."
+    },
+    "timeline": {
+      "title": "تقدّم التصنيع",
+      "current": "الحالية",
+      "updated": "آخر تحديث",
+      "stage": {
+        "manufacturing": "بدأ التصنيع",
+        "manufacturing_completed": "اكتمل التصنيع",
+        "quality_check": "فحص الجودة",
+        "ready_for_delivery": "جاهز للتسليم"
+      },
+      "reviewTitle": "مراجعة الجودة جارية",
+      "reviewBody": "تحصل قطعتك على لمسات نهائية إضافية لتلبية معيار الجودة لدينا.",
+      "readyTitle": "جاهز للتسليم",
+      "readyBody": "اجتازت قطعتك المخصّصة فحص الجودة وهي جاهزة لمرحلة التسليم."
+    },
+    "summary": {
+      "inProduction": "قيد الإنتاج",
+      "inQc": "في فحص الجودة",
+      "ready": "جاهز للتسليم",
+      "allReady": "جميع القطع المخصّصة جاهزة للتسليم",
+      "label": "التصنيع"
     }
   }
 }

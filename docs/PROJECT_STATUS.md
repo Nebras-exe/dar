@@ -4,7 +4,7 @@ _Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 11A — Order Fulfillment + Supplier Acceptance — ✅ Complete & verified.**
+**Phase 11B — Custom Manufacturing + Quality Check — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -33,9 +33,11 @@ _Last updated: 2026-08-11_
 
 - **Phase 11A** — Order Fulfillment + Supplier Acceptance: a **paid** order hands off to its suppliers through a per-supplier fulfillment lifecycle (`src/lib/fulfillment/`: types/status-machine/fulfillment/authorization/notifications) — **awaiting_supplier → accepted → preparing → ready_for_next_stage** (or **declined**), kept SEPARATE from order status and payment status. Each supplier group has its OWN state (multi-supplier safe). Deterministic status machine, append-only auditable events, owner/supplier authorization mirrored in RLS, a supplier accept/decline/prepare/ready dashboard, a per-supplier customer timeline, deterministic account-card summary, read-only Agent (`summarize_fulfillment`), and a notification abstraction that RECORDS but never SENDS (Demo/Log — zero external). Migrations `0010_fulfillment.sql` (+ paid-order insert trigger) + `0011_fulfillment_rls.sql` (gated). **External paid credits consumed: 0.** **196 tests** (+28), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1231 leaves); runs on :3000. See `docs/phase-reports/PHASE_11A_REPORT.md`, `docs/FULFILLMENT_WORKFLOW.md`.
 
+- **Phase 11B** — Custom Manufacturing + Quality Check: custom furniture continues from `ready_for_next_stage` through production and a real QC loop to **`ready_for_delivery`** (`src/lib/manufacturing/`: types/status-machine/manufacturing/authorization/notifications). A FOURTH separate domain (order · payment · fulfillment · manufacturing). Catalog/ready-stock groups bypass manufacturing. Deterministic state machine (`not_started → manufacturing → manufacturing_completed → quality_check → qc_passed → ready_for_delivery`; fail loop `quality_check → qc_failed → rework → manufacturing_completed`), append-only event + QC history (a failed inspection is never overwritten), owner/supplier authorization mirrored in RLS, supplier **Manufacturing** dashboard tab (stage-grouped board + job detail + QC checklist/issue/rework), customer-safe manufacturing timeline (calm "quality review" wording; never exposes QC issues), read-only Agent (`summarize_manufacturing`), Demo/Log notifier (records, never sends). Migrations `0012_manufacturing.sql` (+ custom+ready insert trigger) + `0013_manufacturing_rls.sql` (gated). **External paid credits consumed: 0.** **221 tests** (+25), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1352 leaves); runs on :3000. See `docs/phase-reports/PHASE_11B_REPORT.md`, `docs/MANUFACTURING_WORKFLOW.md`.
+
 ## Upcoming phases
 
-- **Phase 11B (recommended next)** — Custom Manufacturing + Quality Check: pick up at `ready_for_next_stage` and drive custom-furniture manufacturing milestones + a quality-check gate before delivery handoff, as a separate auditable domain layered on fulfillment. See `docs/phase-reports/PHASE_11A_REPORT.md` § Recommended Phase 11B. **Not started.**
+- **Phase 12 (recommended next)** — Delivery + Installation + Tracking: pick up at `ready_for_delivery` and schedule delivery/installation, driver/handover, and customer-facing tracking, as a separate auditable domain layered on manufacturing. See `docs/phase-reports/PHASE_11B_REPORT.md` § Recommended next phase. **Not started.**
 
 ## Important architectural decisions
 

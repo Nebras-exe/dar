@@ -890,7 +890,8 @@
       "orders": "Orders",
       "requests": "Requests",
       "analytics": "Analytics",
-      "settings": "Settings"
+      "settings": "Settings",
+      "manufacturing": "Manufacturing"
     },
     "overview": {
       "activeProducts": "Active products",
@@ -1584,6 +1585,152 @@
       "declinedCount": "{count} declined",
       "inProgress": "Preparing with suppliers",
       "label": "Fulfillment"
+    }
+  },
+  "manufacturing": {
+    "demoNote": "Manufacturing runs in Demo Mode - supplier and customer notifications are recorded, not actually sent.",
+    "navLabel": "Manufacturing",
+    "status": {
+      "not_started": "Ready to manufacture",
+      "manufacturing": "In production",
+      "manufacturing_completed": "Manufacturing complete",
+      "quality_check": "Quality check",
+      "qc_passed": "Quality passed",
+      "qc_failed": "Quality issue found",
+      "rework": "Rework",
+      "ready_for_delivery": "Ready for delivery"
+    },
+    "groups": {
+      "toStart": "To start",
+      "inProduction": "In production",
+      "qualityCheck": "Quality check",
+      "needsRework": "Needs rework",
+      "ready": "Ready for delivery"
+    },
+    "card": {
+      "customItem": "Custom furniture",
+      "qty": "Qty",
+      "estimate": "Est. {count} days",
+      "stage": "Stage",
+      "updated": "Updated",
+      "viewDetail": "Open job",
+      "spec": "Specification",
+      "empty": "No manufacturing jobs yet. Custom orders marked ready for the next stage appear here."
+    },
+    "actions": {
+      "start_manufacturing": "Start manufacturing",
+      "complete_manufacturing": "Manufacturing complete",
+      "submit_for_qc": "Submit for quality check",
+      "qc_pass": "Pass",
+      "qc_fail": "Issue found",
+      "start_rework": "Start rework",
+      "complete_rework": "Complete rework",
+      "mark_ready_for_delivery": "Mark ready for delivery"
+    },
+    "milestones": {
+      "title": "Production milestones",
+      "hint": "Tick milestones as you complete them. Optional - for your own tracking.",
+      "progress": "{done} of {total} milestones",
+      "materials_prepared": "Materials prepared",
+      "frame": "Frame / structure",
+      "assembly": "Assembly",
+      "upholstery_finish": "Upholstery / finish",
+      "final_finishing": "Final finishing"
+    },
+    "qc": {
+      "title": "Quality check",
+      "checklistTitle": "Inspection checklist",
+      "checklistHint": "Confirm every criterion to pass. If anything is wrong, record an issue instead.",
+      "allRequired": "All criteria must be confirmed to pass.",
+      "criteria": {
+        "dimensions_match": "Dimensions match specification",
+        "correct_material": "Correct material",
+        "correct_colour": "Correct colour",
+        "correct_finish": "Correct finish",
+        "construction_ok": "Construction / assembly acceptable",
+        "no_damage": "No visible damage",
+        "components_included": "All required components included",
+        "customization_matches": "Customisation matches approved specification"
+      },
+      "pass": "Pass quality check",
+      "issueFound": "Record issue & fail",
+      "issuesTitle": "Quality issues",
+      "addIssue": "Add issue",
+      "removeIssue": "Remove",
+      "category": "Category",
+      "severity": "Severity",
+      "description": "Description",
+      "descriptionPlaceholder": "What is wrong and what needs to change (internal - the customer does not see this).",
+      "minor": "Minor",
+      "major": "Major",
+      "categories": {
+        "dimensions": "Dimensions",
+        "material": "Material",
+        "colour": "Colour",
+        "finish": "Finish",
+        "construction": "Construction",
+        "damage": "Damage",
+        "missing_component": "Missing component",
+        "customization_mismatch": "Customisation mismatch",
+        "other": "Other"
+      },
+      "historyTitle": "Quality check history",
+      "attempt": "QC #{n}",
+      "passed": "Passed",
+      "failed": "Failed",
+      "pending": "In progress",
+      "noHistory": "No quality checks yet.",
+      "issueRequired": "Record at least one issue to fail the check.",
+      "checklistIncomplete": "Confirm every criterion to pass, or record an issue.",
+      "cancel": "Cancel"
+    },
+    "detail": {
+      "title": "Manufacturing job",
+      "back": "Back to manufacturing",
+      "orderInfo": "Order",
+      "customerRef": "Customer reference",
+      "spec": "Custom specification",
+      "acceptedQuote": "Accepted quote",
+      "dimensions": "Dimensions",
+      "materials": "Materials & finish",
+      "options": "Options",
+      "reference": "Reference image provided",
+      "timelineTitle": "Manufacturing timeline",
+      "qualityTitle": "Quality",
+      "actionsTitle": "Actions",
+      "noActions": "No actions available in this state.",
+      "quantity": "Quantity",
+      "quoteBase": "Manufacturing",
+      "quoteDelivery": "Delivery",
+      "quoteInstall": "Installation",
+      "quoteTotal": "Quote total",
+      "manufacturingDays": "Manufacturing estimate",
+      "warranty": "Warranty",
+      "days": "{count} days",
+      "cm": "{value} cm",
+      "specImmutable": "This is the accepted specification. Changes would require a future change-order - it cannot be edited here."
+    },
+    "timeline": {
+      "title": "Manufacturing progress",
+      "current": "Current",
+      "updated": "Updated",
+      "stage": {
+        "manufacturing": "Manufacturing started",
+        "manufacturing_completed": "Manufacturing completed",
+        "quality_check": "Quality check",
+        "ready_for_delivery": "Ready for delivery"
+      },
+      "reviewTitle": "Quality review in progress",
+      "reviewBody": "Your piece is getting some additional finishing to meet our quality standard.",
+      "readyTitle": "Ready for delivery",
+      "readyBody": "Your custom piece has passed quality check and is ready for the delivery stage."
+    },
+    "summary": {
+      "inProduction": "In production",
+      "inQc": "In quality check",
+      "ready": "Ready for delivery",
+      "allReady": "All custom pieces ready for delivery",
+      "label": "Manufacturing"
     }
   }
 }

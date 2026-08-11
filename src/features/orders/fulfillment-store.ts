@@ -165,3 +165,16 @@ export function useFulfillmentSummary(order: Order | null, paymentStatus: Paymen
   const { fulfillments, hydrated } = useOrderFulfillments(order, paymentStatus);
   return { summary: summarizeFulfillment(fulfillments), hydrated };
 }
+
+/** All persisted fulfillments for a supplier (drives the Phase 11B manufacturing tab). */
+export function useSupplierFulfillments(supplierId: string): { fulfillments: Fulfillment[]; hydrated: boolean } {
+  const all = React.useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
+  const hydrated = React.useSyncExternalStore(store.subscribe, alwaysTrue, alwaysFalse);
+  const fulfillments = React.useMemo(() => all.filter((f) => f.supplierId === supplierId), [all, supplierId]);
+  return { fulfillments, hydrated };
+}
+
+/** Plain read of the fulfillment for a group (non-hook; used by the manufacturing store). */
+export function getFulfillment(orderId: string, supplierId: string): Fulfillment | null {
+  return find(store.get(), orderId, supplierId);
+}

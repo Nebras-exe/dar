@@ -17,12 +17,17 @@ import {
   type FulfillmentStatus, type DeclineReason, type FulfillmentSummary,
   type TimelineStep,
 } from "@/lib/fulfillment";
+import {
+  buildCustomerTimeline,
+  type ManufacturingJob, type ManufacturingStage, type ManufacturingStepState,
+} from "@/lib/manufacturing";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useOrders, useSupplierOrders } from "./order-store";
 import { usePaymentStatus } from "./payment-store";
 import { useSupplierFulfillment, useOrderFulfillments, useFulfillmentSummary } from "./fulfillment-store";
+import { useOrderManufacturing } from "./manufacturing-store";
 
 function orderDate(ts: number, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === "ar" ? "ar-OM" : "en-GB", {
@@ -165,10 +170,10 @@ function AccountOrderRow({
 
 /** Order detail (customer view). Full supplier grouping + address + fulfillment timeline. */
 export function OrderDetail({
-  t, tPay, tFul, tCustom, locale, customerId, orderId,
+  t, tPay, tFul, tMfg, tCustom, locale, customerId, orderId,
 }: {
   t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"];
-  tCustom: Dictionary["custom"]; locale: Locale;
+  tMfg: Dictionary["manufacturing"]; tCustom: Dictionary["custom"]; locale: Locale;
   customerId: string; orderId: string;
 }) {
   const { byId, hydrated } = useOrders(customerId);
@@ -202,7 +207,7 @@ export function OrderDetail({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
         <div className="flex flex-col gap-5">
-          <OrderFulfillmentTimeline order={order} payStatus={payStatus} tFul={tFul} locale={locale} />
+          <OrderFulfillmentTimeline order={order} payStatus={payStatus} tFul={tFul} tMfg={tMfg} locale={locale} />
           {order.groups.map((g) => (
             <GroupBlock key={g.supplierId} group={g} t={t} tCustom={tCustom} locale={locale} />
           ))}
@@ -253,11 +258,12 @@ export function OrderDetail({
  * colour-only); the current stage is explicit and future stages are subdued.
  */
 function OrderFulfillmentTimeline({
-  order, payStatus, tFul, locale,
+  order, payStatus, tFul, tMfg, locale,
 }: {
-  order: Order; payStatus: PaymentStatus; tFul: Dictionary["fulfillment"]; locale: Locale;
+  order: Order; payStatus: PaymentStatus; tFul: Dictionary["fulfillment"]; tMfg: Dictionary["manufacturing"]; locale: Locale;
 }) {
   const { fulfillments, hydrated } = useOrderFulfillments(order, payStatus);
+  const { jobs } = useOrderManufacturing(order);
   if (!hydrated || fulfillments.length === 0) return null; // shown once paid
   const multi = order.groups.length > 1;
 
@@ -271,7 +277,8 @@ function OrderFulfillmentTimeline({
       <div className="mt-4 flex flex-col gap-6">
         {fulfillments.map((f) => (
           <SupplierTimeline key={f.supplierId} timeline={buildTimeline(f)} orderSource={f.orderSource}
-            showSupplierName={multi} tFul={tFul} locale={locale} />
+            job={jobs.find((j) => j.supplierId === f.supplierId) ?? null}
+            showSupplierName={multi} tFul={tFul} tMfg={tMfg} locale={locale} />
         ))}
       </div>
     </section>
@@ -279,12 +286,19 @@ function OrderFulfillmentTimeline({
 }
 
 function SupplierTimeline({
-  timeline, orderSource, showSupplierName, tFul, locale,
+  timeline, orderSource, job, showSupplierName, tFul, tMfg, locale,
 }: {
   timeline: ReturnType<typeof buildTimeline>; orderSource: Order["source"];
-  showSupplierName: boolean; tFul: Dictionary["fulfillment"]; locale: Locale;
+  job: ManufacturingJob | null; showSupplierName: boolean;
+  tFul: Dictionary["fulfillment"]; tMfg: Dictionary["manufacturing"]; locale: Locale;
 }) {
   const tl = tFul.timeline;
+  // For a custom group past the fulfillment handoff, manufacturing continues the
+  // story; the fulfillment's own "ready_for_next_stage" step is folded into it.
+  const hasManufacturing = Boolean(job);
+  const fulfillmentSteps = hasManufacturing
+    ? timeline.steps.filter((s) => s.stage !== "ready_for_next_stage")
+    : timeline.steps;
   return (
     <div>
       {showSupplierName && (
@@ -294,10 +308,12 @@ function SupplierTimeline({
         </p>
       )}
       <ol className="flex flex-col">
-        {timeline.steps.map((step, i) => (
-          <TimelineRow key={step.stage} step={step} isLast={i === timeline.steps.length - 1}
+        {fulfillmentSteps.map((step, i) => (
+          <TimelineRow key={step.stage} step={step}
+            isLast={!hasManufacturing && i === fulfillmentSteps.length - 1}
             orderSource={orderSource} tFul={tFul} locale={locale} />
         ))}
+        {job && <ManufacturingTimelineRows job={job} tMfg={tMfg} locale={locale} />}
       </ol>
       {timeline.status === "declined" && (
         <div className="mt-2 rounded-lg border border-border-subtle bg-elevated px-3 py-2" role="status">
@@ -307,8 +323,71 @@ function SupplierTimeline({
           </p>
         </div>
       )}
+      {job && (job.status === "qc_failed" || job.status === "rework") && (
+        <div className="mt-2 rounded-lg border border-warning/40 bg-warning-soft px-3 py-2" role="status">
+          <p className="text-xs font-medium text-foreground">{tMfg.timeline.reviewTitle}</p>
+          <p className="mt-0.5 text-xs text-muted">{tMfg.timeline.reviewBody}</p>
+        </div>
+      )}
     </div>
   );
+}
+
+const mfgStepIcon: Record<ManufacturingStepState, React.ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>> = {
+  done: Check, current: CircleDot, upcoming: CircleDot,
+};
+
+/** Customer-safe manufacturing continuation (§20) — never exposes QC issues/notes. */
+function ManufacturingTimelineRows({
+  job, tMfg, locale,
+}: {
+  job: ManufacturingJob; tMfg: Dictionary["manufacturing"]; locale: Locale;
+}) {
+  const timeline = buildCustomerTimeline(job);
+  return (
+    <>
+      {timeline.steps.map((step, i) => {
+        const Icon = mfgStepIcon[step.state];
+        const isCurrent = step.state === "current";
+        const isFuture = step.state === "upcoming";
+        const isLast = i === timeline.steps.length - 1;
+        // During quality review, the current QC stage reads calmly (handled by the note below).
+        return (
+          <li key={step.stage} className="flex gap-3">
+            <div className="flex flex-col items-center">
+              <span className={cn(
+                "flex size-6 shrink-0 items-center justify-center rounded-full border",
+                step.state === "done" ? "border-success bg-success text-white"
+                : isCurrent ? "border-brand bg-brand-soft text-brand"
+                : "border-border bg-surface text-subtle",
+              )}>
+                <Icon className="size-3.5" strokeWidth={2} aria-hidden={true} />
+              </span>
+              {!isLast && <span className={cn("w-px flex-1", step.state === "done" ? "bg-success/40" : "bg-border-subtle")} style={{ minHeight: "1.5rem" }} aria-hidden="true" />}
+            </div>
+            <div className={cn("pb-4", isFuture && "opacity-60")}>
+              <p className={cn("flex flex-wrap items-center gap-2 text-sm", isCurrent ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                {stageLabel(step.stage, timeline.inQualityReview, tMfg)}
+                {isCurrent && <Badge tone="brand">{tMfg.timeline.current}</Badge>}
+              </p>
+              {step.at !== undefined && step.state !== "upcoming" && (
+                <p className="mt-0.5 text-xs text-muted">{orderDateTime(step.at, locale)}</p>
+              )}
+              {step.stage === "ready_for_delivery" && step.state === "done" && (
+                <p className="mt-0.5 text-xs text-subtle">{tMfg.timeline.readyBody}</p>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </>
+  );
+}
+
+function stageLabel(stage: ManufacturingStage, inReview: boolean, tMfg: Dictionary["manufacturing"]): string {
+  // Never surface "quality issue"/"rework" to the customer — calm review wording.
+  if (stage === "quality_check" && inReview) return tMfg.timeline.reviewTitle;
+  return tMfg.timeline.stage[stage];
 }
 
 const stepIcon: Record<TimelineStep["state"], React.ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>> = {

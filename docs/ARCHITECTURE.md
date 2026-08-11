@@ -1,6 +1,6 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 11A (Order Fulfillment)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 11B (Custom Manufacturing)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), the manufacturing layer (Phase 11B, §5.10), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
 **Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
@@ -310,6 +310,29 @@ supabase/migrations/{0010_fulfillment,0011_fulfillment_rls}.sql
 - **Authorization (§26).** Customer reads own; supplier reads/manages own group only; customer never writes; `AGENT_CAN_MANAGE_FULFILLMENT=false`; `summarize_fulfillment` is read-only. Mirrored in `0011` RLS.
 - **Notifications (§20/§30).** `FulfillmentNotifier` contract + `demoNotifier` (records, `delivered:false`) — ZERO external messaging; a real provider drops in behind the same interface.
 - **Mode.** Demo: a labelled `localStorage` store (`athathi.fulfillments.v1`, `isDemo`). Supabase: `fulfillments`/`fulfillment_events` (RLS-scoped). Manufacturing/delivery detail is Phase 11B.
+
+### 5.10 Manufacturing layer (Phase 11B)
+
+`src/lib/manufacturing/` (pure) is the CUSTOM-furniture continuation of fulfillment —
+production + a real quality-check loop ending at `ready_for_delivery`. A FOURTH
+SEPARATE domain from order/payment/fulfillment status. Full detail in
+`docs/MANUFACTURING_WORKFLOW.md`.
+
+```
+src/lib/manufacturing/  types.ts status-machine.ts manufacturing.ts authorization.ts notifications.ts index.ts manufacturing.test.ts
+src/features/orders/  manufacturing-store.ts   src/features/supplier/manufacturing-workspace.tsx
+                      (+ order-views.tsx: customer manufacturing timeline)
+supabase/migrations/{0012_manufacturing,0013_manufacturing_rls}.sql
+```
+
+- **Custom-only, ready-gated (§4/§22).** `groupNeedsManufacturing` (has a custom item) + `canCreateManufacturing(fulfillmentStatus, isCustom)` (`ready_for_next_stage`). Catalog groups bypass manufacturing and keep their Phase 11A fulfillment timeline. The `assert_custom_and_ready` insert trigger enforces the same in the DB.
+- **State machine (§6).** `not_started → manufacturing → manufacturing_completed → quality_check → qc_passed → ready_for_delivery`; fail loop `quality_check → qc_failed → rework → manufacturing_completed`. `ready_for_delivery` terminal (Phase 12 seam); illegal jumps rejected.
+- **Snapshot reference (§7/§8).** The job references the accepted order-group spec by `(orderId, supplierId)` + `fulfillmentId` — it never duplicates or mutates the immutable snapshot; the manufacturing contract IS the accepted spec (change-orders are future).
+- **Append-only history (§9/§18).** Every transition appends an event; QC attempts are numbered and never overwritten (`unique(job_id, attempt)`); a failed inspection is preserved across rework.
+- **QC (§14–§17).** Manual supplier QC: 8-criterion checklist (pass requires all), structured issues (category + severity), rework + resubmit opens the next attempt.
+- **Authorization (§25).** Customer reads a safe view; supplier reads/manages own supplier only; customer never writes; issue descriptions supplier-only; `AGENT_CAN_MANAGE_MANUFACTURING=false`; `summarize_manufacturing` is read-only. Mirrored in `0013` RLS.
+- **Notifications (§24).** `ManufacturingNotifier` + `manufacturingNotifier` (records, `delivered:false`) — ZERO external messaging.
+- **Mode.** Demo: a labelled `localStorage` store (`athathi.manufacturing.v1`, `isDemo`). Supabase: `manufacturing_jobs`/`manufacturing_events`/`quality_checks`/`quality_issues` (RLS-scoped). Delivery/installation is Phase 12.
 
 ## 6. AI agent architecture (direction)
 

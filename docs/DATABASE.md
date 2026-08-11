@@ -143,12 +143,33 @@ to customer-or-supplier and appended by the owning supplier only; no event
 update/delete (default deny — no silent rewrite). Each supplier group carries its OWN
 state (multi-supplier safe, §6).
 
+## Phase 11B tables (`0012_manufacturing.sql` + `0013_manufacturing_rls.sql`)
+
+Custom manufacturing + quality check (full detail in
+`docs/MANUFACTURING_WORKFLOW.md`). A FOURTH separate domain from order/payment/
+fulfillment status, for CUSTOM furniture only. Enums `manufacturing_status`
+(`not_started/manufacturing/manufacturing_completed/quality_check/qc_passed/qc_failed/
+rework/ready_for_delivery`), `manufacturing_event_type`, `manufacturing_actor_role`,
+`quality_check_status`, `quality_issue_category`, `quality_issue_severity`. Tables:
+`manufacturing_jobs` (**one per `order_group_id`** — references order/order_group/
+**fulfillment**/supplier, §7/§8; `estimate_days`; `milestones text[]`) guarded by an
+`assert_custom_and_ready` **insert trigger** so a job can exist only for a CUSTOM item
+whose fulfillment is `ready_for_next_stage` (§4/§22 — catalog groups bypass);
+`manufacturing_events` (append-only audit, §9); `quality_checks` (numbered attempts,
+`unique(job_id, attempt)` — no overwrite, §18) with a jsonb checklist; `quality_issues`
+(structured category + severity + supplier-only description). RLS (`0013`): the owning
+**customer** reads a safe view (never writes — §25); a **supplier member** reads/
+updates/inserts ONLY their own supplier's jobs (A can never touch B, §26);
+`manufacturing_events` have no update/delete policy (append-only — no silent rewrite,
+§17); quality-issue descriptions are supplier-only. `ready_for_delivery` is terminal
+(Phase 12 seam). Each custom group progresses independently (multi-item safe, §21).
+
 ## Future tables (documented, intentionally NOT built)
 
-`refunds` (a documented, auditable transition off a `paid` intent), plus
-`manufacturing_jobs`, `quality_checks`, `deliveries` (Phase 11B — custom
-manufacturing + quality check + delivery). `ready_for_next_stage` is the seam to
-Phase 11B. The current schema is designed to extend cleanly.
+`refunds` (a documented, auditable transition off a `paid` intent), plus `deliveries`,
+`installations`, `delivery_tracking` (Phase 12 — delivery + installation + tracking).
+`ready_for_delivery` is the seam to Phase 12. The current schema is designed to extend
+cleanly.
 
 ## Secrets (§30/§47)
 
