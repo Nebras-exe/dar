@@ -5,7 +5,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { getSession } from "@/lib/auth/session";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
-import { OrderDetail } from "@/features/orders/order-views";
+import { PaymentExperience } from "@/features/orders/payment-experience";
 
 export async function generateMetadata({
   params,
@@ -14,10 +14,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const dict = getDictionary(isLocale(locale) ? locale : "en");
-  return { title: dict.orders.detail.title, robots: { index: false } };
+  return { title: dict.payment.title, robots: { index: false } };
 }
 
-export default async function OrderPage({
+export default async function PaymentPage({
   params,
 }: {
   params: Promise<{ locale: string; id: string }>;
@@ -26,19 +26,17 @@ export default async function OrderPage({
   if (!isLocale(locale)) notFound();
   const dict = getDictionary(locale);
 
-  // Orders are private to the owning customer — require a session; the client
-  // view resolves the order only from the signed-in customer's own store (an
-  // order that isn't theirs simply resolves to null → "not found").
+  // Payment is private to the owning customer. Require a session; the client
+  // view resolves the order only from the signed-in customer's own store, and
+  // the payment intent is derived from that order (amount = order total).
   const session = await getSession();
-  if (!session) redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/orders/${id}`)}`);
+  if (!session) redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/orders/${id}/payment`)}`);
 
   return (
     <Section spacing="md">
       <Container width="content">
-        <OrderDetail
-          t={dict.orders}
-          tPay={dict.payment}
-          tCustom={dict.custom}
+        <PaymentExperience
+          t={dict.payment}
           locale={locale}
           customerId={session!.user.id}
           orderId={id}

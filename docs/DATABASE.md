@@ -104,11 +104,31 @@ a member of (`is_order_supplier` helper), and `order_items` are visible only to
 the owner OR that item's group's supplier — cross-supplier items are never
 exposed. The client never sends prices/totals; they are recomputed server-side.
 
+## Phase 10B tables (`0008_payments.sql` + `0009_payments_rls.sql`)
+
+Payments (full detail in `docs/PAYMENT_ARCHITECTURE.md`). Payment status is
+**separate** from order status. Enums `payment_status`
+(`not_started/pending/requires_action/authorized/paid/failed/cancelled/expired`) +
+`payment_method` (`demo/card/wallet/bank_transfer`). Tables:
+`payment_intents` (`order_id` **unique** → one intent per order for idempotency;
+`amount numeric(12,3)` snapshot derived from the order, never a client value;
+**safe-only** `provider_reference` — never card data/token/CVV; `idempotency_key`;
+`is_demo`), `payment_attempts` (safe refs + `failure_code` — no raw provider error),
+`payment_events` (`unique(provider, event_id)` for webhook idempotent processing /
+replay dedupe). RLS (`0009`): a customer has full access to **their own** intents; a
+supplier may **read only the status** of intents for orders containing their group
+(order-group match — never a failure reason, reference, method, or amount);
+`payment_attempts` are owner-only; `payment_events` are **service-role only**
+(default deny). `paid` is only ever set server-side via provider verification; the
+client never sends a price/total/status. **Refunds** are documented, not built — a
+refund must be a separate, auditable transition (the status machine keeps `paid`
+terminal precisely for this).
+
 ## Future tables (documented, intentionally NOT built)
 
-`payments`, `payment_intents`, `refunds` (Phase 10B — payment), plus
-`manufacturing_jobs`, `deliveries`. A confirmed order → payment is the next seam.
-The current schema is designed to extend cleanly.
+`refunds` (a documented, auditable transition off a `paid` intent), plus
+`manufacturing_jobs`, `deliveries` (Phase 11 — fulfillment). A paid order →
+fulfillment is the next seam. The current schema is designed to extend cleanly.
 
 ## Secrets (§30/§47)
 

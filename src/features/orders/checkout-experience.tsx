@@ -133,10 +133,11 @@ export function CheckoutExperience({
           <p className="mt-4 text-sm text-subtle">{t.confirmed.orderNumber}</p>
           <p className="text-xl font-semibold text-foreground tabular">{orderNumber}</p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Button href={`/${locale}/orders/${orderId}`}>{t.confirmed.viewOrder}</Button>
-            <Button variant="outline" href={`/${locale}/account`}>{t.confirmed.viewOrders}</Button>
+            <Button href={`/${locale}/orders/${orderId}/payment`} iconEnd={<ArrowRight className="size-4 rtl:rotate-180" strokeWidth={1.75} />}>{t.confirmed.payNow}</Button>
+            <Button variant="outline" href={`/${locale}/orders/${orderId}`}>{t.confirmed.viewOrder}</Button>
             <Button variant="ghost" href={`/${locale}/shop`}>{t.confirmed.keepShopping}</Button>
           </div>
+          <p className="mt-4 text-xs text-subtle">{t.confirmed.payLaterNote}</p>
         </div>
       </Shell>
     );

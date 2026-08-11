@@ -1,10 +1,10 @@
 # Athathi — Project Status
 
-_Last updated: 2026-08-10_
+_Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 10A — Orders + Checkout — ✅ Complete & verified.**
+**Phase 10B — Payment Architecture — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -29,9 +29,11 @@ _Last updated: 2026-08-10_
 
 - **Phase 10A** — Orders + Checkout: ONE order architecture for TWO sources (a catalog cart and an accepted RFQ quote) → a calm 3-step `/[locale]/checkout` (summary → Oman delivery → review/confirm) → an immutable, supplier-grouped order → `/[locale]/orders/[id]`, an account **Orders** section, and a supplier dashboard **Orders** tab (own group only). Pure domain `src/lib/orders/` (types/totals/snapshot/validation/authorization); demo order localStorage store; `summarize_checkout` agent tool (never confirms). Migrations `0006_orders.sql` + `0007_orders_rls.sql`. **No payment** (that's 10B) — confirming records a labelled demo order. Client never supplies a price/total (always recomputed); ownership + supplier isolation enforced (pure + RLS); checkout/order routes auth-gated. **155 tests** (+15), lint/typecheck/build(221)/audit:arabic green, EN/AR parity exact; runs on :3000. See `docs/phase-reports/PHASE_10A_REPORT.md`.
 
+- **Phase 10B** — Payment Architecture: a confirmed order → **PAYMENT INTENT → server-side verify → PAID → receipt** through a provider-agnostic payment layer (`src/lib/payments/`: types/status-machine/intent/authorization/providers). **No live gateway is configured**, so payment runs through an honest, deterministic **Demo Payment** provider — clearly labelled, moving no real money, never a faked gateway and **never a card/CVV/PIN/bank field**. Enforces server/order **amount authority** (never a client value), **idempotency** (one intent/order; paid never re-charged), **client-untrusted verification** (`paid` only via `provider.verify()` + status machine), **safe transitions** (`paid → pending` impossible), owner-only + supplier-safe (paid/awaiting) visibility, and a **read-only Agent** (`summarize_payment`; `AGENT_CAN_PAY=false`). Payment page `/[locale]/orders/[id]/payment` + gated API boundary (`/api/payments/*`) + documented webhook foundation. Migrations `0008_payments.sql` + `0009_payments_rls.sql` (gated). Payment status is **separate** from order status. **168 tests** (+14), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1160 leaves); runs on :3000. See `docs/phase-reports/PHASE_10B_REPORT.md`, `docs/PAYMENT_ARCHITECTURE.md`.
+
 ## Upcoming phases
 
-- **Phase 10B (recommended next)** — Payment architecture: wire a server-side payment-provider abstraction onto the confirmed order (`payments`/`payment_intents`/`refunds`, `confirmed → paid` transitions, keys server-only). See `docs/phase-reports/PHASE_10A_REPORT.md` § Recommended Phase 10B.
+- **Phase 11A (recommended next)** — Order Fulfillment + Supplier Acceptance: drive the post-payment lifecycle (a **paid** order → supplier accept → prepare → ready/handover) with customer-visible milestones, keeping payment and fulfillment as separate auditable domains. See `docs/phase-reports/PHASE_10B_REPORT.md` § Recommended Phase 11A. **Not started.**
 
 ## Important architectural decisions
 

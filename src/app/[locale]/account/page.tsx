@@ -59,7 +59,7 @@ export default async function AccountPage({
 
         <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_18rem]">
           <div className="flex flex-col gap-10">
-            <AccountOrders t={dict.orders} locale={locale} customerId={user.id} />
+            <AccountOrders t={dict.orders} tPay={dict.payment} locale={locale} customerId={user.id} />
             <AccountLists t={t} tRoom={dict.design.room.types} locale={locale} />
             <AccountCustomRequests t={dict.custom} locale={locale} customerId={user.id} />
             <AccountPlaceholders t={t} />

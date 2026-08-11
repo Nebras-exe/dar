@@ -1352,7 +1352,9 @@
       "orderNumber": "Order number",
       "viewOrder": "View order",
       "viewOrders": "My orders",
-      "keepShopping": "Keep shopping"
+      "keepShopping": "Keep shopping",
+      "payNow": "Continue to payment",
+      "payLaterNote": "You can also pay later from your order page."
     }
   },
   "orders": {
@@ -1441,5 +1443,62 @@
         ]
       }
     ]
+  },
+  "payment": {
+    "title": "Payment",
+    "demoBadge": "Demo Payment",
+    "backToOrder": "Back to order",
+    "backToOrders": "My orders",
+    "notFoundTitle": "Order not found",
+    "notFoundBody": "We couldn't find that order for your account.",
+    "orderRef": "Order",
+    "summaryTitle": "Payment summary",
+    "amountDue": "Amount due",
+    "statusLabel": "Payment status",
+    "liveNote": "A live payment gateway isn't configured, so payment runs in demo mode.",
+    "payNow": "Pay now",
+    "viewReceipt": "View receipt",
+    "demoNoticeTitle": "This is a demo payment",
+    "demoNoticeBody": "No card is collected and no real money moves. This simulates a payment gateway so the whole flow can be reviewed end to end.",
+    "noCardNote": "We never ask for card, CVV, PIN, or bank details here.",
+    "outcomeLabel": "Demo outcome",
+    "outcomeHint": "Choose how the demo gateway responds, then continue.",
+    "outcomeSuccess": "Approve payment",
+    "outcomeFailure": "Decline payment",
+    "payButton": "Pay in demo mode",
+    "paying": "Processing…",
+    "verifyHint": "The demo gateway has your payment. Verify it to confirm — the result is checked server-side, never assumed.",
+    "verifyButton": "Verify payment",
+    "verifying": "Verifying…",
+    "retryButton": "Try again",
+    "resetButton": "Start over",
+    "failed": {
+      "title": "Payment didn't go through",
+      "body": "The demo gateway declined this attempt. No money moved — you can try again."
+    },
+    "paidTitle": "Payment received",
+    "paidBody": "Your demo payment is confirmed. Your receipt is below.",
+    "receipt": {
+      "title": "Payment receipt",
+      "note": "This is a demo receipt, not a tax invoice.",
+      "reference": "Reference",
+      "method": "Method",
+      "methodDemo": "Demo Payment",
+      "paidOn": "Paid on",
+      "amount": "Amount paid",
+      "viewOrder": "View order"
+    },
+    "status": {
+      "not_started": "Not started",
+      "pending": "Awaiting payment",
+      "requires_action": "Action needed",
+      "authorized": "Authorized",
+      "paid": "Paid",
+      "failed": "Payment failed",
+      "cancelled": "Cancelled",
+      "expired": "Expired"
+    },
+    "supplierPaid": "Customer paid",
+    "supplierAwaiting": "Awaiting payment"
   }
 }

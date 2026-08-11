@@ -53,6 +53,8 @@ import {
   type QuoteSort,
 } from "@/lib/rfq";
 import { buildCartDraft } from "@/lib/orders";
+import { isPaid, AGENT_CAN_PAY, type PaymentStatus } from "@/lib/payments";
+import { paymentMode } from "@/lib/payments/providers";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -278,6 +280,31 @@ function summarizeCheckout(args: Record<string, unknown>) {
   };
 }
 
+// ── Phase 10B: summarize_payment (READ-ONLY; the Agent never pays) ────────────
+/**
+ * Report the payment picture for an order the customer is looking at. The Agent
+ * is strictly READ-ONLY on payments (§9/§22): it may explain the mode and the
+ * current status, but it can NEVER create an intent, pay, verify, complete, or
+ * change a payment method — those are explicit user actions in the UI. This tool
+ * takes an optional `status` (the client's own payment status for the order) and
+ * echoes it safely; it never touches money and returns no secret/provider data.
+ */
+const PAYMENT_STATUSES: readonly PaymentStatus[] = [
+  "not_started", "pending", "requires_action", "authorized",
+  "paid", "failed", "cancelled", "expired",
+];
+function summarizePayment(args: Record<string, unknown>) {
+  const raw = typeof args.status === "string" ? (args.status as PaymentStatus) : "not_started";
+  const status: PaymentStatus = PAYMENT_STATUSES.includes(raw) ? raw : "not_started";
+  return {
+    mode: paymentMode(),          // "demo" until a certified gateway is configured
+    status,
+    isPaid: isPaid(status),
+    agentCanPay: AGENT_CAN_PAY,   // always false — the Agent cannot pay or verify
+    note: "read-only",
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -443,6 +470,11 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "summarize_checkout",
     description: "Summarize the cart as a supplier-grouped checkout with exact OMR totals. Does NOT confirm an order — the user confirms in checkout.",
     run: summarizeCheckout,
+  },
+  summarize_payment: {
+    name: "summarize_payment",
+    description: "Read-only: report the payment mode (demo/live) and an order's payment status. The Agent can NEVER pay, verify, complete, or change payment — the customer does that in the UI.",
+    run: summarizePayment,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

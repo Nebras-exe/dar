@@ -1,6 +1,6 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 10A (Orders + Checkout)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 10B (Payment Architecture)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
 **Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
@@ -264,7 +264,31 @@ supabase/migrations/{0006_orders,0007_orders_rls}.sql
 - **Validation.** `validateAddress` (Oman fields), `revalidateCart` (re-resolve against the catalog; drop fakes; clamp qty; surface price changes but always charge the catalog price), `validateAcceptedQuote` (owned + accepted only — never a browser-supplied quote id).
 - **Authorization (§21/§22).** `authorization.ts` mirrors `0007_orders_rls.sql`: a customer reads/confirms only their own order; a supplier reads only its own group (`redactOrderForSupplier`) and updates only its own group's status. `order_items` are readable to the owner OR the group's supplier — cross-supplier items are never exposed. Routes are auth-gated.
 - **Agent.** `summarize_checkout` (allowlisted, deterministic) groups the cart with exact totals and `requiresApproval: true` — it never confirms; confirmation is an explicit UI action.
-- **Mode.** Demo: a labelled `localStorage` order store (`isDemo`). Supabase: `orders`/`order_groups`/`order_items` (RLS-scoped). **No payment** — Phase 10B.
+- **Mode.** Demo: a labelled `localStorage` order store (`isDemo`). Supabase: `orders`/`order_groups`/`order_items` (RLS-scoped). Payment is a separate domain — §5.8.
+
+### 5.8 Payment layer (Phase 10B)
+
+`src/lib/payments/` (pure; providers server-oriented) turns a **confirmed order** into a
+**paid order** through a provider-agnostic layer. Full detail in `docs/PAYMENT_ARCHITECTURE.md`.
+
+```
+src/lib/payments/  types.ts status-machine.ts intent.ts authorization.ts index.ts payments.test.ts
+                   providers/{demo,index}.ts
+src/features/orders/  payment-store.ts  payment-experience.tsx
+src/app/[locale]/orders/[id]/payment/page.tsx
+src/app/api/payments/{create-intent,verify,status,webhook/[provider]}/route.ts
+supabase/migrations/{0008_payments,0009_payments_rls}.sql
+```
+
+- **Flow.** `CONFIRMED → PAYMENT INTENT → PENDING → (provider.verify) → PAID → receipt`; on decline `FAILED → retry`. Payment status is **separate** from `Order.status`.
+- **Provider abstraction (§4).** `PaymentProvider` interface; `resolveProvider` returns a configured real gateway or the Demo provider. `REAL_PROVIDERS` is intentionally empty → `paymentMode() = "demo"`. Adding a real, hosted/tokenized gateway is one file + a registry line; checkout/orders/UI are unchanged.
+- **Amount authority (§15).** The intent amount is always `order.totals.grandTotal`; `assertOrderAmount` rejects a tampered client amount; the API `create-intent` route never reads the amount from the body.
+- **Idempotency (§16).** `unique(order_id)` + `findReusableIntent`; a `paid` intent is returned as-is, never re-created or re-charged.
+- **Verification (§17).** `paid` is set only by `provider.verify()` passing the status-machine gate — never a client `?success`/localStorage flag. The `verify` API route documents the same server-side rule.
+- **Safe transitions.** `status-machine.ts` is the only path; `paid`/`cancelled` terminal; `failed`/`expired` → `pending` (retry); `paid → pending` impossible without a documented refund.
+- **Authorization (§8/§22).** Owner-only intents; `supplierPaymentView` exposes only paid/awaiting; `AGENT_CAN_PAY=false`; `summarize_payment` is read-only.
+- **No raw card data.** No card/CVV/PIN/bank field exists; only safe `providerReference`s are stored. Secrets are server-only; routes return booleans/enum + stable safe codes.
+- **Mode.** Demo: a labelled `localStorage` intent store (`athathi.payments.v1`, `isDemo`). Supabase: `payment_intents`/`payment_attempts`/`payment_events` (RLS-scoped). Refunds documented, not built.
 
 ## 6. AI agent architecture (direction)
 

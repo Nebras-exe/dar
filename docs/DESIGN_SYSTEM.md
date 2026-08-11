@@ -203,3 +203,11 @@ Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`. No tiny t
 - **Supplier-grouped orders.** Both cart and accepted-quote orders render as per-supplier group cards with subtotals + an overall total. Suppliers see only their own group (never another's items/totals).
 - **Honest money + payment.** Catalog delivery/installation are shown as "arranged with the supplier" (no invented fees); only accepted-quote fees are charged. A prominent "payment is not processed yet" note precedes an explicit **Confirm demo order**; confirmed orders carry a **Demo** badge.
 - **Real order history.** The account gains a real Orders section + `/orders/[id]` detail (replacing the "coming soon" placeholder); the supplier dashboard gains an Orders tab. Honest empty states, no fake history.
+
+## 21. Phase 10B additions (payment)
+
+- **Honest Demo Payment — never a fake card form.** The payment page (`/orders/[id]/payment`) is a **Demo Payment**-badged surface with an explicit "no card is collected, no real money moves" notice and a footer line "we never ask for card, CVV, PIN, or bank details." **No card/CVV/PIN/bank field exists anywhere** — a real gateway would be hosted/tokenized.
+- **Two-step flow that mirrors a real gateway.** A deterministic **Approve / Decline** demo-outcome selector (real `<fieldset>`/`<legend>` + radios) → **Pay in demo mode** (creates the intent) → **Verify payment** (server-side verify) → a **paid receipt**; a **failed → try again** path. Amount-due is derived from the order, shown with `tabular` OMR.
+- **Receipt, not an invoice.** The success state is a `<dl>` receipt (reference `dir="ltr"` mono, method, paid-on, amount) that states plainly it is a **demo receipt, not a tax invoice**.
+- **Payment status as text+icon everywhere (never colour-only).** A `CreditCard` chip carries payment status on account order cards, order detail (with a Pay now / Retry / View receipt action), and — for suppliers — only **Customer paid / Awaiting payment** (never a failure reason or reference). Live status is announced via `role="status" aria-live="polite"`.
+- **Payment is its own quiet domain.** Payment status is separate from order status; the checkout confirmation now leads with **Continue to payment** (with a "pay later from your order page" note), keeping the two concerns visually and structurally distinct.

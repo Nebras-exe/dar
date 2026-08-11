@@ -3,17 +3,19 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, Check, MapPin, Package, PackageCheck, ShoppingBag, Store,
+  ArrowLeft, Check, CreditCard, MapPin, Package, PackageCheck, ShoppingBag, Store,
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { formatOmr } from "@/lib/catalog";
 import { formatNumber } from "@/lib/utils";
 import type { SupplierOrderGroup } from "@/lib/orders";
+import type { PaymentStatus } from "@/lib/payments";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useOrders, useSupplierOrders } from "./order-store";
+import { usePaymentStatus } from "./payment-store";
 
 function orderDate(ts: number, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === "ar" ? "ar-OM" : "en-GB", {
@@ -25,11 +27,30 @@ const statusTone: Record<string, "neutral" | "success" | "warning"> = {
   draft: "neutral", confirmed: "success", processing: "warning", cancelled: "neutral", completed: "success",
 };
 
+/**
+ * Payment status chip (text + icon, never colour-only — §26 accessibility).
+ * `not_started` is hidden by default so unpaid orders stay quiet until acted on.
+ */
+function PaymentStatusBadge({
+  status, tPay, showNotStarted,
+}: {
+  status: PaymentStatus; tPay: Dictionary["payment"]; showNotStarted?: boolean;
+}) {
+  if (status === "not_started" && !showNotStarted) return null;
+  const tone = status === "paid" ? "success" : status === "failed" || status === "expired" ? "warning" : "neutral";
+  return (
+    <Badge tone={tone}>
+      <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+      {tPay.status[status]}
+    </Badge>
+  );
+}
+
 /** Customer account → Orders list (real; honest empty state). */
 export function AccountOrders({
-  t, locale, customerId,
+  t, tPay, locale, customerId,
 }: {
-  t: Dictionary["orders"]; locale: Locale; customerId: string;
+  t: Dictionary["orders"]; tPay: Dictionary["payment"]; locale: Locale; customerId: string;
 }) {
   const { orders, hydrated } = useOrders(customerId);
   if (!hydrated) return null;
@@ -48,25 +69,7 @@ export function AccountOrders({
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
           {orders.map((o) => (
-            <li key={o.id}>
-              <Link href={`/${locale}/orders/${o.id}`}
-                className="group flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-subtle bg-elevated p-4 transition-colors hover:border-taupe focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
-                <div className="min-w-0">
-                  <p className="flex items-center gap-2 font-medium text-foreground tabular">
-                    {o.orderNumber}
-                    {o.isDemo && <Badge tone="neutral">{t.demoBadge}</Badge>}
-                  </p>
-                  <p className="mt-0.5 text-sm text-muted">
-                    {orderDate(o.createdAt, locale)} · {t.items.replace("{count}", String(o.totals.itemCount))}
-                    {o.totals.supplierCount > 1 && ` · ${t.suppliers.replace("{count}", String(o.totals.supplierCount))}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge tone={statusTone[o.status]}>{t.status[o.status]}</Badge>
-                  <span className="font-semibold text-foreground tabular">{formatOmr(o.totals.grandTotal, locale)}</span>
-                </div>
-              </Link>
-            </li>
+            <AccountOrderRow key={o.id} order={o} t={t} tPay={tPay} locale={locale} />
           ))}
         </ul>
       )}
@@ -74,14 +77,45 @@ export function AccountOrders({
   );
 }
 
+function AccountOrderRow({
+  order: o, t, tPay, locale,
+}: {
+  order: import("@/lib/orders").Order; t: Dictionary["orders"]; tPay: Dictionary["payment"]; locale: Locale;
+}) {
+  const { status } = usePaymentStatus(o.id);
+  return (
+    <li>
+      <Link href={`/${locale}/orders/${o.id}`}
+        className="group flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border-subtle bg-elevated p-4 transition-colors hover:border-taupe focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand">
+        <div className="min-w-0">
+          <p className="flex items-center gap-2 font-medium text-foreground tabular">
+            {o.orderNumber}
+            {o.isDemo && <Badge tone="neutral">{t.demoBadge}</Badge>}
+          </p>
+          <p className="mt-0.5 text-sm text-muted">
+            {orderDate(o.createdAt, locale)} · {t.items.replace("{count}", String(o.totals.itemCount))}
+            {o.totals.supplierCount > 1 && ` · ${t.suppliers.replace("{count}", String(o.totals.supplierCount))}`}
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <PaymentStatusBadge status={status} tPay={tPay} />
+          <Badge tone={statusTone[o.status]}>{t.status[o.status]}</Badge>
+          <span className="font-semibold text-foreground tabular">{formatOmr(o.totals.grandTotal, locale)}</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
 /** Order detail (customer view). Full supplier grouping + address + payment note. */
 export function OrderDetail({
-  t, tCustom, locale, customerId, orderId,
+  t, tPay, tCustom, locale, customerId, orderId,
 }: {
-  t: Dictionary["orders"]; tCustom: Dictionary["custom"]; locale: Locale;
+  t: Dictionary["orders"]; tPay: Dictionary["payment"]; tCustom: Dictionary["custom"]; locale: Locale;
   customerId: string; orderId: string;
 }) {
   const { byId, hydrated } = useOrders(customerId);
+  const { status: payStatus } = usePaymentStatus(orderId);
   if (!hydrated) return <div className="h-40 animate-pulse rounded-xl bg-surface" />;
   const order = byId(orderId);
 
@@ -103,6 +137,7 @@ export function OrderDetail({
       <div className="flex flex-wrap items-center gap-3 border-b border-border-subtle pb-5">
         <h1 className="text-2xl sm:text-3xl tabular">{order.orderNumber}</h1>
         <Badge tone={statusTone[order.status]}>{t.status[order.status]}</Badge>
+        <PaymentStatusBadge status={payStatus} tPay={tPay} />
         {order.isDemo && <Badge tone="neutral">{t.demoBadge}</Badge>}
         <Badge tone="accent">{order.source === "cart" ? t.sourceCart : t.sourceQuote}</Badge>
         <span className="ms-auto text-sm text-muted">{orderDate(order.createdAt, locale)}</span>
@@ -132,7 +167,21 @@ export function OrderDetail({
               <span className="text-base font-semibold text-foreground">{t.total}</span>
               <span className="text-lg font-semibold text-foreground tabular">{formatOmr(order.totals.grandTotal, locale)}</span>
             </div>
-            <p className="mt-3 text-xs text-subtle">{td.paymentNote}</p>
+            <div className="mt-4 flex items-center justify-between gap-2 border-t border-border-subtle pt-4">
+              <span className="text-sm text-muted">{tPay.statusLabel}</span>
+              <PaymentStatusBadge status={payStatus} tPay={tPay} showNotStarted />
+            </div>
+            {payStatus === "paid" ? (
+              <Button variant="outline" size="sm" className="mt-3 w-full" href={`/${locale}/orders/${order.id}/payment`}
+                iconStart={<CreditCard className="size-4" strokeWidth={1.75} />}>
+                {tPay.viewReceipt}
+              </Button>
+            ) : (
+              <Button size="sm" className="mt-3 w-full" href={`/${locale}/orders/${order.id}/payment`}
+                iconStart={<CreditCard className="size-4" strokeWidth={1.75} />}>
+                {payStatus === "failed" || payStatus === "expired" ? tPay.retryButton : tPay.payNow}
+              </Button>
+            )}
           </div>
         </aside>
       </div>
@@ -187,9 +236,9 @@ function GroupBlock({
 
 /** Supplier dashboard → Orders (own portion only; acknowledge/processing). */
 export function SupplierOrders({
-  supplierId, t, locale,
+  supplierId, t, tPay, locale,
 }: {
-  supplierId: string; t: Dictionary["orders"]; locale: Locale;
+  supplierId: string; t: Dictionary["orders"]; tPay: Dictionary["payment"]; locale: Locale;
 }) {
   const { orders, setGroupStatus, hydrated } = useSupplierOrders(supplierId);
   const ts = t.supplier;
@@ -208,54 +257,76 @@ export function SupplierOrders({
       ) : (
         <ul className="mt-5 flex flex-col gap-3">
           {rows.map(({ order, group }) => (
-            <li key={order.id} className="rounded-xl border border-border-subtle bg-elevated">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
-                <div>
-                  <p className="flex items-center gap-2 font-medium text-foreground tabular">
-                    {order.orderNumber}
-                    {order.isDemo && <Badge tone="neutral">{t.demoBadge}</Badge>}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted">{orderDate(order.createdAt, locale)}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge tone={group.status === "processing" ? "warning" : group.status === "acknowledged" ? "accent" : "neutral"}>
-                    {ts.groupStatus[group.status]}
-                  </Badge>
-                  <span className="text-sm font-semibold text-foreground tabular">{formatOmr(group.groupTotal, locale)}</span>
-                </div>
-              </div>
-              {/* Own portion only — never another supplier's items/totals */}
-              <ul className="divide-y divide-border-subtle">
-                {group.items.map((item, i) => (
-                  <li key={i} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                    <span className="min-w-0 truncate text-foreground">
-                      {item.kind === "catalog" ? (locale === "ar" ? item.nameAr : item.name) : t.detail.custom}
-                    </span>
-                    <span className="tabular text-muted">{formatOmr(item.lineTotal, locale)}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <p className="text-xs text-muted">
-                  {ts.deliverTo}: {order.address.wilayat}، {order.address.governorate}
-                </p>
-                <div className="flex gap-2">
-                  {group.status === "new" && (
-                    <Button size="sm" variant="outline" onClick={() => setGroupStatus(order.id, "acknowledged")} iconStart={<Check className="size-4" strokeWidth={2} />}>
-                      {ts.acknowledge}
-                    </Button>
-                  )}
-                  {group.status === "acknowledged" && (
-                    <Button size="sm" onClick={() => setGroupStatus(order.id, "processing")} iconStart={<Package className="size-4" strokeWidth={1.75} />}>
-                      {ts.markProcessing}
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </li>
+            <SupplierOrderRow key={order.id} order={order} group={group} t={t} tPay={tPay} locale={locale}
+              onSetStatus={(s) => setGroupStatus(order.id, s)} />
           ))}
         </ul>
       )}
     </div>
+  );
+}
+
+function SupplierOrderRow({
+  order, group, t, tPay, locale, onSetStatus,
+}: {
+  order: import("@/lib/orders").Order; group: SupplierOrderGroup;
+  t: Dictionary["orders"]; tPay: Dictionary["payment"]; locale: Locale;
+  onSetStatus: (status: "acknowledged" | "processing") => void;
+}) {
+  const ts = t.supplier;
+  const { status } = usePaymentStatus(order.id);
+  // Supplier-safe payment view (§8/§23): only whether the customer has PAID —
+  // never a failure reason, provider reference, method, or amount attempted.
+  const paid = status === "paid";
+  return (
+    <li className="rounded-xl border border-border-subtle bg-elevated">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
+        <div>
+          <p className="flex items-center gap-2 font-medium text-foreground tabular">
+            {order.orderNumber}
+            {order.isDemo && <Badge tone="neutral">{t.demoBadge}</Badge>}
+          </p>
+          <p className="mt-0.5 text-xs text-muted">{orderDate(order.createdAt, locale)}</p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Badge tone={paid ? "success" : "neutral"}>
+            <CreditCard className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+            {paid ? tPay.supplierPaid : tPay.supplierAwaiting}
+          </Badge>
+          <Badge tone={group.status === "processing" ? "warning" : group.status === "acknowledged" ? "accent" : "neutral"}>
+            {ts.groupStatus[group.status]}
+          </Badge>
+          <span className="text-sm font-semibold text-foreground tabular">{formatOmr(group.groupTotal, locale)}</span>
+        </div>
+      </div>
+      {/* Own portion only — never another supplier's items/totals */}
+      <ul className="divide-y divide-border-subtle">
+        {group.items.map((item, i) => (
+          <li key={i} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
+            <span className="min-w-0 truncate text-foreground">
+              {item.kind === "catalog" ? (locale === "ar" ? item.nameAr : item.name) : t.detail.custom}
+            </span>
+            <span className="tabular text-muted">{formatOmr(item.lineTotal, locale)}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        <p className="text-xs text-muted">
+          {ts.deliverTo}: {order.address.wilayat}، {order.address.governorate}
+        </p>
+        <div className="flex gap-2">
+          {group.status === "new" && (
+            <Button size="sm" variant="outline" onClick={() => onSetStatus("acknowledged")} iconStart={<Check className="size-4" strokeWidth={2} />}>
+              {ts.acknowledge}
+            </Button>
+          )}
+          {group.status === "acknowledged" && (
+            <Button size="sm" onClick={() => onSetStatus("processing")} iconStart={<Package className="size-4" strokeWidth={1.75} />}>
+              {ts.markProcessing}
+            </Button>
+          )}
+        </div>
+      </div>
+    </li>
   );
 }
