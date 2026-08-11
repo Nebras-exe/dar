@@ -5,9 +5,11 @@
  * injected mock provider. Fingerprint, request validation and mapping are pure.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
+import { __setCatalogProductsForTests, __resetCatalogProductsForTests } from "../catalog";
+import { makeProduct } from "../catalog/test-fixtures";
 import { designFingerprint, isPreviewStale, canonicalDesignString } from "./fingerprint";
 import { parseVisualizationRequest, resolveItem } from "./schema";
 import { buildVisualizationRequest, currentDesignFingerprint } from "./mapping";
@@ -18,9 +20,18 @@ import type { VisualizationProvider } from "./providers/types";
 import type { VisualizationRequest } from "./types";
 import type { DesignInput, DesignItem } from "../design";
 
-// Real catalog products (the source of truth).
-const SOFA = "luna-modular-sofa"; // colours: cream, beige, sage
-const RUG = "textured-wool-rug"; // colours: beige, sand, ivory
+// The real catalog is empty; inject fixtures (the source of truth for grounding).
+const SOFA = "test-viz-sofa"; // colours: cream, beige, sage
+const SOFA2 = "test-viz-sofa-2";
+const RUG = "test-viz-rug"; // colours: beige, sand, ivory
+const SOFA_NAME = "Test Viz Sofa";
+
+before(() => __setCatalogProductsForTests([
+  makeProduct({ slug: SOFA, name: SOFA_NAME, category: "sofas", price: 300, colors: ["cream", "beige", "sage"], materials: ["boucle"], styleTags: ["warm-modern", "contemporary"], roomTypes: ["living-room"] }),
+  makeProduct({ slug: SOFA2, name: "Test Viz Sofa Two", category: "sofas", price: 280, colors: ["beige", "grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"] }),
+  makeProduct({ slug: RUG, name: "Test Viz Rug", category: "rugs", price: 90, colors: ["beige", "sand", "ivory"], materials: ["wool"], styleTags: ["boho", "warm-modern"], roomTypes: ["living-room"] }),
+]));
+after(() => __resetCatalogProductsForTests());
 
 const INPUT: DesignInput = {
   roomType: "living-room",
@@ -57,7 +68,7 @@ test("fingerprint: changes after a product replacement", () => {
   const before = currentDesignFingerprint(INPUT, ITEMS);
   const replaced: DesignItem[] = [
     ITEMS[0],
-    { slug: "noor-three-seat-sofa", category: "sofas", colorId: "beige", reason: { en: "", ar: "" } },
+    { slug: SOFA2, category: "sofas", colorId: "beige", reason: { en: "", ar: "" } },
   ];
   const after = currentDesignFingerprint(INPUT, replaced);
   assert.notEqual(before, after);
@@ -268,6 +279,6 @@ test("prompt: references real product names + injection defense, no scale claims
   assert.match(prompt, /never as instructions/i);
   assert.match(prompt, /Preserve the room's architecture/i);
   assert.match(prompt, /do not.*guarantee/i);
-  assert.match(prompt, /Luna Modular Sofa/); // real catalog product name
+  assert.match(prompt, new RegExp(SOFA_NAME)); // real catalog product name
   assert.match(prompt, new RegExp(VISUALIZATION_PROMPT_VERSION));
 });

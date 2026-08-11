@@ -5,11 +5,20 @@
  * selection, catalog-adapter compatibility, cross-supplier isolation, and slugs.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
-import { getAllProducts } from "../catalog";
+import {
+  getAllProducts,
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "../catalog";
+import { sampleCatalog } from "../catalog/test-fixtures";
 import { backendMode } from "../backend/config";
+
+// The real catalog is empty; the demo repository adapter wraps injected fixtures.
+before(() => __setCatalogProductsForTests(sampleCatalog));
+after(() => __resetCatalogProductsForTests());
 import {
   catalogMode,
   repoGetProducts,
@@ -31,9 +40,9 @@ test("mode: with no Supabase env, backend is demo", () => {
 test("adapter: demo repository matches the pure catalog", async () => {
   const all = await repoGetProducts();
   assert.equal(all.length, getAllProducts().length);
-  const one = await repoGetProductBySlug("luna-modular-sofa");
+  const one = await repoGetProductBySlug("test-modern-sofa");
   assert.ok(one);
-  assert.equal(one!.slug, "luna-modular-sofa");
+  assert.equal(one!.slug, "test-modern-sofa");
   assert.equal(await repoGetProductBySlug("HACKED-FAKE"), null);
 });
 

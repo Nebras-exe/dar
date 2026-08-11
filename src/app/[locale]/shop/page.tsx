@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import {
   filterProducts,
+  getAllProducts,
   getPriceBounds,
   sortProducts,
 } from "@/lib/catalog";
@@ -52,6 +53,7 @@ export default async function ShopPage({
   const filtered = filterProducts(stateToFilter(state));
   const products = sortProducts(filtered, state.sort);
   const priceBounds = getPriceBounds();
+  const catalogEmpty = getAllProducts().length === 0;
 
   return (
     <>
@@ -77,6 +79,7 @@ export default async function ShopPage({
             state={state}
             products={products}
             priceBounds={priceBounds}
+            catalogEmpty={catalogEmpty}
           />
         </Container>
       </Section>

@@ -10,6 +10,7 @@
  * message — the client renders the user's own data (never sent to the server).
  */
 
+import { getAllProducts } from "@/lib/catalog";
 import { detectIntent, extractSlots } from "./intents";
 import { searchCatalog, budgetFor } from "./tools";
 import type { ChatMessage, ChatResponse, ProductCardRef, QuickAction, ChatFlags } from "./types";
@@ -47,6 +48,22 @@ export function demoRespond(messages: ChatMessage[], locale: "en" | "ar", contex
   const base = (over: Partial<ChatResponse>): ChatResponse => ({
     ok: true, mode: "demo", intent, message: "", cards: [], actions: defaultQuickActions(locale), flags: {}, ...over,
   });
+
+  // Honesty first: if the catalog is empty, never fabricate a product. Say so for
+  // any intent that would otherwise surface product cards.
+  const PRODUCT_INTENTS = new Set([
+    "find_furniture", "choose_style", "choose_color", "budget_recommend",
+    "compare_products", "find_variants",
+  ]);
+  if ((PRODUCT_INTENTS.has(intent) || intent === "unknown") && getAllProducts().length === 0) {
+    return base({
+      message: t({
+        en: "The furniture catalog is currently empty — no products have been added yet. I can still help you design a room or plan a custom piece.",
+        ar: "كتالوج الأثاث فارغ حاليًا — لم تتم إضافة أي منتجات بعد. لا يزال بإمكاني مساعدتك في تصميم غرفة أو التخطيط لقطعة مخصّصة.",
+      }, locale),
+      intent: intent === "unknown" ? "find_furniture" : intent,
+    });
+  }
 
   switch (intent) {
     case "greeting":

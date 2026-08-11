@@ -8,6 +8,7 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import {
   filterProducts,
+  getAllProducts,
   getCategories,
   getCategory,
   getPriceBounds,
@@ -65,6 +66,7 @@ export default async function CategoryPage({
   const filtered = filterProducts(stateToFilter(state));
   const products = sortProducts(filtered, state.sort);
   const priceBounds = getPriceBounds();
+  const catalogEmpty = getAllProducts().length === 0;
 
   return (
     <>
@@ -91,6 +93,7 @@ export default async function CategoryPage({
             products={products}
             priceBounds={priceBounds}
             lockedCategory={category}
+            catalogEmpty={catalogEmpty}
           />
         </Container>
       </Section>

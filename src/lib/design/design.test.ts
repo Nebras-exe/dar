@@ -4,11 +4,20 @@
  * future agent tool would call it.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
-import { getProductBySlug } from "../catalog/queries";
+import {
+  getProductBySlug,
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "../catalog/queries";
+import { sampleCatalog } from "../catalog/test-fixtures";
 import { getRoomPlan, getDecisionCategories } from "./room-needs";
+
+// The production catalog is empty; exercise the design engine against fixtures.
+before(() => __setCatalogProductsForTests(sampleCatalog));
+after(() => __resetCatalogProductsForTests());
 import {
   buildOption,
   findReplacements,

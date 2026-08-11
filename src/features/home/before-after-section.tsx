@@ -7,16 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { productCardLabels } from "@/components/shared/product-card";
 import { Reveal } from "@/components/shared/reveal";
-import { getProductBySlug, type Product } from "@/lib/catalog";
+import { getAllProducts, type Product } from "@/lib/catalog";
 import { BeforeAfterSlider } from "./before-after";
-
-// Real catalog pieces that make up the illustrated "after" room.
-const PIECE_SLUGS = [
-  "luna-modular-sofa",
-  "textured-wool-rug",
-  "noura-coffee-table",
-  "faris-floor-lamp",
-];
 
 export function BeforeAfterSection({
   dict,
@@ -27,9 +19,8 @@ export function BeforeAfterSection({
 }) {
   const ba = dict.home.beforeAfter;
   const labels = productCardLabels(dict.shop);
-  const pieces = PIECE_SLUGS.map((slug) => getProductBySlug(slug)).filter(
-    (p): p is Product => Boolean(p),
-  );
+  // Real catalog pieces for the illustrated room (empty until real products exist).
+  const pieces: Product[] = getAllProducts().slice(0, 4);
 
   return (
     <Section id="before-after" spacing="lg">
@@ -50,15 +41,17 @@ export function BeforeAfterSection({
           />
         </Reveal>
 
-        <div className="mt-10">
-          <h3 className="text-base font-medium text-foreground">{ba.piecesTitle}</h3>
-          <ProductGrid
-            products={pieces}
-            locale={locale}
-            labels={labels}
-            className="mt-4 sm:grid-cols-4 lg:grid-cols-4"
-          />
-        </div>
+        {pieces.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-base font-medium text-foreground">{ba.piecesTitle}</h3>
+            <ProductGrid
+              products={pieces}
+              locale={locale}
+              labels={labels}
+              className="mt-4 sm:grid-cols-4 lg:grid-cols-4"
+            />
+          </div>
+        )}
       </Container>
     </Section>
   );

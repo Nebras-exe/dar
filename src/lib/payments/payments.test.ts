@@ -7,11 +7,20 @@
  * boundary.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
+import { __setCatalogProductsForTests, __resetCatalogProductsForTests } from "@/lib/catalog";
+import { makeProduct } from "@/lib/catalog/test-fixtures";
 import { buildCartDraft } from "@/lib/orders";
 import type { Order } from "@/lib/orders";
+
+// The real catalog is empty; use a fixed-price fixture so totals stay exact.
+const PAY_SOFA = "test-pay-sofa"; // 320
+before(() => __setCatalogProductsForTests([
+  makeProduct({ slug: PAY_SOFA, category: "sofas", price: 320, colors: ["beige"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
+]));
+after(() => __resetCatalogProductsForTests());
 import {
   buildIntent, assertOrderAmount, findReusableIntent, applyStatus, markPending,
   canTransition, transition, isTerminal, isPaid, canRetry,
@@ -22,7 +31,7 @@ import {
 
 // A confirmed order (from Phase 10A) to pay for.
 function makeOrder(over: Partial<Order> = {}): Order {
-  const draft = buildCartDraft([{ slug: "luna-modular-sofa", quantity: 2 }]); // 640
+  const draft = buildCartDraft([{ slug: PAY_SOFA, quantity: 2 }]); // 640
   return {
     id: "ord-1", orderNumber: "ATH-000001", customerId: "cust-1", source: "cart",
     status: "confirmed", groups: draft.groups, totals: draft.totals,

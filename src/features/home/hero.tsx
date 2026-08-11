@@ -5,11 +5,8 @@ import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ImageFrame } from "@/components/ui/image-frame";
 import { ProductImage } from "@/components/shop/product-image";
-import { getProductBySlug, formatOmr, type Product } from "@/lib/catalog";
+import { getAllProducts, formatOmr, type Product } from "@/lib/catalog";
 import { RoomIllustration } from "./room-illustration";
-
-/** Iconic catalog pieces surfaced as floating "real furniture" references. */
-const HERO_PIECES = ["luna-modular-sofa", "faris-floor-lamp", "noura-coffee-table"];
 
 /**
  * The hero — an editorial "show, don't tell" opening. Left: an oversized display
@@ -20,9 +17,8 @@ const HERO_PIECES = ["luna-modular-sofa", "faris-floor-lamp", "noura-coffee-tabl
  */
 export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const h = dict.home.hero;
-  const pieces = HERO_PIECES.map((s) => getProductBySlug(s)).filter(
-    (p): p is Product => Boolean(p),
-  );
+  // Surface the first few real catalog pieces (empty until real products are added).
+  const pieces: Product[] = getAllProducts().slice(0, 3);
   const steps = [h.step1, h.step2, h.step3];
 
   return (
@@ -116,7 +112,7 @@ export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
               {h.matchesValue}
             </div>
 
-            {/* Floating REAL product references */}
+            {/* Floating REAL product references (hidden until real products exist) */}
             <div className="pointer-events-none absolute -bottom-5 start-2 end-2 flex items-end justify-between gap-3 sm:-bottom-6">
               {pieces.map((p, i) => {
                 const name = locale === "ar" ? p.nameAr : p.name;

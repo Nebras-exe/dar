@@ -6,17 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { productCardLabels } from "@/components/shared/product-card";
 import { Reveal } from "@/components/shared/reveal";
-import { getProductBySlug, type Product } from "@/lib/catalog";
-
-// A curated spread of real catalog pieces — every card links to a real product.
-const FEATURED_SLUGS = [
-  "luna-modular-sofa",
-  "noura-coffee-table",
-  "rima-accent-chair",
-  "faris-floor-lamp",
-  "textured-wool-rug",
-  "sila-side-table",
-];
+import { getAllProducts, type Product } from "@/lib/catalog";
 
 export function FeaturedProducts({
   dict,
@@ -27,9 +17,8 @@ export function FeaturedProducts({
 }) {
   const f = dict.home.featured;
   const labels = productCardLabels(dict.shop);
-  const products = FEATURED_SLUGS.map((slug) => getProductBySlug(slug)).filter(
-    (p): p is Product => Boolean(p),
-  );
+  // The first few real catalog pieces (empty until real products are added).
+  const products: Product[] = getAllProducts().slice(0, 6);
 
   return (
     <Section id="featured" spacing="lg">
@@ -46,7 +35,13 @@ export function FeaturedProducts({
           </Button>
         </div>
         <Reveal className="mt-10">
-          <ProductGrid products={products} locale={locale} labels={labels} />
+          {products.length === 0 ? (
+            <p className="rounded-xl border border-dashed border-border bg-surface px-6 py-10 text-center text-muted">
+              {f.emptyNote}
+            </p>
+          ) : (
+            <ProductGrid products={products} locale={locale} labels={labels} />
+          )}
         </Reveal>
       </Container>
     </Section>

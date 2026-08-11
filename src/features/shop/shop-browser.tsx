@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SearchX } from "lucide-react";
+import { PackageOpen, SearchX } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { CategorySlug, Product } from "@/lib/catalog";
@@ -29,6 +29,7 @@ export function ShopBrowser({
   products,
   priceBounds,
   lockedCategory,
+  catalogEmpty = false,
 }: {
   locale: Locale;
   dict: Dictionary;
@@ -36,6 +37,8 @@ export function ShopBrowser({
   products: Product[];
   priceBounds: { min: number; max: number };
   lockedCategory?: CategorySlug;
+  /** True when the whole catalog is empty (vs. filters excluding everything). */
+  catalogEmpty?: boolean;
 }) {
   const t = dict.shop;
   const labels = productCardLabels(t);
@@ -92,7 +95,21 @@ export function ShopBrowser({
             />
           </div>
 
-          {count === 0 ? (
+          {count === 0 && catalogEmpty ? (
+            <EmptyState
+              icon={<PackageOpen className="size-5" strokeWidth={1.75} />}
+              title={t.emptyCatalog.title}
+              description={t.emptyCatalog.description}
+              action={
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm text-muted">{t.empty.customPrompt}</p>
+                  <Button variant="outline" size="sm" href={`/${locale}/custom`}>
+                    {t.empty.customAction}
+                  </Button>
+                </div>
+              }
+            />
+          ) : count === 0 ? (
             <EmptyState
               icon={<SearchX className="size-5" strokeWidth={1.75} />}
               title={t.empty.title}

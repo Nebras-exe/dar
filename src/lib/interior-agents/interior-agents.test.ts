@@ -7,10 +7,19 @@
  * spec correctness, and the client-safe boundary (no key in any output).
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
+import {
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "../catalog/queries";
+import { sampleCatalog } from "../catalog/test-fixtures";
 import { runInteriorDesign } from "./orchestrator";
+
+// The production catalog is empty; ground the interior engine against fixtures.
+before(() => __setCatalogProductsForTests(sampleCatalog));
+after(() => __resetCatalogProductsForTests());
 import { validateBrief } from "./validation";
 import { computeBudget, trimToBudget } from "./budget";
 import { validateLayout } from "./layout-agent";
@@ -111,13 +120,14 @@ test("a need with an impossible constraint still grounds to a real product (rela
   for (const s of selections) assert.ok(s.priceOmr > 0);
 });
 
-test("variant grounding attaches a real variant colour/price where variants exist", () => {
-  // luna-modular-sofa has colour variants in the local variant layer.
+test("grounding attaches a real colour/price (variant layer or the product's own colour)", () => {
+  // The demo variant layer is cleared, so grounding falls back to the product's
+  // own first catalog colour — still a REAL colour id, never invented.
   const { selections } = groundCatalog([{ category: "sofas", style: "warm-modern", color: "sage" }] as never);
-  const luna = selections.find((s) => s.slug === "luna-modular-sofa");
-  if (luna) {
-    assert.ok(luna.colorId); // a real variant colour id
-    assert.ok(luna.priceOmr > 0);
+  const sofa = selections.find((s) => s.slug === "test-modern-sofa");
+  if (sofa) {
+    assert.ok(sofa.colorId); // a real catalog colour id
+    assert.ok(sofa.priceOmr > 0);
   }
 });
 

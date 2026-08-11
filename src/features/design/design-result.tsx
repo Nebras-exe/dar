@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
-import { categoryBySlug, formatOmr, label, styleLabels } from "@/lib/catalog";
+import { categoryBySlug, formatOmr, getAllProducts, label, styleLabels } from "@/lib/catalog";
 import {
   getOption,
   type DesignRecommendation,
@@ -85,6 +85,9 @@ export function DesignResult({
   };
 
   const isLowBudget = input.budget < 150;
+  // When the whole catalog is empty, the engine can't ground any product — say so
+  // honestly rather than showing an empty plan (it never fabricates products).
+  const catalogEmpty = getAllProducts().length === 0;
 
   return (
     <div>
@@ -233,7 +236,7 @@ export function DesignResult({
               <div className="mt-3">
                 <EmptyState
                   icon={<ShoppingBag className="size-5" strokeWidth={1.75} />}
-                  title={tr.empty}
+                  title={catalogEmpty ? tr.emptyCatalog : tr.empty}
                   action={
                     <Button variant="outline" onClick={() => dispatch({ type: "RESET" })}>
                       {tr.startOver}

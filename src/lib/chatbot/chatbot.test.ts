@@ -7,19 +7,29 @@
  * memory/order data never on the server, prompt-injection boundary, and EN/AR.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
 import { runChat, chatMode } from "./service";
 import { demoRespond, defaultQuickActions } from "./demo-engine";
 import { detectIntent, extractSlots } from "./intents";
 import { searchCatalog, isRealProduct, productVariants, budgetFor } from "./tools";
-import { getProductBySlug } from "@/lib/catalog";
+import {
+  getProductBySlug,
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "@/lib/catalog";
+import { sampleCatalog } from "@/lib/catalog/test-fixtures";
 import type { ChatMessage } from "./types";
 
 function user(content: string): ChatMessage[] {
   return [{ role: "user", content }];
 }
+
+// The production catalog is empty; exercise chatbot grounding against fixtures.
+// (The honest empty-catalog behaviour is covered by its own test below.)
+before(() => __setCatalogProductsForTests(sampleCatalog));
+after(() => __resetCatalogProductsForTests());
 
 // ── Provider selection / demo fallback (§12/§18) ──────────────────────────────
 
@@ -67,7 +77,7 @@ test("searchCatalog returns only REAL catalog slugs", () => {
 });
 
 test("isRealProduct rejects a fabricated id", () => {
-  assert.equal(isRealProduct("luna-modular-sofa"), true);
+  assert.equal(isRealProduct("test-modern-sofa"), true);
   assert.equal(isRealProduct("totally-fake-slug"), false);
 });
 
@@ -88,12 +98,27 @@ test("an impossible request returns an honest no-match (never a fabricated produ
 
 // ── Variant selection (§6) ────────────────────────────────────────────────────
 
-test("variant grounding returns real variant colours for a product", () => {
-  const colours = productVariants("luna-modular-sofa");
-  assert.ok(colours.length >= 2);
-  const product = getProductBySlug("luna-modular-sofa")!;
+test("variant grounding: any variants returned are real product colours (data cleared → empty)", () => {
+  // The demo variant layer is cleared, so productVariants is empty — but the
+  // invariant (every returned colour is a real product colour) still holds.
+  const colours = productVariants("test-modern-sofa");
+  const product = getProductBySlug("test-modern-sofa")!;
   const real = new Set(product.colors.map((c) => c.id));
   for (const c of colours) assert.ok(real.has(c), `variant colour ${c} is a real product colour`);
+  assert.deepEqual(productVariants("test-modern-sofa"), []);
+});
+
+test("honesty: with an EMPTY catalog the demo engine never fabricates a product", () => {
+  __resetCatalogProductsForTests(); // simulate the real (empty) catalog
+  try {
+    const res = demoRespond(user("find me a sofa"), "en");
+    assert.equal(res.cards.length, 0, "no product cards when the catalog is empty");
+    assert.match(res.message, /empty|no products|فارغ|لم تتم/i);
+    const ar = demoRespond(user("أبحث عن كنبة"), "ar");
+    assert.equal(ar.cards.length, 0);
+  } finally {
+    __setCatalogProductsForTests(sampleCatalog); // restore for the rest of the file
+  }
 });
 
 // ── Budget recommendations (§ budget authority) ───────────────────────────────

@@ -7,7 +7,7 @@
  * questions like: "sofa, warm-modern, beige, width ≤ 240 cm, under OMR 300".
  */
 
-import { products } from "./products";
+import { products as demoCatalog } from "./products";
 import { categories } from "./taxonomy";
 import type {
   Category,
@@ -20,9 +20,27 @@ import type {
   StyleTag,
 } from "./types";
 
-/** All demo products in curated ("Recommended") order. */
+/**
+ * The active product source. Defaults to the (currently empty) catalog. A
+ * TEST-ONLY seam (`__setCatalogProductsForTests`) can swap in a synthetic fixture
+ * so the deterministic query/design/agent/chatbot logic can be exercised without
+ * shipping any demo products in production. Never call the setter from app code.
+ */
+let activeProducts: readonly Product[] = demoCatalog;
+
+/** TEST ONLY: inject a fixture catalog for the current test file. */
+export function __setCatalogProductsForTests(list: readonly Product[]): void {
+  activeProducts = list;
+}
+
+/** TEST ONLY: restore the real (empty) catalog. */
+export function __resetCatalogProductsForTests(): void {
+  activeProducts = demoCatalog;
+}
+
+/** All products in curated ("Recommended") order. */
 export function getAllProducts(): readonly Product[] {
-  return products;
+  return activeProducts;
 }
 
 /** All categories, in display order. */
@@ -39,17 +57,17 @@ export function isCategorySlug(value: string): value is CategorySlug {
 }
 
 export function getProductBySlug(slug: string): Product | undefined {
-  return products.find((p) => p.slug === slug);
+  return activeProducts.find((p) => p.slug === slug);
 }
 
 export function getProductsByCategory(category: CategorySlug): Product[] {
-  return products.filter((p) => p.category === category);
+  return activeProducts.filter((p) => p.category === category);
 }
 
 /** Count of products in each category (for nav badges / SEO). */
 export function getCategoryCounts(): Record<string, number> {
   const counts: Record<string, number> = {};
-  for (const p of products) counts[p.category] = (counts[p.category] ?? 0) + 1;
+  for (const p of activeProducts) counts[p.category] = (counts[p.category] ?? 0) + 1;
   return counts;
 }
 
@@ -122,7 +140,7 @@ function hasAny<T>(requested: T[] | undefined, values: T[]): boolean {
 /** Apply a filter to a product list (defaults to the whole catalog). */
 export function filterProducts(
   filter: ProductFilter,
-  source: readonly Product[] = products,
+  source: readonly Product[] = activeProducts,
 ): Product[] {
   return source.filter((p) => {
     if (!hasAny(filter.categories, [p.category])) return false;
@@ -209,7 +227,7 @@ export function sortProducts(list: readonly Product[], key: SortKey): Product[] 
  * product always yields the same related set.
  */
 export function getRelatedProducts(product: Product, limit = 4): Product[] {
-  const scored = products
+  const scored = activeProducts
     .filter((p) => p.slug !== product.slug)
     .map((p) => {
       let score = 0;
@@ -236,7 +254,7 @@ function overlap<T>(a: T[], b: T[]): number {
 
 // ── Price bounds (for the price filter UI) ────────────────────────────────────
 
-export function getPriceBounds(source: readonly Product[] = products): {
+export function getPriceBounds(source: readonly Product[] = activeProducts): {
   min: number;
   max: number;
 } {

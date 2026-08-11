@@ -251,6 +251,7 @@
       "title": "Pieces people are designing with",
       "subtitle": "Sample catalog data — a taste of the real inventory to come.",
       "badge": "Sample",
+      "emptyNote": "No furniture has been added yet. Products from verified suppliers will appear here.",
       "items": [
         {
           "name": "Modular Sofa",
@@ -412,6 +413,10 @@
       "action": "Clear all filters",
       "customPrompt": "Can't find it? Have it made to order.",
       "customAction": "Request custom furniture"
+    },
+    "emptyCatalog": {
+      "title": "No furniture has been added yet.",
+      "description": "Products from verified suppliers will appear here."
     },
     "card": {
       "sample": "Sample",
@@ -769,6 +774,7 @@
       "startOver": "Start a new design",
       "lowBudgetNote": "With this budget, Athathi is focusing on the highest-impact pieces.",
       "empty": "No products matched this brief. Try a higher budget, a different style, or keeping fewer pieces.",
+      "emptyCatalog": "No catalog products are currently available. Products from verified suppliers will appear here — check back soon.",
       "kept": "Kept",
       "customPrompt": "Want something bespoke instead?",
       "customLink": "Request custom furniture",
@@ -2116,6 +2122,7 @@
     "orderPayment": "Payment",
     "orderProgress": "Progress",
     "memoryNote": "Your saved style leans {summary}. Want me to use it for a new room?",
+    "catalogEmpty": "The furniture catalog is currently empty — no products have been added yet. I can still help you design a room or plan a custom piece.",
     "useMemory": "Use my saved style",
     "openDesign": "Open Design My Space",
     "openCustom": "Start custom furniture",

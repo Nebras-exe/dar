@@ -5,11 +5,20 @@
  * demo, catalog-truth, and the bounded/validated orchestrator loop.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
-import { getProductBySlug } from "../catalog/queries";
+import {
+  getProductBySlug,
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "../catalog/queries";
+import { sampleCatalog } from "../catalog/test-fixtures";
 import { buildOption, summarize, type DesignInput } from "../design";
+
+// The production catalog is empty; exercise the Agent/tools against fixtures.
+before(() => __setCatalogProductsForTests(sampleCatalog));
+after(() => __resetCatalogProductsForTests());
 import { runTool } from "./tools";
 import { runDemoAgent } from "./demo";
 import { parseIntent, parseTargetBudget, toAsciiDigits } from "./intent";
@@ -52,14 +61,14 @@ test("tool: search_catalog returns only real catalog products", () => {
 
 test("tool: get_product not-found for unknown slug", () => {
   assert.deepEqual(runTool("get_product", { slug: "does-not-exist" }), { found: false });
-  const ok = runTool("get_product", { slug: "luna-modular-sofa" }) as { found: boolean };
+  const ok = runTool("get_product", { slug: "test-modern-sofa" }) as { found: boolean };
   assert.equal(ok.found, true);
 });
 
 test("tool: check_budget rejects bad budget, computes exact OMR", () => {
   assert.deepEqual(runTool("check_budget", { budget: -5, slugs: [] }), { error: "invalid-budget" });
-  const r = runTool("check_budget", { budget: 500, slugs: ["noura-coffee-table", "faris-floor-lamp"] }) as { newFurnitureTotal: number };
-  const expected = getProductBySlug("noura-coffee-table")!.price + getProductBySlug("faris-floor-lamp")!.price;
+  const r = runTool("check_budget", { budget: 500, slugs: ["test-coffee-table", "test-floor-lamp"] }) as { newFurnitureTotal: number };
+  const expected = getProductBySlug("test-coffee-table")!.price + getProductBySlug("test-floor-lamp")!.price;
   assert.ok(Math.abs(r.newFurnitureTotal - expected) < 0.0005);
 });
 
@@ -68,7 +77,7 @@ test("tool: unknown tool name is rejected (allowlist)", () => {
 });
 
 test("tool: check_product_fit is unknown without a reliable width, deterministic when known", () => {
-  assert.deepEqual(runTool("check_product_fit", { slug: "luna-modular-sofa" }), { fitStatus: "unknown" });
+  assert.deepEqual(runTool("check_product_fit", { slug: "test-modern-sofa" }), { fitStatus: "unknown" });
   const fit = runTool("check_product_fit", { productWidthCm: 200, availableWidthCm: 240 }) as { fitStatus: string };
   assert.equal(fit.fitStatus, "fit");
   const notFit = runTool("check_product_fit", { productWidthCm: 280, availableWidthCm: 240 }) as { fitStatus: string };

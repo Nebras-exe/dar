@@ -5,10 +5,15 @@
  * ownership + supplier isolation, price/quantity tampering, and address validation.
  */
 
-import test from "node:test";
+import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 
-import { getProductBySlug } from "@/lib/catalog";
+import {
+  getProductBySlug,
+  __setCatalogProductsForTests,
+  __resetCatalogProductsForTests,
+} from "@/lib/catalog";
+import { makeProduct } from "@/lib/catalog/test-fixtures";
 import { demoSupplierByName } from "@/lib/repository";
 import type { CustomFurnitureSpec, Quote, CustomRequest } from "@/lib/rfq";
 import {
@@ -27,10 +32,23 @@ import {
   type Order,
 } from "./index";
 
-// Real products from THREE distinct demo suppliers.
-const SOFA = "luna-modular-sofa"; // demo-athathi-studio, 320
-const SECTIONAL = "rami-l-shape-sectional"; // demo-athathi-supplier, 445
-const LEATHER = "yusuf-leather-sofa"; // demo-furniture-lab, 520
+// Test fixtures spanning THREE distinct demo suppliers (the real catalog is empty).
+const SOFA = "test-studio-sofa"; // Athathi Studio Collection, 320
+const SOFA2 = "test-studio-sofa-2"; // same supplier (merge test)
+const SECTIONAL = "test-supplier-sectional"; // Athathi Demo Supplier, 445
+const LEATHER = "test-lab-leather-sofa"; // Demo Furniture Lab, 520
+const RUG = "test-checkout-rug"; // Athathi Demo Supplier, 58
+
+const ordersFixtures = [
+  makeProduct({ slug: SOFA, category: "sofas", price: 320, colors: ["cream", "beige", "grey"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
+  makeProduct({ slug: SOFA2, category: "sofas", price: 280, colors: ["beige", "grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
+  makeProduct({ slug: SECTIONAL, category: "sofas", subcategory: "sectional", price: 445, colors: ["grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "Athathi Demo Supplier" }),
+  makeProduct({ slug: LEATHER, category: "sofas", price: 520, colors: ["walnut", "charcoal"], materials: ["leather"], styleTags: ["mid-century"], roomTypes: ["living-room"], supplier: "Demo Furniture Lab" }),
+  makeProduct({ slug: RUG, category: "rugs", price: 58, colors: ["sand", "grey"], materials: ["wool"], styleTags: ["boho"], roomTypes: ["living-room"], supplier: "Athathi Demo Supplier" }),
+];
+
+before(() => __setCatalogProductsForTests(ordersFixtures));
+after(() => __resetCatalogProductsForTests());
 
 // ── Cart checkout + multi-supplier grouping (§3/§13) ──────────────────────────
 
@@ -54,11 +72,11 @@ test("cart draft: groups items by supplier with per-supplier + order totals", ()
 test("cart draft: two lines from the same supplier merge into one group", () => {
   const draft = buildCartDraft([
     { slug: SOFA, quantity: 1 },
-    { slug: "noor-three-seat-sofa", quantity: 1 }, // also athathi-studio
+    { slug: SOFA2, quantity: 1 }, // also Studio
   ]);
   const studioGroups = draft.groups.filter((g) => g.supplierName.includes("Studio"));
   // same supplier → single group with both items (if same supplier)
-  const sofa2 = getProductBySlug("noor-three-seat-sofa");
+  const sofa2 = getProductBySlug(SOFA2);
   if (sofa2 && demoSupplierByName(sofa2.supplier)?.name.includes("Studio")) {
     assert.equal(studioGroups.length, 1);
     assert.equal(studioGroups[0].items.length, 2);
@@ -150,7 +168,7 @@ test("validateAcceptedQuote: only an accepted, owned quote proceeds", () => {
 // ── Totals / OMR precision (§7) ───────────────────────────────────────────────
 
 test("totals: OMR stays 3-decimal exact across grouping", () => {
-  const draft = buildCartDraft([{ slug: "textured-wool-rug", quantity: 3 }]); // 58 × 3 = 174
+  const draft = buildCartDraft([{ slug: RUG, quantity: 3 }]); // 58 × 3 = 174
   assert.equal(draft.totals.goodsSubtotal, 174);
   // Re-running recompute is idempotent.
   const again = recomputeGroups(draft.groups);
