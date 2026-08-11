@@ -1,6 +1,6 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 10B (Payment Architecture)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 11A (Order Fulfillment)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
 **Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
@@ -289,6 +289,27 @@ supabase/migrations/{0008_payments,0009_payments_rls}.sql
 - **Authorization (§8/§22).** Owner-only intents; `supplierPaymentView` exposes only paid/awaiting; `AGENT_CAN_PAY=false`; `summarize_payment` is read-only.
 - **No raw card data.** No card/CVV/PIN/bank field exists; only safe `providerReference`s are stored. Secrets are server-only; routes return booleans/enum + stable safe codes.
 - **Mode.** Demo: a labelled `localStorage` intent store (`athathi.payments.v1`, `isDemo`). Supabase: `payment_intents`/`payment_attempts`/`payment_events` (RLS-scoped). Refunds documented, not built.
+
+### 5.9 Fulfillment layer (Phase 11A)
+
+`src/lib/fulfillment/` (pure) turns a **paid** order into a per-supplier fulfillment
+handoff. SEPARATE domain from order status and payment status. Full detail in
+`docs/FULFILLMENT_WORKFLOW.md`.
+
+```
+src/lib/fulfillment/  types.ts status-machine.ts fulfillment.ts authorization.ts notifications.ts index.ts fulfillment.test.ts
+src/features/orders/  fulfillment-store.ts  (+ order-views.tsx: supplier controls, customer timeline, account summary)
+supabase/migrations/{0010_fulfillment,0011_fulfillment_rls}.sql
+```
+
+- **Per-supplier lifecycle (§6).** `awaiting_supplier → accepted → preparing → ready_for_next_stage` (or `declined`/`cancelled`); each `order_group` has its own state — a multi-supplier order is never one status.
+- **Paid-only entry (§4).** `canCreateFulfillment(paymentStatus)` + the `assert_order_paid` insert trigger gate creation. Order/payment/fulfillment stay three separate fields.
+- **Safe state machine.** `status-machine.ts` allowlists transitions; terminals never regress; `availableSupplierActions` drives the UI, and the store re-checks the machine (a hidden button is never the only guard).
+- **Snapshot reference (§8/§24).** A fulfillment references the order group by id — it never re-reads current catalog pricing; the purchase contract is the immutable order snapshot.
+- **Auditable events (§9).** Every transition appends an immutable `FulfillmentEvent`; the decline internal note is never placed in an event or the customer timeline (§12).
+- **Authorization (§26).** Customer reads own; supplier reads/manages own group only; customer never writes; `AGENT_CAN_MANAGE_FULFILLMENT=false`; `summarize_fulfillment` is read-only. Mirrored in `0011` RLS.
+- **Notifications (§20/§30).** `FulfillmentNotifier` contract + `demoNotifier` (records, `delivered:false`) — ZERO external messaging; a real provider drops in behind the same interface.
+- **Mode.** Demo: a labelled `localStorage` store (`athathi.fulfillments.v1`, `isDemo`). Supabase: `fulfillments`/`fulfillment_events` (RLS-scoped). Manufacturing/delivery detail is Phase 11B.
 
 ## 6. AI agent architecture (direction)
 

@@ -1500,5 +1500,90 @@
     },
     "supplierPaid": "دفع العميل",
     "supplierAwaiting": "بانتظار الدفع"
+  },
+  "fulfillment": {
+    "demoNote": "تعمل عملية التنفيذ في الوضع التجريبي — تُسجَّل إشعارات المورّد والعميل ولا تُرسَل فعليًا.",
+    "status": {
+      "awaiting_supplier": "بانتظار المورّد",
+      "accepted": "مقبول",
+      "preparing": "قيد التحضير",
+      "ready_for_next_stage": "جاهز للمرحلة التالية",
+      "declined": "مرفوض",
+      "cancelled": "أُلغي"
+    },
+    "reasons": {
+      "unable_to_fulfill": "تعذّر التنفيذ",
+      "inventory_issue": "مشكلة في المخزون",
+      "capacity_issue": "مشكلة في الطاقة الإنتاجية",
+      "delivery_issue": "مشكلة في التوصيل",
+      "other": "أخرى"
+    },
+    "supplier": {
+      "title": "طلبات مدفوعة جديدة",
+      "subtitle": "طلبات مدفوعة تنتظر إجراءك. لا ترى سوى منتجاتك أنت فقط.",
+      "empty": "لا توجد طلبات مدفوعة بعد. تظهر هنا الطلبات المدفوعة التي تتضمّن منتجاتك.",
+      "paid": "مدفوع",
+      "deliverTo": "التوصيل إلى",
+      "groupTotal": "إجماليك",
+      "qty": "الكمية",
+      "each": "للوحدة",
+      "custom": "أثاث مخصّص",
+      "manufacturing": "مدة التصنيع",
+      "warranty": "الضمان",
+      "days": "{count} يوم",
+      "options": "الخيارات",
+      "accept": "قبول الطلب",
+      "decline": "رفض",
+      "startPreparing": "بدء التحضير",
+      "markReady": "تحديد كجاهز",
+      "acceptConfirmTitle": "قبول هذا الطلب؟",
+      "acceptConfirmBody": "أنت تؤكّد قدرتك على تنفيذ الجزء الخاص بك من هذا الطلب. سيُبلَّغ العميل (الوضع التجريبي).",
+      "confirm": "تأكيد",
+      "cancel": "إلغاء",
+      "declineTitle": "رفض هذا الطلب",
+      "declineIntro": "أخبرنا لماذا لا يمكنك تنفيذ هذا الطلب. يرى العميل سببًا موجزًا وليس ملاحظتك الداخلية.",
+      "declineReasonLabel": "السبب",
+      "declineNoteLabel": "ملاحظة داخلية (اختياري)",
+      "declineNoteHint": "مرئية لك ولأثاثي فقط — لا تُعرض للعميل أبدًا.",
+      "declineSubmit": "إرسال الرفض",
+      "acceptedToast": "تم قبول الطلب",
+      "preparingToast": "بدأ التحضير",
+      "readyToast": "تم التحديد كجاهز للمرحلة التالية",
+      "declinedToast": "تم رفض الطلب",
+      "awaitingHint": "راجع الطلب ثم اقبله أو ارفضه.",
+      "preparingHint": "جهّز عناصرك وعبّئها ثم حدّدها كجاهزة.",
+      "readyHint": "جاهز لمرحلة التنفيذ التالية.",
+      "customReadyHint": "مقبول — يمكن أن يبدأ سير عمل التصنيع في مرحلة لاحقة.",
+      "fulfillmentLabel": "التنفيذ"
+    },
+    "timeline": {
+      "title": "تقدّم الطلب",
+      "perSupplier": "التقدّم حسب المورّد",
+      "current": "الحالية",
+      "updated": "آخر تحديث",
+      "stage": {
+        "paid": "تم تأكيد الدفع",
+        "awaiting_supplier": "بانتظار المورّد",
+        "accepted": "مقبول",
+        "preparing": "قيد التحضير",
+        "ready_for_next_stage": "جاهز للمرحلة التالية"
+      },
+      "declinedTitle": "المورّد غير قادر على التنفيذ",
+      "declinedBody": "رفض هذا المورّد طلبك. لن يتم أي تحضير إضافي لعناصره.",
+      "cancelledTitle": "أُلغيت عملية التنفيذ",
+      "reasonLabel": "السبب",
+      "readyCatalogNote": "عناصرك جاهزة لتسليم التوصيل (مرحلة لاحقة).",
+      "readyCustomNote": "مقبول — يمكن أن يبدأ سير عمل التصنيع المخصّص (مرحلة لاحقة).",
+      "awaitingNote": "تم إبلاغ المورّد وسيراجع طلبك."
+    },
+    "summary": {
+      "awaitingAll": "بانتظار المورّدين",
+      "acceptedCount": "قبل {done} من {total} مورّدين",
+      "readyCount": "{done} من {total} جاهزون للمرحلة التالية",
+      "allReady": "جميع المورّدين جاهزون للمرحلة التالية",
+      "declinedCount": "{count} مرفوض",
+      "inProgress": "قيد التحضير مع المورّدين",
+      "label": "التنفيذ"
+    }
   }
 }

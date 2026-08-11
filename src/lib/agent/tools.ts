@@ -55,6 +55,7 @@ import {
 import { buildCartDraft } from "@/lib/orders";
 import { isPaid, AGENT_CAN_PAY, type PaymentStatus } from "@/lib/payments";
 import { paymentMode } from "@/lib/payments/providers";
+import { AGENT_CAN_MANAGE_FULFILLMENT, type FulfillmentStatus } from "@/lib/fulfillment";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -305,6 +306,47 @@ function summarizePayment(args: Record<string, unknown>) {
   };
 }
 
+// ── Phase 11A: summarize_fulfillment (READ-ONLY; the Agent never manages) ─────
+/**
+ * Summarize an order's per-supplier fulfillment progress and explain the next
+ * step. The Agent is strictly READ-ONLY on fulfillment (§25): it may summarize
+ * and explain, but it can NEVER accept, decline, mark preparing, or mark ready —
+ * those are the supplier's explicit actions. This takes the client's own
+ * fulfillment statuses (one per supplier group) and echoes a safe summary.
+ */
+const FULFILLMENT_STATUSES: readonly FulfillmentStatus[] = [
+  "awaiting_supplier", "accepted", "preparing", "ready_for_next_stage", "declined", "cancelled",
+];
+function summarizeFulfillmentTool(args: Record<string, unknown>) {
+  const raw = Array.isArray(args.statuses) ? args.statuses : (args.status !== undefined ? [args.status] : []);
+  const statuses = raw.filter((s): s is FulfillmentStatus =>
+    typeof s === "string" && (FULFILLMENT_STATUSES as readonly string[]).includes(s));
+  const counts = { awaiting: 0, accepted: 0, preparing: 0, ready: 0, declined: 0, cancelled: 0 };
+  for (const s of statuses) {
+    if (s === "awaiting_supplier") counts.awaiting++;
+    else if (s === "accepted") counts.accepted++;
+    else if (s === "preparing") counts.preparing++;
+    else if (s === "ready_for_next_stage") counts.ready++;
+    else if (s === "declined") counts.declined++;
+    else if (s === "cancelled") counts.cancelled++;
+  }
+  const total = statuses.length;
+  const allReady = total > 0 && counts.ready === total;
+  const nextStep =
+    total === 0 ? "no-fulfillment-yet"
+    : allReady ? "ready-for-next-stage"
+    : counts.awaiting > 0 ? "awaiting-supplier"
+    : counts.preparing > 0 ? "preparing"
+    : counts.accepted > 0 ? "accepted"
+    : counts.declined > 0 ? "some-declined"
+    : "in-progress";
+  return {
+    total, counts, allReady, nextStep,
+    agentCanManage: AGENT_CAN_MANAGE_FULFILLMENT, // always false — read-only
+    note: "read-only",
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -475,6 +517,11 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "summarize_payment",
     description: "Read-only: report the payment mode (demo/live) and an order's payment status. The Agent can NEVER pay, verify, complete, or change payment — the customer does that in the UI.",
     run: summarizePayment,
+  },
+  summarize_fulfillment: {
+    name: "summarize_fulfillment",
+    description: "Read-only: summarize an order's per-supplier fulfillment progress and the next step. The Agent can NEVER accept, decline, mark preparing, or mark ready — the supplier does that in the UI.",
+    run: summarizeFulfillmentTool,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

@@ -42,6 +42,7 @@ export function SupplierDashboard({
   tCustom,
   tOrders,
   tPay,
+  tFul,
   locale,
 }: {
   supplier: Supplier;
@@ -51,6 +52,7 @@ export function SupplierDashboard({
   tCustom: Dictionary["custom"];
   tOrders: Dictionary["orders"];
   tPay: Dictionary["payment"];
+  tFul: Dictionary["fulfillment"];
   locale: Locale;
 }) {
   const [tab, setTab] = React.useState<Tab>("overview");
@@ -203,7 +205,7 @@ export function SupplierDashboard({
           </section>
         ) : tab === "orders" ? (
           <section aria-label={t.tabs.orders}>
-            <SupplierOrders supplierId={supplier.id} t={tOrders} tPay={tPay} locale={locale} />
+            <SupplierOrders supplierId={supplier.id} t={tOrders} tPay={tPay} tFul={tFul} tCustom={tCustom} locale={locale} />
           </section>
         ) : tab === "requests" ? (
           <section aria-label={t.tabs.requests}>

@@ -124,11 +124,31 @@ client never sends a price/total/status. **Refunds** are documented, not built �
 refund must be a separate, auditable transition (the status machine keeps `paid`
 terminal precisely for this).
 
+## Phase 11A tables (`0010_fulfillment.sql` + `0011_fulfillment_rls.sql`)
+
+Fulfillment (full detail in `docs/FULFILLMENT_WORKFLOW.md`). SEPARATE domain from
+order status and payment status. Enums `fulfillment_status`
+(`awaiting_supplier/accepted/preparing/ready_for_next_stage/declined/cancelled`),
+`fulfillment_decline_reason`, `fulfillment_event_type`, `fulfillment_actor_role`.
+Tables: `fulfillments` (**one per `order_group_id`** — references the immutable
+snapshot, §8; `supplier_id`, `customer_id`, `order_source`; `accepted_at`/
+`declined_at`/`decline_reason`; `decline_internal_note` — supplier/ops-only, never
+shown to the customer, §12; `is_demo`) guarded by an `assert_order_paid` **insert
+trigger** so a fulfillment can only exist for a PAID order (§4/§30);
+`fulfillment_events` (append-only audit history, `unique(fulfillment_id, type)` for
+event dedupe/idempotency, §9/§35). RLS (`0011`): the owning **customer** reads their
+order's fulfillment (never writes — §28); a **supplier member** reads/updates/inserts
+ONLY their own supplier's fulfillments (A can never touch B, §26); events are readable
+to customer-or-supplier and appended by the owning supplier only; no event
+update/delete (default deny — no silent rewrite). Each supplier group carries its OWN
+state (multi-supplier safe, §6).
+
 ## Future tables (documented, intentionally NOT built)
 
 `refunds` (a documented, auditable transition off a `paid` intent), plus
-`manufacturing_jobs`, `deliveries` (Phase 11 — fulfillment). A paid order →
-fulfillment is the next seam. The current schema is designed to extend cleanly.
+`manufacturing_jobs`, `quality_checks`, `deliveries` (Phase 11B — custom
+manufacturing + quality check + delivery). `ready_for_next_stage` is the seam to
+Phase 11B. The current schema is designed to extend cleanly.
 
 ## Secrets (§30/§47)
 

@@ -4,7 +4,7 @@ _Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 10B — Payment Architecture — ✅ Complete & verified.**
+**Phase 11A — Order Fulfillment + Supplier Acceptance — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -31,9 +31,11 @@ _Last updated: 2026-08-11_
 
 - **Phase 10B** — Payment Architecture: a confirmed order → **PAYMENT INTENT → server-side verify → PAID → receipt** through a provider-agnostic payment layer (`src/lib/payments/`: types/status-machine/intent/authorization/providers). **No live gateway is configured**, so payment runs through an honest, deterministic **Demo Payment** provider — clearly labelled, moving no real money, never a faked gateway and **never a card/CVV/PIN/bank field**. Enforces server/order **amount authority** (never a client value), **idempotency** (one intent/order; paid never re-charged), **client-untrusted verification** (`paid` only via `provider.verify()` + status machine), **safe transitions** (`paid → pending` impossible), owner-only + supplier-safe (paid/awaiting) visibility, and a **read-only Agent** (`summarize_payment`; `AGENT_CAN_PAY=false`). Payment page `/[locale]/orders/[id]/payment` + gated API boundary (`/api/payments/*`) + documented webhook foundation. Migrations `0008_payments.sql` + `0009_payments_rls.sql` (gated). Payment status is **separate** from order status. **168 tests** (+14), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1160 leaves); runs on :3000. See `docs/phase-reports/PHASE_10B_REPORT.md`, `docs/PAYMENT_ARCHITECTURE.md`.
 
+- **Phase 11A** — Order Fulfillment + Supplier Acceptance: a **paid** order hands off to its suppliers through a per-supplier fulfillment lifecycle (`src/lib/fulfillment/`: types/status-machine/fulfillment/authorization/notifications) — **awaiting_supplier → accepted → preparing → ready_for_next_stage** (or **declined**), kept SEPARATE from order status and payment status. Each supplier group has its OWN state (multi-supplier safe). Deterministic status machine, append-only auditable events, owner/supplier authorization mirrored in RLS, a supplier accept/decline/prepare/ready dashboard, a per-supplier customer timeline, deterministic account-card summary, read-only Agent (`summarize_fulfillment`), and a notification abstraction that RECORDS but never SENDS (Demo/Log — zero external). Migrations `0010_fulfillment.sql` (+ paid-order insert trigger) + `0011_fulfillment_rls.sql` (gated). **External paid credits consumed: 0.** **196 tests** (+28), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1231 leaves); runs on :3000. See `docs/phase-reports/PHASE_11A_REPORT.md`, `docs/FULFILLMENT_WORKFLOW.md`.
+
 ## Upcoming phases
 
-- **Phase 11A (recommended next)** — Order Fulfillment + Supplier Acceptance: drive the post-payment lifecycle (a **paid** order → supplier accept → prepare → ready/handover) with customer-visible milestones, keeping payment and fulfillment as separate auditable domains. See `docs/phase-reports/PHASE_10B_REPORT.md` § Recommended Phase 11A. **Not started.**
+- **Phase 11B (recommended next)** — Custom Manufacturing + Quality Check: pick up at `ready_for_next_stage` and drive custom-furniture manufacturing milestones + a quality-check gate before delivery handoff, as a separate auditable domain layered on fulfillment. See `docs/phase-reports/PHASE_11A_REPORT.md` § Recommended Phase 11B. **Not started.**
 
 ## Important architectural decisions
 

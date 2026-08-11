@@ -1500,5 +1500,90 @@
     },
     "supplierPaid": "Customer paid",
     "supplierAwaiting": "Awaiting payment"
+  },
+  "fulfillment": {
+    "demoNote": "Fulfillment runs in Demo Mode — supplier and customer notifications are recorded, not actually sent.",
+    "status": {
+      "awaiting_supplier": "Awaiting supplier",
+      "accepted": "Accepted",
+      "preparing": "Preparing",
+      "ready_for_next_stage": "Ready for next stage",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "reasons": {
+      "unable_to_fulfill": "Unable to fulfill",
+      "inventory_issue": "Inventory issue",
+      "capacity_issue": "Capacity issue",
+      "delivery_issue": "Delivery issue",
+      "other": "Other"
+    },
+    "supplier": {
+      "title": "New paid orders",
+      "subtitle": "Paid orders awaiting your action. You only ever see your own products.",
+      "empty": "No paid orders yet. Paid orders that include your products appear here.",
+      "paid": "Paid",
+      "deliverTo": "Deliver to",
+      "groupTotal": "Your total",
+      "qty": "Qty",
+      "each": "each",
+      "custom": "Custom furniture",
+      "manufacturing": "Manufacturing time",
+      "warranty": "Warranty",
+      "days": "{count} days",
+      "options": "Options",
+      "accept": "Accept order",
+      "decline": "Decline",
+      "startPreparing": "Start preparing",
+      "markReady": "Mark ready",
+      "acceptConfirmTitle": "Accept this order?",
+      "acceptConfirmBody": "You confirm you can fulfill your part of this order. The customer is notified (Demo Mode).",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "declineTitle": "Decline this order",
+      "declineIntro": "Tell us why you can't fulfill this order. The customer sees a short reason, not your internal note.",
+      "declineReasonLabel": "Reason",
+      "declineNoteLabel": "Internal note (optional)",
+      "declineNoteHint": "Only visible to you and Athathi — never shown to the customer.",
+      "declineSubmit": "Submit decline",
+      "acceptedToast": "Order accepted",
+      "preparingToast": "Preparation started",
+      "readyToast": "Marked ready for the next stage",
+      "declinedToast": "Order declined",
+      "awaitingHint": "Review the order, then accept or decline.",
+      "preparingHint": "Pick, prepare and pack your items, then mark ready.",
+      "readyHint": "Ready for the next fulfillment stage.",
+      "customReadyHint": "Accepted — the manufacturing workflow can begin in a later stage.",
+      "fulfillmentLabel": "Fulfillment"
+    },
+    "timeline": {
+      "title": "Order progress",
+      "perSupplier": "Progress by supplier",
+      "current": "Current",
+      "updated": "Updated",
+      "stage": {
+        "paid": "Payment confirmed",
+        "awaiting_supplier": "Waiting for supplier",
+        "accepted": "Accepted",
+        "preparing": "Preparing",
+        "ready_for_next_stage": "Ready for next stage"
+      },
+      "declinedTitle": "Supplier can't fulfill this",
+      "declinedBody": "This supplier declined your order. No further preparation happens for their items.",
+      "cancelledTitle": "Fulfillment cancelled",
+      "reasonLabel": "Reason",
+      "readyCatalogNote": "Your items are ready for the delivery handoff (a later stage).",
+      "readyCustomNote": "Accepted — the custom manufacturing workflow can begin (a later stage).",
+      "awaitingNote": "The supplier has been notified and will review your order."
+    },
+    "summary": {
+      "awaitingAll": "Awaiting suppliers",
+      "acceptedCount": "{done} of {total} suppliers accepted",
+      "readyCount": "{done} of {total} ready for next stage",
+      "allReady": "All suppliers ready for next stage",
+      "declinedCount": "{count} declined",
+      "inProgress": "Preparing with suppliers",
+      "label": "Fulfillment"
+    }
   }
 }
