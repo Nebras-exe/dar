@@ -1,8 +1,8 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 09 (Custom Furniture + RFQ)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 10A (Orders + Checkout)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
-**Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts` — 140 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
+**Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
 **AI providers:** vision, the agent, and the visualization run server-side only; keys are read from `process.env` and never reach the client. No key is configured in this environment — the designer works fully without one (vision → sample/manual; agent → Demo Agent; visualization → Demo Preview). Enable via `.env.example` names (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY` / `GOOGLE_GENERATIVE_AI_API_KEY`; optional `ATHATHI_VISION_PROVIDER`/`ATHATHI_VISION_MODEL`, `ATHATHI_AGENT_PROVIDER`/`ATHATHI_AGENT_MODEL`, `ATHATHI_VISUALIZATION_PROVIDER`/`ATHATHI_VISUALIZATION_MODEL`).
 
@@ -246,6 +246,25 @@ supabase/migrations/{0004_custom_furniture_rfq,0005_rfq_rls}.sql
 - **Authorization.** `authorization.ts` mirrors `0005_rfq_rls.sql`: customer owns their request/quotes; supplier reads/quotes only for RFQs addressed to a supplier it belongs to (A can't quote as B); accepted quotes are locked. Unit-tested.
 - **Agent tools.** The Phase 06 registry gained `create_custom_spec` / `find_custom_suppliers` / `list_quotes` / `compare_quotes` / `recommend_quote` — allowlisted, validated, rfq-backed; they never invent quotes/suppliers/prices, and never accept (the customer does).
 - **Mode.** Demo: a labelled `localStorage` RFQ store (deterministic Demo Quotes; reference images stay local). Supabase: `custom_requests`/`quotes` (RLS-scoped) are the source of truth. No payment/order (Phase 10).
+
+### 5.7 Orders / checkout layer (Phase 10A)
+
+`src/lib/orders/` (pure, client-safe) turns a cart OR an accepted quote into an immutable, supplier-grouped order. Full detail in `docs/phase-reports/PHASE_10A_REPORT.md`.
+
+```
+src/lib/orders/  types.ts totals.ts snapshot.ts validation.ts authorization.ts index.ts orders.test.ts
+src/features/orders/  order-store.ts  checkout-experience.tsx  order-views.tsx
+src/app/[locale]/checkout/page.tsx   src/app/[locale]/orders/[id]/page.tsx
+supabase/migrations/{0006_orders,0007_orders_rls}.sql
+```
+
+- **One architecture, two sources.** `buildCartDraft` (catalog cart) and `buildQuoteDraft` (accepted quote) both produce a `CheckoutDraft` of `SupplierOrderGroup`s → the same checkout, order, and views.
+- **Immutable snapshots (§6).** Order items copy name/price/dimensions (catalog) or the accepted quote terms + frozen spec (custom) at order time; later catalog/quote changes never alter history.
+- **Money (§7).** `totals.ts` computes per-supplier + order totals in exact 3-decimal OMR; the client never supplies a total — it is always recomputed on create.
+- **Validation.** `validateAddress` (Oman fields), `revalidateCart` (re-resolve against the catalog; drop fakes; clamp qty; surface price changes but always charge the catalog price), `validateAcceptedQuote` (owned + accepted only — never a browser-supplied quote id).
+- **Authorization (§21/§22).** `authorization.ts` mirrors `0007_orders_rls.sql`: a customer reads/confirms only their own order; a supplier reads only its own group (`redactOrderForSupplier`) and updates only its own group's status. `order_items` are readable to the owner OR the group's supplier — cross-supplier items are never exposed. Routes are auth-gated.
+- **Agent.** `summarize_checkout` (allowlisted, deterministic) groups the cart with exact totals and `requiresApproval: true` — it never confirms; confirmation is an explicit UI action.
+- **Mode.** Demo: a labelled `localStorage` order store (`isDemo`). Supabase: `orders`/`order_groups`/`order_items` (RLS-scoped). **No payment** — Phase 10B.
 
 ## 6. AI agent architecture (direction)
 

@@ -887,6 +887,7 @@
       "overview": "نظرة عامة",
       "products": "المنتجات",
       "inventory": "المخزون",
+      "orders": "الطلبات",
       "requests": "الطلبات",
       "analytics": "التحليلات",
       "settings": "الإعدادات"
@@ -1210,7 +1211,8 @@
       "acceptedTitle": "تم قبول العرض",
       "acceptedBody": "سجّل أثاثي اختيارك. تأتي خطوة الطلب والدفع في مرحلة لاحقة.",
       "readyForOrder": "جاهز للطلب",
-      "backToRequests": "عرض طلباتي"
+      "backToRequests": "عرض طلباتي",
+      "checkout": "المتابعة إلى الدفع"
     },
     "account": {
       "title": "طلبات الأثاث المخصّص",
@@ -1269,6 +1271,141 @@
       }
     },
     "promotedNote": "الإعلانات لا تؤثّر أبداً على توصية أثاثي. تعتمد الاقتراحات فقط على مدى ملاءمة العرض لطلبك."
+  },
+  "checkout": {
+    "title": "الدفع",
+    "demoBadge": "دفع تجريبي",
+    "steps": {
+      "summary": "ملخّص الطلب",
+      "delivery": "تفاصيل التوصيل",
+      "review": "المراجعة والتأكيد"
+    },
+    "backToCart": "العودة إلى السلة",
+    "emptyTitle": "لا شيء للدفع",
+    "emptyBody": "سلتك فارغة. تصفّح الكتالوج لإضافة قطع.",
+    "emptyAction": "تصفّح المتجر",
+    "signInTitle": "سجّل الدخول للمتابعة",
+    "signInBody": "سجّل الدخول لنحفظ طلبك في حسابك.",
+    "signInAction": "تسجيل الدخول",
+    "summary": {
+      "title": "ملخّص الطلب",
+      "fromCart": "من سلتك",
+      "fromQuote": "من عرض السعر المخصّص المقبول",
+      "supplier": "المورّد",
+      "each": "للقطعة",
+      "qty": "الكمية",
+      "custom": "أثاث مخصّص",
+      "manufacturing": "مدة التصنيع",
+      "warranty": "الضمان",
+      "days": "{count} يوماً",
+      "supplierSubtotal": "إجمالي المورّد",
+      "priceChangedTitle": "تغيّرت بعض الأسعار",
+      "priceChangedBody": "تغيّر سعر منذ إضافته — يستخدم طلبك السعر الحالي من الكتالوج.",
+      "droppedTitle": "بعض العناصر لم تعد متوفّرة",
+      "droppedBody": "تمت إزالتها من طلبك."
+    },
+    "delivery": {
+      "title": "تفاصيل التوصيل",
+      "subtitle": "إلى أين يوصّل أثاثي؟ نستخدم حقول العنوان العُمانية.",
+      "fullName": "الاسم الكامل",
+      "phone": "الهاتف",
+      "phoneHint": "جوّال عُماني، مثل ٩XXXXXXX",
+      "governorate": "المحافظة",
+      "wilayat": "الولاية",
+      "area": "المنطقة",
+      "areaOptional": "المنطقة (اختياري)",
+      "building": "وصف المبنى / المنزل",
+      "buildingHint": "مثل فيلا ١٢، بجانب المسجد",
+      "notes": "ملاحظات التوصيل",
+      "notesOptional": "ملاحظات التوصيل (اختياري)",
+      "continue": "المتابعة إلى المراجعة",
+      "errorsTitle": "يرجى مراجعة بياناتك",
+      "errors": {
+        "required": "هذا الحقل مطلوب.",
+        "invalid-phone": "أدخل رقم هاتف عُماني صحيحاً."
+      }
+    },
+    "totals": {
+      "goods": "إجمالي البضائع",
+      "delivery": "التوصيل",
+      "installation": "التركيب",
+      "grandTotal": "إجمالي الطلب",
+      "free": "مشمول",
+      "deliveryUnknown": "يُحتسب مع المورّد",
+      "deliveryUnknownNote": "توصيل منتجات الكتالوج يُرتَّب مع المورّد — لا تُضاف رسوم هنا."
+    },
+    "review": {
+      "title": "المراجعة والتأكيد",
+      "deliverTo": "التوصيل إلى",
+      "edit": "تعديل",
+      "paymentNoteTitle": "لا تتم معالجة الدفع بعد",
+      "paymentNoteBody": "التأكيد يسجّل طلبك. يأتي الدفع والتنفيذ في مرحلة لاحقة — ولا يُخصَم أي مبلغ الآن.",
+      "confirm": "تأكيد الطلب",
+      "confirmDemo": "تأكيد الطلب التجريبي",
+      "confirming": "جارٍ التأكيد…"
+    },
+    "confirmed": {
+      "title": "تم تأكيد الطلب",
+      "demoTitle": "تم تأكيد الطلب التجريبي",
+      "body": "شكراً لك. سجّلنا طلبك.",
+      "demoBody": "هذا طلب تجريبي محفوظ في حسابك — لم يُدفع أي مبلغ ولم يُبلَّغ أي مورّد حقيقي.",
+      "orderNumber": "رقم الطلب",
+      "viewOrder": "عرض الطلب",
+      "viewOrders": "طلباتي",
+      "keepShopping": "متابعة التسوّق"
+    }
+  },
+  "orders": {
+    "title": "طلباتك",
+    "empty": "لا توجد طلبات بعد. عند إتمام الدفع، تظهر طلباتك هنا.",
+    "browse": "تصفّح المتجر",
+    "orderNumber": "الطلب",
+    "placedOn": "بتاريخ",
+    "items": "{count} عناصر",
+    "suppliers": "{count} موردين",
+    "total": "الإجمالي",
+    "view": "عرض الطلب",
+    "sourceCart": "طلب من الكتالوج",
+    "sourceQuote": "طلب مخصّص",
+    "demoBadge": "تجريبي",
+    "status": {
+      "draft": "مسودة",
+      "confirmed": "مؤكّد",
+      "processing": "قيد التجهيز",
+      "cancelled": "ملغى",
+      "completed": "مكتمل"
+    },
+    "detail": {
+      "title": "الطلب",
+      "backToOrders": "العودة إلى الطلبات",
+      "notFoundTitle": "الطلب غير موجود",
+      "notFoundBody": "تعذّر العثور على هذا الطلب في حسابك.",
+      "deliverTo": "عنوان التوصيل",
+      "phone": "الهاتف",
+      "supplier": "المورّد",
+      "custom": "أثاث مخصّص",
+      "manufacturing": "مدة التصنيع",
+      "warranty": "الضمان",
+      "days": "{count} يوماً",
+      "each": "للقطعة",
+      "qty": "الكمية",
+      "supplierSubtotal": "إجمالي المورّد",
+      "paymentNote": "الدفع والتنفيذ ليسا جزءاً من هذا الطلب بعد — يأتيان في مرحلة لاحقة."
+    },
+    "supplier": {
+      "title": "الطلبات",
+      "subtitle": "الطلبات التي تتضمّن منتجاتك. ترى نصيبك فقط.",
+      "empty": "لا توجد طلبات بعد.",
+      "yourPortion": "نصيبك",
+      "deliverTo": "التوصيل إلى",
+      "acknowledge": "استلام الطلب",
+      "markProcessing": "وضعه قيد التجهيز",
+      "groupStatus": {
+        "new": "جديد",
+        "acknowledged": "مُستلَم",
+        "processing": "قيد التجهيز"
+      }
+    }
   },
   "footer": {
     "tagline": "صوّر مساحتك، حدّد ميزانيتك وذوقك، ودع أثاثي يصمّمها ويجهّزها لك.",

@@ -8,7 +8,6 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import { formatOmr, getProductBySlug, label, styleLabels } from "@/lib/catalog";
 import { ImageFrame } from "@/components/ui/image-frame";
 import { ProductImage } from "@/components/shop/product-image";
-import { EmptyState } from "@/components/ui/empty-state";
 import { useFavorites } from "@/features/favorites/favorites-context";
 import { useSavedDesigns } from "./saved-designs-store";
 
@@ -123,20 +122,14 @@ export function AccountLists({
   );
 }
 
-/** Saved rooms + orders — honest placeholders (no fake data). */
+/** Saved rooms — honest placeholder (orders are now a real section; see AccountOrders). */
 export function AccountPlaceholders({ t }: { t: Dictionary["account"] }) {
   return (
-    <div className="flex flex-col gap-10">
-      <section>
-        <h2 className="text-lg font-semibold text-foreground">{t.savedRooms}</h2>
-        <p className="mt-3 rounded-xl border border-border-subtle bg-surface px-4 py-6 text-sm text-muted">
-          {t.savedRoomsEmpty}
-        </p>
-      </section>
-      <section>
-        <h2 className="text-lg font-semibold text-foreground">{t.orders}</h2>
-        <EmptyState className="mt-3" title={t.ordersComingSoon} />
-      </section>
-    </div>
+    <section>
+      <h2 className="text-lg font-semibold text-foreground">{t.savedRooms}</h2>
+      <p className="mt-3 rounded-xl border border-border-subtle bg-surface px-4 py-6 text-sm text-muted">
+        {t.savedRoomsEmpty}
+      </p>
+    </section>
   );
 }

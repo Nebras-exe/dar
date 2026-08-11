@@ -189,3 +189,17 @@ Headings use `text-wrap: balance`; paragraphs use `text-wrap: pretty`. No tiny t
 - **Hover treatment actually fires on the art.** `ImageFrame` `zoomOnHover` targets `<img>` **and** `<svg>`; product cards sit in an elevated, ring-bordered surface that lifts on hover (`.lift`), with title→brand, swatch scale, and a larger price. A "Customisable" chip marks made-to-order pieces.
 - **One CSS-only motion system, reduced-motion-safe.** Tokens/utilities in `globals.css`: `.lift` (hover raise + warm shadow), `[data-reveal-stagger]` (sequenced entrance via `--i`), `.animate-value-pop` (brief highlight when a number changes), plus the existing hero entrance + scroll reveal. Applied to product cards, the Agent "New total", and RFQ quote reveals. No JS animation runtime, no parallax; every rule collapses under `prefers-reduced-motion`.
 - **Imagery stays owned + offline.** External image generation (higgsfield, etc.) was deliberately not wired in — it would add remote assets, latency, licensing and consistency risk, and break the deterministic demo model. Real photography swaps in later behind the unchanged `ProductImage` seam (a data change).
+
+## 19. Phase 09.6 additions (editorial rebuild)
+
+- **Oversized editorial display type.** `.text-display` (fluid clamp 2.75→5.25rem, tight tracking, Fraunces `opsz` 144) opens the hero and drops negative tracking + optical axis for Arabic. Section titles are larger and more confident.
+- **Hairline section markers.** `.kicker` (an uppercase eyebrow with a leading rule) replaces plain eyebrows; `.rule-hair`, `.measure`, and `.bg-linen` support an editorial, less-boxed composition.
+- **"Show, don't tell" hero.** Real catalog pieces (art + OMR price) float over an immersive room with an AI cue + budget/total strip — room + AI + real furniture in one glance.
+- **Image-led categories.** Category tiles show a real representative product with a gradient scrim label + count (featured bento tile), not generic gradient/icon placeholders. Product-detail gallery is sticky on desktop.
+
+## 20. Phase 10A additions (orders / checkout)
+
+- **Calm, trustworthy checkout — not a SaaS form.** A short three-step flow (summary → Oman delivery → review/confirm) with a step rail (`aria-current="step"`) and a sticky totals card. Two-column on desktop, single-column on mobile.
+- **Supplier-grouped orders.** Both cart and accepted-quote orders render as per-supplier group cards with subtotals + an overall total. Suppliers see only their own group (never another's items/totals).
+- **Honest money + payment.** Catalog delivery/installation are shown as "arranged with the supplier" (no invented fees); only accepted-quote fees are charged. A prominent "payment is not processed yet" note precedes an explicit **Confirm demo order**; confirmed orders carry a **Demo** badge.
+- **Real order history.** The account gains a real Orders section + `/orders/[id]` detail (replacing the "coming soon" placeholder); the supplier dashboard gains an Orders tab. Honest empty states, no fake history.

@@ -148,17 +148,12 @@ export function CartView({
           </div>
           <p className="mt-1.5 text-xs text-subtle">{t.cart.subtotalNote}</p>
 
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            className={cn(
-              buttonClasses("primary", "lg", "mt-5 w-full"),
-              "cursor-not-allowed opacity-60",
-            )}
+          <Link
+            href={`/${locale}/checkout`}
+            className={cn(buttonClasses("primary", "lg", "mt-5 w-full"))}
           >
             {t.cart.checkout}
-          </button>
+          </Link>
           <p className="mt-2 text-center text-xs text-subtle">{t.cart.checkoutNote}</p>
 
           <div className="mt-4 flex items-center justify-between border-t border-border-subtle pt-4">

@@ -52,6 +52,7 @@ import {
   type Quote,
   type QuoteSort,
 } from "@/lib/rfq";
+import { buildCartDraft } from "@/lib/orders";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -254,6 +255,29 @@ function prepareCart(args: Record<string, unknown>): CartProposal {
   };
 }
 
+// ── Phase 10A: summarize_checkout (deterministic; never confirms an order) ────
+/**
+ * Summarize the current cart as a checkout: real products grouped by supplier,
+ * with per-supplier subtotals and an order total (exact OMR, computed in code).
+ * The Agent may summarize/prepare checkout but MUST NOT confirm — confirmation is
+ * always an explicit user action in the UI (§23).
+ */
+function summarizeCheckout(args: Record<string, unknown>) {
+  const items = normItems(args.items);
+  const draft = buildCartDraft(items.map((i) => ({ slug: i.slug, colorId: i.colorId, quantity: 1 })));
+  return {
+    supplierCount: draft.totals.supplierCount,
+    itemCount: draft.totals.itemCount,
+    grandTotal: draft.totals.grandTotal,
+    groups: draft.groups.map((g) => ({
+      supplier: g.supplierName,
+      itemCount: g.items.length,
+      subtotal: g.groupTotal,
+    })),
+    requiresApproval: true as const,
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -414,6 +438,11 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "prepare_cart",
     description: "Prepare a cart proposal (does not commit; requires user approval).",
     run: prepareCart,
+  },
+  summarize_checkout: {
+    name: "summarize_checkout",
+    description: "Summarize the cart as a supplier-grouped checkout with exact OMR totals. Does NOT confirm an order — the user confirms in checkout.",
+    run: summarizeCheckout,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

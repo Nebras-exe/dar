@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  Archive, BarChart3, Boxes, LayoutDashboard, Package, Plus, RotateCcw,
+  Archive, BarChart3, Boxes, LayoutDashboard, Package, Plus, RotateCcw, ShoppingBag,
   Settings, Trash2, Upload, Inbox,
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
@@ -19,12 +19,13 @@ import { useSupplierProducts, type LocalProduct } from "./demo-products-store";
 import { ProductForm } from "./product-form";
 import { toPreviewProduct } from "./local-product";
 import { SupplierRFQ } from "./supplier-rfq";
+import { SupplierOrders } from "@/features/orders/order-views";
 
-type Tab = "overview" | "products" | "inventory" | "requests" | "analytics" | "settings";
+type Tab = "overview" | "products" | "inventory" | "orders" | "requests" | "analytics" | "settings";
 
 const TAB_ICONS: Record<Tab, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   overview: LayoutDashboard, products: Package, inventory: Boxes,
-  requests: Inbox, analytics: BarChart3, settings: Settings,
+  orders: ShoppingBag, requests: Inbox, analytics: BarChart3, settings: Settings,
 };
 
 /**
@@ -39,6 +40,7 @@ export function SupplierDashboard({
   t,
   tSup,
   tCustom,
+  tOrders,
   locale,
 }: {
   supplier: Supplier;
@@ -46,6 +48,7 @@ export function SupplierDashboard({
   t: Dictionary["supplier"];
   tSup: Dictionary["suppliers"];
   tCustom: Dictionary["custom"];
+  tOrders: Dictionary["orders"];
   locale: Locale;
 }) {
   const [tab, setTab] = React.useState<Tab>("overview");
@@ -53,7 +56,7 @@ export function SupplierDashboard({
   const { products, hydrated, create, update, setStatus, remove, byId } = useSupplierProducts(supplier.id);
 
   const supplierName = locale === "ar" ? supplier.nameAr : supplier.name;
-  const tabs: Tab[] = ["overview", "products", "inventory", "requests", "analytics", "settings"];
+  const tabs: Tab[] = ["overview", "products", "inventory", "orders", "requests", "analytics", "settings"];
 
   const active = products.filter((p) => p.status === "active");
   const drafts = products.filter((p) => p.status === "draft");
@@ -195,6 +198,10 @@ export function SupplierDashboard({
               </ul>
             )}
             <p className="mt-4 text-xs text-subtle">{t.inventory.note}</p>
+          </section>
+        ) : tab === "orders" ? (
+          <section aria-label={t.tabs.orders}>
+            <SupplierOrders supplierId={supplier.id} t={tOrders} locale={locale} />
           </section>
         ) : tab === "requests" ? (
           <section aria-label={t.tabs.requests}>

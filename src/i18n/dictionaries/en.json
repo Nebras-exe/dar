@@ -887,6 +887,7 @@
       "overview": "Overview",
       "products": "Products",
       "inventory": "Inventory",
+      "orders": "Orders",
       "requests": "Requests",
       "analytics": "Analytics",
       "settings": "Settings"
@@ -1210,7 +1211,8 @@
       "acceptedTitle": "Quote accepted",
       "acceptedBody": "Athathi has recorded your choice. The order and payment step arrives in a later phase.",
       "readyForOrder": "Ready for order",
-      "backToRequests": "View my requests"
+      "backToRequests": "View my requests",
+      "checkout": "Proceed to checkout"
     },
     "account": {
       "title": "Custom furniture requests",
@@ -1269,6 +1271,141 @@
       }
     },
     "promotedNote": "Advertising never affects Athathi's recommendation. Suggestions are based only on how well a quote fits your request."
+  },
+  "checkout": {
+    "title": "Checkout",
+    "demoBadge": "Demo checkout",
+    "steps": {
+      "summary": "Order summary",
+      "delivery": "Delivery details",
+      "review": "Review & confirm"
+    },
+    "backToCart": "Back to cart",
+    "emptyTitle": "Nothing to check out",
+    "emptyBody": "Your cart is empty. Browse the catalog to add pieces.",
+    "emptyAction": "Browse the shop",
+    "signInTitle": "Sign in to check out",
+    "signInBody": "Sign in so we can save your order to your account.",
+    "signInAction": "Sign in",
+    "summary": {
+      "title": "Order summary",
+      "fromCart": "From your cart",
+      "fromQuote": "From your accepted custom quote",
+      "supplier": "Supplier",
+      "each": "each",
+      "qty": "Qty",
+      "custom": "Custom furniture",
+      "manufacturing": "Manufacturing time",
+      "warranty": "Warranty",
+      "days": "{count} days",
+      "supplierSubtotal": "Supplier subtotal",
+      "priceChangedTitle": "Some prices changed",
+      "priceChangedBody": "A price changed since you added it - your order uses the current catalog price.",
+      "droppedTitle": "Some items are no longer available",
+      "droppedBody": "They were removed from your order."
+    },
+    "delivery": {
+      "title": "Delivery details",
+      "subtitle": "Where should Athathi deliver? We use Oman address fields.",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "phoneHint": "Omani mobile, e.g. 9XXXXXXX",
+      "governorate": "Governorate",
+      "wilayat": "Wilayat",
+      "area": "Area",
+      "areaOptional": "Area (optional)",
+      "building": "Building / house description",
+      "buildingHint": "e.g. Villa 12, near the mosque",
+      "notes": "Delivery notes",
+      "notesOptional": "Delivery notes (optional)",
+      "continue": "Continue to review",
+      "errorsTitle": "Please check your details",
+      "errors": {
+        "required": "This field is required.",
+        "invalid-phone": "Enter a valid Omani phone number."
+      }
+    },
+    "totals": {
+      "goods": "Goods subtotal",
+      "delivery": "Delivery",
+      "installation": "Installation",
+      "grandTotal": "Order total",
+      "free": "Included",
+      "deliveryUnknown": "Calculated with the supplier",
+      "deliveryUnknownNote": "Delivery for catalog items is arranged with the supplier - no fee is added here."
+    },
+    "review": {
+      "title": "Review & confirm",
+      "deliverTo": "Deliver to",
+      "edit": "Edit",
+      "paymentNoteTitle": "Payment is not processed yet",
+      "paymentNoteBody": "Confirming records your order. Payment and fulfilment arrive in a later phase - nothing is charged now.",
+      "confirm": "Confirm order",
+      "confirmDemo": "Confirm demo order",
+      "confirming": "Confirming..."
+    },
+    "confirmed": {
+      "title": "Order confirmed",
+      "demoTitle": "Demo order confirmed",
+      "body": "Thank you. We've recorded your order.",
+      "demoBody": "This is a demo order saved in your account - no payment was taken and no real supplier was notified.",
+      "orderNumber": "Order number",
+      "viewOrder": "View order",
+      "viewOrders": "My orders",
+      "keepShopping": "Keep shopping"
+    }
+  },
+  "orders": {
+    "title": "Your orders",
+    "empty": "No orders yet. When you check out, your orders appear here.",
+    "browse": "Browse the shop",
+    "orderNumber": "Order",
+    "placedOn": "Placed",
+    "items": "{count} items",
+    "suppliers": "{count} suppliers",
+    "total": "Total",
+    "view": "View order",
+    "sourceCart": "Catalog order",
+    "sourceQuote": "Custom order",
+    "demoBadge": "Demo",
+    "status": {
+      "draft": "Draft",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "detail": {
+      "title": "Order",
+      "backToOrders": "Back to orders",
+      "notFoundTitle": "Order not found",
+      "notFoundBody": "We couldn't find that order for your account.",
+      "deliverTo": "Delivery address",
+      "phone": "Phone",
+      "supplier": "Supplier",
+      "custom": "Custom furniture",
+      "manufacturing": "Manufacturing time",
+      "warranty": "Warranty",
+      "days": "{count} days",
+      "each": "each",
+      "qty": "Qty",
+      "supplierSubtotal": "Supplier subtotal",
+      "paymentNote": "Payment and fulfilment are not part of this order yet - they arrive in a later phase."
+    },
+    "supplier": {
+      "title": "Orders",
+      "subtitle": "Orders that include your products. You only see your portion.",
+      "empty": "No orders yet.",
+      "yourPortion": "Your portion",
+      "deliverTo": "Deliver to",
+      "acknowledge": "Acknowledge order",
+      "markProcessing": "Mark as processing",
+      "groupStatus": {
+        "new": "New",
+        "acknowledged": "Acknowledged",
+        "processing": "Processing"
+      }
+    }
   },
   "footer": {
     "tagline": "Upload your space, set your budget and style, and let Athathi design and prepare it for you.",

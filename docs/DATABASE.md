@@ -89,10 +89,25 @@ request + quotes; a supplier reads/quotes only for RFQs addressed to a supplier 
 belongs to (A can't quote as B); accepted quotes are locked; reference images are
 owner-only (+ addressed-supplier read); public has no access.
 
+## Phase 10A tables (`0006_orders.sql` + `0007_orders_rls.sql`)
+
+Orders + checkout (full detail in `docs/phase-reports/PHASE_10A_REPORT.md`). ONE
+architecture for TWO sources (`order_source` = cart | accepted_quote):
+`orders` (envelope + delivery-address snapshot + money snapshot `numeric(12,3)` +
+`order_status` [draft/confirmed/processing/cancelled/completed — no payment
+states] + `is_demo`), `order_groups` (one per supplier: subtotals + delivery/
+installation + `supplier_group_status`), `order_items` (immutable line snapshots —
+catalog columns [name/price/dimensions/colour] OR custom columns [frozen
+`spec_json` + accepted-quote terms]). RLS (`0007`): a customer reads/creates only
+their own orders; a supplier reads only order groups belonging to a supplier it is
+a member of (`is_order_supplier` helper), and `order_items` are visible only to
+the owner OR that item's group's supplier — cross-supplier items are never
+exposed. The client never sends prices/totals; they are recomputed server-side.
+
 ## Future tables (documented, intentionally NOT built)
 
-`orders`, `order_items`, `manufacturing_jobs`, `deliveries`. These arrive with
-checkout (Phase 10). An accepted quote (Phase 09) → order creation is the seam.
+`payments`, `payment_intents`, `refunds` (Phase 10B — payment), plus
+`manufacturing_jobs`, `deliveries`. A confirmed order → payment is the next seam.
 The current schema is designed to extend cleanly.
 
 ## Secrets (§30/§47)

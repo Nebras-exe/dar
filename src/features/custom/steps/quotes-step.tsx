@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, CheckCircle2, Clock, ShieldCheck, Sparkles, Store, Truck } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Clock, ShieldCheck, Sparkles, Store, Truck } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ export function QuotesStep({
         )}
       </div>
 
-      {/* Accepted confirmation */}
+      {/* Accepted confirmation → proceed to unified checkout */}
       {accepted && acceptedQuote && (
         <div className="mt-5 rounded-xl border border-success/40 bg-success-soft p-5">
           <p className="flex items-center gap-2 font-semibold text-success">
@@ -85,7 +85,16 @@ export function QuotesStep({
             {tq.acceptedTitle}
           </p>
           <p className="mt-1.5 text-sm text-muted">{tq.acceptedBody}</p>
-          <Badge tone="success" className="mt-3">{tq.readyForOrder}</Badge>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Badge tone="success">{tq.readyForOrder}</Badge>
+            <Button
+              size="sm"
+              href={`/${locale}/checkout?source=quote&request=${requestId}&quote=${acceptedQuote.id}`}
+              iconEnd={<ArrowRight className="size-4 rtl:rotate-180" strokeWidth={2} />}
+            >
+              {tq.checkout}
+            </Button>
+          </div>
         </div>
       )}
 

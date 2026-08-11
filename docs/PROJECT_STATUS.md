@@ -4,7 +4,7 @@ _Last updated: 2026-08-10_
 
 ## Current phase
 
-**Phase 09.6 — Nebras UI Protocol (Premium UI Rebuild Pass) — ✅ Complete & verified.**
+**Phase 10A — Orders + Checkout — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -27,9 +27,11 @@ _Last updated: 2026-08-10_
 
 - **Phase 09.6** — Nebras UI Protocol: an aggressive design-language rebuild after 09.5 was judged not noticeable enough. Rebuilt the **hero** ("show don't tell": oversized editorial display headline + 3-beat promise + real catalog pieces with OMR prices floating over an immersive room + AI/budget cue); rebuilt **categories** into an image-led grid (real product art + scrim labels + counts + featured bento tile) replacing generic gradient/icon placeholders; **editorial section-header + typography system** (`.text-display`, `.kicker` hairline markers, bigger titles, Fraunces optical sizing); sticky product-detail gallery. Applied `ui-ux-pro-max` design-intelligence CLI (editorial serif+sans, AI-landing "show don't tell") + `frontend-design` + `web-design-guidelines` + `vercel-react-best-practices` (kept server-rendered, no external assets). **Tooling honesty:** magic-21st not operational, Playwright MCP not in project scope, Chrome offline, higgsfield 0-credits — no live screenshots/external images (not faked); QA via real server-rendered HTML (`docs/qa/phase-09-6/`) + published reconstruction artifact. **140 tests**, lint/typecheck/build(219)/audit:arabic green; **runs on port 3000**. See `docs/phase-reports/PHASE_09_6_NEBRAS_UI_PROTOCOL.md`.
 
+- **Phase 10A** — Orders + Checkout: ONE order architecture for TWO sources (a catalog cart and an accepted RFQ quote) → a calm 3-step `/[locale]/checkout` (summary → Oman delivery → review/confirm) → an immutable, supplier-grouped order → `/[locale]/orders/[id]`, an account **Orders** section, and a supplier dashboard **Orders** tab (own group only). Pure domain `src/lib/orders/` (types/totals/snapshot/validation/authorization); demo order localStorage store; `summarize_checkout` agent tool (never confirms). Migrations `0006_orders.sql` + `0007_orders_rls.sql`. **No payment** (that's 10B) — confirming records a labelled demo order. Client never supplies a price/total (always recomputed); ownership + supplier isolation enforced (pure + RLS); checkout/order routes auth-gated. **155 tests** (+15), lint/typecheck/build(221)/audit:arabic green, EN/AR parity exact; runs on :3000. See `docs/phase-reports/PHASE_10A_REPORT.md`.
+
 ## Upcoming phases
 
-- **Phase 10 (recommended next)** — Orders + Checkout + Payment architecture: an accepted quote (and the Phase 03 cart) become real orders (`orders`/`order_items`, checkout, a server-side payment-provider architecture). See `docs/phase-reports/PHASE_09_REPORT.md` § Recommended Phase 10.
+- **Phase 10B (recommended next)** — Payment architecture: wire a server-side payment-provider abstraction onto the confirmed order (`payments`/`payment_intents`/`refunds`, `confirmed → paid` transitions, keys server-only). See `docs/phase-reports/PHASE_10A_REPORT.md` § Recommended Phase 10B.
 
 ## Important architectural decisions
 
@@ -63,6 +65,6 @@ npm run build      # production build (static /en, /ar)
 npm run start      # serve the production build
 npm run lint       # eslint
 npm run typecheck  # tsc --noEmit
-npm test           # node --test — catalog + design + vision + agent + visualization + repository/auth + i18n + rfq logic (140 tests)
+npm test           # node --test — catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic (155 tests)
 npm run audit:arabic  # reversed/corrupted-Arabic detector over src/ (0 flagged)
 ```
