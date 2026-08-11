@@ -26,6 +26,7 @@
  */
 
 import type { ColorId, MaterialId } from "@/lib/catalog";
+import { RAW_IKEA_PRODUCTS } from "@/lib/catalog/ikea-catalog.data";
 
 export interface PreviewVariant {
   /** An EXISTING product colour id — bilingual name via `colorSwatches`, cart-compatible. */
@@ -46,9 +47,19 @@ export interface PreviewVariant {
  * representative photo). Images are distinct per variant so switching a swatch
  * visibly changes the product photo.
  */
-export const PRODUCT_VARIANTS: Record<string, PreviewVariant[]> = {
-  // Intentionally empty — the demo furniture catalog was cleared. The variant
-  // architecture (resolver, cart compatibility, per-colour photos/prices) stays
-  // fully intact; add entries here (keyed by a real product slug) as real
-  // products are introduced.
-};
+export const PRODUCT_VARIANTS: Record<string, PreviewVariant[]> = Object.fromEntries(
+  RAW_IKEA_PRODUCTS
+    // Only multi-colour products get a swatch/photo switcher; single-colour items
+    // keep their one representative photo (via the product's own `images`).
+    .filter((p) => p.variants.length >= 2)
+    .map((p) => [
+      p.slug,
+      p.variants.map((v): PreviewVariant => ({
+        colorId: v.colorId,
+        ...(v.materialId ? { materialId: v.materialId } : {}),
+        // Imported reference prices are colour-independent → no delta.
+        image: v.image,
+        ...(v.gallery && v.gallery.length ? { gallery: v.gallery } : {}),
+      })),
+    ]),
+);

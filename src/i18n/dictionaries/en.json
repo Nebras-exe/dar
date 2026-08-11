@@ -457,7 +457,11 @@
       "customLink": "Request a custom version",
       "finishLabel": "Finish",
       "variantColours": "{count} colours",
-      "variantNote": "Demo preview — variant photos are representative real furniture references."
+      "variantNote": "Demo preview — variant photos are representative real furniture references.",
+      "estimatedPrice": "Estimated",
+      "estimatedNote": "Estimated price — a reference figure in OMR, not an official retail quote.",
+      "dimensionsApprox": "Approximate — exact dimensions were not available in the source.",
+      "sourceLabel": "Source"
     },
     "cart": {
       "title": "Your cart",

@@ -109,7 +109,7 @@ test("variant grounding: any variants returned are real product colours (data cl
 });
 
 test("honesty: with an EMPTY catalog the demo engine never fabricates a product", () => {
-  __resetCatalogProductsForTests(); // simulate the real (empty) catalog
+  __setCatalogProductsForTests([]); // force an empty catalog (real catalog is now populated)
   try {
     const res = demoRespond(user("find me a sofa"), "en");
     assert.equal(res.cards.length, 0, "no product cards when the catalog is empty");

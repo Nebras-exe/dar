@@ -79,7 +79,16 @@ export type ColorId =
   | "navy"
   | "blue"
   | "brass"
-  | "green";
+  | "green"
+  // Extended families needed by imported real-world catalogs (e.g. IKEA Oman).
+  | "brown"
+  | "red"
+  | "orange"
+  | "yellow"
+  | "pink"
+  | "natural"
+  | "clear"
+  | "multi";
 
 /** Material families used for filtering; labels live in the taxonomy. */
 export type MaterialId =
@@ -162,6 +171,25 @@ export interface Product {
   /** Numeric price in OMR — the single source for all money math. */
   price: number;
   currency: "OMR";
+
+  /**
+   * Whether `price` is an official source price or a deterministic demo ESTIMATE.
+   * Imported reference products (no reliable retail price) are `"estimated"` and
+   * must be shown to the user as such ("Estimated" / "تقديري"). Absent ⇒ treated
+   * as a normal demo price (the original cleared-catalog behaviour).
+   */
+  priceType?: "estimated" | "source";
+  /** Provenance label for imported reference data (e.g. "IKEA Oman (reference)"). */
+  sourceLabel?: string;
+  /** The source product-page URL the reference item was imported from. */
+  sourceUrl?: string;
+  /** Original vendor model code preserved for imported products (e.g. "MALM"). */
+  model?: string;
+  /**
+   * False when the source did not expose real dimensions (they are category
+   * defaults). The UI shows "dimensions unknown" rather than implying precision.
+   */
+  dimensionsKnown?: boolean;
 
   /** Clearly-labelled demo supplier. */
   supplier: DemoSupplier;

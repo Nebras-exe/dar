@@ -126,6 +126,9 @@ export default async function ProductPage({
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <VariantPrice basePrice={product.price} locale={typedLocale} />
+              {product.priceType === "estimated" && (
+                <Badge tone="neutral" title={tp.estimatedNote}>{tp.estimatedPrice}</Badge>
+              )}
               <Badge tone={availabilityTone[product.stockStatus]}>
                 {t.availability[product.stockStatus]}
               </Badge>
@@ -134,9 +137,21 @@ export default async function ProductPage({
               )}
             </div>
 
-            <div className="mt-2 flex items-center gap-2 text-sm text-muted">
-              <span className="font-medium text-foreground">{tp.demoSupplierLabel}:</span>
-              <span translate="no">{product.supplier}</span>
+            {product.priceType === "estimated" && (
+              <p className="mt-2 text-xs text-subtle">{tp.estimatedNote}</p>
+            )}
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+              <span>
+                <span className="font-medium text-foreground">{tp.demoSupplierLabel}:</span>{" "}
+                <span translate="no">{product.supplier}</span>
+              </span>
+              {product.sourceLabel && (
+                <span>
+                  <span className="font-medium text-foreground">{tp.sourceLabel}:</span>{" "}
+                  <span translate="no">{product.sourceLabel}</span>
+                </span>
+              )}
             </div>
 
             <p className="mt-5 text-base leading-relaxed text-muted">{description}</p>
@@ -152,6 +167,9 @@ export default async function ProductPage({
                 {tp.dimensionsTitle}
               </h2>
               <DimensionsDisplay dimensions={product.dimensions} t={tp} locale={typedLocale} />
+              {product.dimensionsKnown === false && (
+                <p className="mt-2 text-xs text-subtle">{tp.dimensionsApprox}</p>
+              )}
             </div>
 
             {/* Materials + Style + Rooms */}

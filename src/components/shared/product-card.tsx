@@ -22,6 +22,7 @@ export interface ProductCardLabels {
   madeToOrder: string;
   outOfStock: string;
   customizable?: string;
+  estimated?: string;
 }
 
 export interface ProductCardProps {
@@ -112,6 +113,11 @@ export function ProductCard({ product, locale, labels, className }: ProductCardP
           )}
         </div>
         <div className="shrink-0 text-end">
+          {product.priceType === "estimated" && labels.estimated && (
+            <span className="block text-[0.68rem] font-medium uppercase tracking-wide text-subtle">
+              {labels.estimated}
+            </span>
+          )}
           <span className="block text-[1.05rem] font-semibold text-foreground tabular">
             {formatOmr(product.price, locale)}
           </span>
@@ -125,6 +131,7 @@ export function ProductCard({ product, locale, labels, className }: ProductCardP
 export function productCardLabels(shop: {
   card: { sample: string; save: string; saved: string; customizable?: string };
   availability: { "made-to-order": string; "out-of-stock": string };
+  product?: { estimatedPrice?: string };
 }): ProductCardLabels {
   return {
     sample: shop.card.sample,
@@ -133,5 +140,6 @@ export function productCardLabels(shop: {
     madeToOrder: shop.availability["made-to-order"],
     outOfStock: shop.availability["out-of-stock"],
     customizable: shop.card.customizable,
+    estimated: shop.product?.estimatedPrice,
   };
 }

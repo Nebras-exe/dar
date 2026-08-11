@@ -2,11 +2,11 @@
  * Furniture colour-variant tests (LOCAL preview). Pure + deterministic — no
  * network, no paid calls.
  *
- * The demo catalog was cleared, so the slug-keyed `PRODUCT_VARIANTS` data is now
- * empty — but the variant ARCHITECTURE (resolver, price deltas, image URLs, cart
- * compatibility, isolation) stays intact and is verified here with synthetic
- * variant objects. Any real variant data added later must keep every variant
- * colour equal to a real product colour (guarded vacuously below until then).
+ * The catalog is now populated from the imported IKEA Oman reference gallery, so
+ * `PRODUCT_VARIANTS` holds real per-colour photo sets for the multi-colour
+ * products. This verifies the integrity invariant (unique colours per product,
+ * local image paths) and the resolver architecture (price deltas, URLs, cart
+ * compatibility, isolation) with synthetic variant objects.
  */
 
 import test from "node:test";
@@ -18,27 +18,29 @@ import {
 } from "./index";
 import { PRODUCT_VARIANTS } from "./variants";
 
-// ── Data is cleared, but the integrity invariant is still asserted ────────────
+// ── Real imported variant data: integrity invariants ─────────────────────────
 
-test("PRODUCT_VARIANTS is empty (demo variants cleared)", () => {
-  assert.equal(Object.keys(PRODUCT_VARIANTS).length, 0);
+test("PRODUCT_VARIANTS holds multi-colour imported products", () => {
+  assert.ok(Object.keys(PRODUCT_VARIANTS).length > 0, "variants were imported");
 });
 
-test("any variant data added later keeps unique colours + 2–4 entries", () => {
-  // Vacuous today; the guard fires the moment real variants are introduced.
+test("every product keeps 2+ variants with UNIQUE colours and local images", () => {
   for (const [slug, variants] of Object.entries(PRODUCT_VARIANTS)) {
-    assert.ok(variants.length >= 2 && variants.length <= 4, `${slug} has 2–4 variants`);
+    assert.ok(variants.length >= 2, `${slug} has 2+ variants`);
     const ids = variants.map((v) => v.colorId);
     assert.equal(new Set(ids).size, ids.length, `${slug}: unique variant colours`);
+    for (const v of variants) {
+      assert.ok(v.image.startsWith("/images/catalog/"), `${slug} local image: ${v.image}`);
+    }
   }
 });
 
-// ── Resolver behaviour with no data ───────────────────────────────────────────
+// ── Resolver behaviour for an unknown slug ────────────────────────────────────
 
-test("variantsFor / hasVariants / defaultVariant return empty for any slug", () => {
-  assert.equal(hasVariants("test-modern-sofa"), false);
-  assert.deepEqual(variantsFor("test-modern-sofa"), []);
-  assert.equal(defaultVariant("test-modern-sofa"), null);
+test("variantsFor / hasVariants / defaultVariant return empty for an unknown slug", () => {
+  assert.equal(hasVariants("no-such-product-xyz"), false);
+  assert.deepEqual(variantsFor("no-such-product-xyz"), []);
+  assert.equal(defaultVariant("no-such-product-xyz"), null);
 });
 
 // ── Pure helpers (architecture, independent of catalog data) ──────────────────

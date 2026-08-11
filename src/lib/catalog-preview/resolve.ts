@@ -30,7 +30,9 @@ export function previewEnabled(): boolean {
 
 /** Build an optimised, cropped image URL from an Unsplash id (or pass through a full URL). */
 export function previewImageUrl(idOrUrl: string, size = 800): string {
-  if (idOrUrl.startsWith("http")) return idOrUrl;
+  // Full remote URLs and local public paths (imported real photos) pass through
+  // unchanged; only bare Unsplash ids are expanded into an optimised CDN URL.
+  if (idOrUrl.startsWith("http") || idOrUrl.startsWith("/")) return idOrUrl;
   return `https://images.unsplash.com/photo-${idOrUrl}?auto=format&fit=crop&crop=entropy&q=70&w=${size}&h=${size}`;
 }
 

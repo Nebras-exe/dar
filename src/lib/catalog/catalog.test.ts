@@ -2,10 +2,10 @@
  * Catalog logic tests — runnable with Node's built-in runner (no extra deps):
  *   node --test
  *
- * The production catalog is intentionally EMPTY (the demo furniture was cleared),
- * so these tests do two things: (1) assert the shipped catalog is empty and every
- * surface degrades cleanly, and (2) inject a synthetic fixture catalog to exercise
- * the deterministic query layer exactly as the app/Agent would call it.
+ * The production catalog is now POPULATED from the imported IKEA Oman reference
+ * gallery, so these tests do two things: (1) assert the shipped catalog is well-
+ * formed and every surface works, and (2) inject a synthetic fixture catalog to
+ * exercise the deterministic query layer exactly as the app/Agent would call it.
  */
 
 import test, { before, after, describe } from "node:test";
@@ -29,17 +29,37 @@ import {
 import { computeItemCount, computeSubtotal, formatOmr, roundOmr } from "./pricing";
 import { sampleCatalog } from "./test-fixtures";
 
-// ── Empty production catalog (the reset) ──────────────────────────────────────
+// ── Populated production catalog (imported reference furniture) ───────────────
 
-test("the shipped catalog is EMPTY (ready for real products)", () => {
-  assert.equal(products.length, 0);
-  assert.equal(getAllProducts().length, 0);
-  assert.equal(getProductBySlug("anything"), undefined);
-  assert.deepEqual(getProductsByCategory("sofas"), []);
-  assert.deepEqual(filterProducts({ categories: ["sofas"] }), []);
-  assert.deepEqual(searchProducts("sofa"), []);
-  // Price bounds are safe (no NaN/Infinity) with an empty catalog.
-  assert.deepEqual(getPriceBounds(), { min: 0, max: 0 });
+test("the shipped catalog is populated and well-formed", () => {
+  assert.ok(products.length > 100, "many imported products");
+  assert.equal(getAllProducts().length, products.length);
+
+  const slugs = new Set(products.map((p) => p.slug));
+  assert.equal(slugs.size, products.length, "slugs are globally unique");
+  const ids = new Set(products.map((p) => p.id));
+  assert.equal(ids.size, products.length, "ids are globally unique");
+
+  const known = new Set(getCategories().map((c) => c.slug));
+  for (const p of products) {
+    assert.ok(known.has(p.category), `${p.slug} → ${p.category} is a real category`);
+    assert.ok(p.price > 0, `${p.slug} has a positive price`);
+    assert.ok(p.colors.length > 0, `${p.slug} has at least one colour`);
+    assert.ok(p.nameAr.trim().length > 0, `${p.slug} has an Arabic name`);
+    assert.ok(p.dimensions.widthCm > 0, `${p.slug} has a width`);
+    // Every imported product image is a local public path, never a remote URL.
+    for (const img of p.images ?? []) {
+      assert.ok(img.startsWith("/images/catalog/"), `${p.slug} image is local: ${img}`);
+    }
+  }
+  // Imported reference products are flagged as estimated prices.
+  assert.ok(products.every((p) => p.priceType === "estimated"), "prices are estimated");
+
+  // Query surfaces work against the real catalog.
+  assert.ok(getProductsByCategory("sofas").length > 0);
+  assert.ok(searchProducts("chair").length > 0);
+  const bounds = getPriceBounds();
+  assert.ok(bounds.min > 0 && bounds.max >= bounds.min);
 });
 
 test("categories remain available (taxonomy is preserved)", () => {

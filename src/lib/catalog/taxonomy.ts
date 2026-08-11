@@ -206,6 +206,14 @@ export const colorSwatches: Record<ColorId, { label: Localized; hex: string }> =
     blue: { label: { en: "Blue", ar: "أزرق" }, hex: "#5B7285" },
     brass: { label: { en: "Brass", ar: "نحاسي" }, hex: "#B08D57" },
     green: { label: { en: "Green", ar: "أخضر" }, hex: "#4F6F52" },
+    brown: { label: { en: "Brown", ar: "بني" }, hex: "#6E4B34" },
+    red: { label: { en: "Red", ar: "أحمر" }, hex: "#9E3B34" },
+    orange: { label: { en: "Orange", ar: "برتقالي" }, hex: "#C06B3E" },
+    yellow: { label: { en: "Yellow", ar: "أصفر" }, hex: "#D9A73E" },
+    pink: { label: { en: "Pink", ar: "وردي" }, hex: "#C98A94" },
+    natural: { label: { en: "Natural", ar: "طبيعي" }, hex: "#D8C7A6" },
+    clear: { label: { en: "Clear", ar: "شفاف" }, hex: "#DCE3E6" },
+    multi: { label: { en: "Multicolour", ar: "متعدد الألوان" }, hex: "#9C8B7A" },
   };
 
 /** Material families with bilingual labels. */
