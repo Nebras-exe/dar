@@ -1,6 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
 import type { Product } from "@/lib/catalog";
+import { previewImageFor } from "@/lib/catalog-preview";
 import { ProductArt } from "./product-art";
 import { cn } from "@/lib/utils";
 
@@ -16,10 +17,14 @@ export interface ProductImageProps {
 }
 
 /**
- * Renders a product's visual. Today every product uses generated `ProductArt`;
- * the moment a product has real `images`, this component serves them through
- * `next/image` (optimised, responsive, shift-free) instead — no other code
- * changes. This is the single seam between demo art and real photography.
+ * Renders a product's visual. This is the single seam between demo art and real
+ * photography, resolved in priority order:
+ *   1. an explicit `product.images[]` (production data — unchanged);
+ *   2. the isolated LOCAL Real Catalog Preview (representative real photos, when
+ *      the `NEXT_PUBLIC_REAL_CATALOG_PREVIEW` flag is on) — this adds NO product
+ *      data and no business logic; it only overlays a photo for visual evaluation;
+ *   3. otherwise the generated category-accurate `ProductArt`.
+ * Real photos are served through `next/image` (optimised, responsive, shift-free).
  */
 export function ProductImage({
   product,
@@ -28,7 +33,11 @@ export function ProductImage({
   sizes = "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
   className,
 }: ProductImageProps) {
-  const src = product.images?.[variant] ?? product.images?.[0];
+  const src =
+    product.images?.[variant] ??
+    product.images?.[0] ??
+    previewImageFor({ slug: product.slug, category: product.category, subcategory: product.subcategory }, variant) ??
+    undefined;
 
   if (src) {
     return (
