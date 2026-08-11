@@ -1,0 +1,1308 @@
+{
+  "brand": {
+    "name": "Athathi",
+    "tagline": "AI Interior & Furniture Marketplace"
+  },
+  "nav": {
+    "home": "Home",
+    "shop": "Shop",
+    "design": "Design My Space",
+    "inspirations": "Inspiration",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "forSuppliers": "For Suppliers",
+    "login": "Sign in",
+    "signup": "Create account",
+    "signOut": "Sign out",
+    "suppliers": "Suppliers",
+    "supplierDashboard": "Supplier dashboard"
+  },
+  "cta": {
+    "designMySpace": "Design My Space",
+    "shopFurniture": "Explore Furniture"
+  },
+  "prototypeBadge": "Prototype",
+  "language": "Language",
+  "priceFrom": "From",
+  "currency": "OMR",
+  "favorite": "Save to favourites",
+  "skipToContent": "Skip to content",
+  "home": {
+    "hero": {
+      "eyebrow": "AI Interior & Furniture · Oman",
+      "titleLine1": "Your space. Your taste. Your budget.",
+      "titleLine2": "Athathi handles the rest.",
+      "subtitle": "Upload your space, set your budget and style, and Athathi helps build a design using real furniture you can actually buy.",
+      "ctaPrimary": "Design My Space",
+      "ctaSecondary": "Explore Furniture",
+      "demoBadge": "Sample preview",
+      "roomCaption": "Living room · Warm Modern",
+      "budgetLabel": "Budget",
+      "budgetValue": "OMR 500",
+      "styleLabel": "Style",
+      "styleValue": "Warm Modern",
+      "matchesLabel": "Athathi found",
+      "matchesValue": "5 matching pieces",
+      "totalLabel": "Estimated total",
+      "totalValue": "OMR 472",
+      "step1": "Show your room",
+      "step2": "Set budget & taste",
+      "step3": "Buy the real design",
+      "realCaption": "Real catalog pieces · real OMR prices",
+      "analysisTitle": "Reading your room",
+      "analysisSteps": [
+        "Analysed the room",
+        "Understood your style",
+        "Matched real products",
+        "Optimised your budget"
+      ]
+    },
+    "value": {
+      "items": [
+        {
+          "title": "Real products",
+          "desc": "Every recommendation is a product that exists in the catalog — never an imaginary render."
+        },
+        {
+          "title": "Budget aware",
+          "desc": "Your budget is an input, not an afterthought. Designs are built to fit it."
+        },
+        {
+          "title": "Keeps what works",
+          "desc": "Athathi can reuse the furniture you already own instead of replacing everything."
+        },
+        {
+          "title": "Designed for your space",
+          "desc": "Recommendations consider your room, its dimensions, and your taste."
+        }
+      ]
+    },
+    "how": {
+      "eyebrow": "How Athathi works",
+      "title": "From an empty room to a design you can buy",
+      "subtitle": "A guided journey — not a form to fill in.",
+      "steps": [
+        {
+          "num": "01",
+          "title": "Upload your room",
+          "desc": "Add one or more photos of the space you want to furnish."
+        },
+        {
+          "num": "02",
+          "title": "Set budget and style",
+          "desc": "Tell Athathi your budget in OMR and the look you love."
+        },
+        {
+          "num": "03",
+          "title": "Athathi analyses and matches",
+          "desc": "It reads the room and matches suitable furniture from the catalog."
+        },
+        {
+          "num": "04",
+          "title": "Review and adjust",
+          "desc": "See the design, swap pieces, and rebalance the budget."
+        },
+        {
+          "num": "05",
+          "title": "Buy the design",
+          "desc": "Add the whole design to your cart in one step."
+        }
+      ]
+    },
+    "designer": {
+      "eyebrow": "Design My Space",
+      "title": "Tell Athathi what you have, and what you want",
+      "subtitle": "A preview of the flagship AI designer. Athathi doesn't replace everything — it works out what the room actually needs.",
+      "roomLabel": "Room",
+      "roomValue": "Living Room",
+      "budgetLabel": "Budget",
+      "budgetValue": "OMR 500",
+      "styleLabel": "Style",
+      "styleValue": "Warm Modern",
+      "keepLabel": "Keep",
+      "keepValue": "Existing sofa",
+      "recommendationsTitle": "Athathi recommends",
+      "items": [
+        {
+          "name": "Textured Rug",
+          "price": "OMR 55"
+        },
+        {
+          "name": "Coffee Table",
+          "price": "OMR 65"
+        },
+        {
+          "name": "Floor Lighting",
+          "price": "OMR 40"
+        },
+        {
+          "name": "Linen Curtains",
+          "price": "OMR 65"
+        },
+        {
+          "name": "Wall Decor",
+          "price": "OMR 35"
+        }
+      ],
+      "totalLabel": "Design total",
+      "totalValue": "OMR 260",
+      "remainingLabel": "Remaining budget",
+      "remainingValue": "OMR 240",
+      "cta": "Design My Space"
+    },
+    "keep": {
+      "eyebrow": "Keep what works",
+      "title": "Not everything needs to change",
+      "subtitle": "Athathi is designed to recognise the pieces worth keeping — so your budget goes where it matters.",
+      "columns": [
+        {
+          "kind": "keep",
+          "title": "Keep",
+          "items": [
+            "Sofa",
+            "TV console"
+          ]
+        },
+        {
+          "kind": "change",
+          "title": "Change",
+          "items": [
+            "Rug"
+          ]
+        },
+        {
+          "kind": "add",
+          "title": "Add",
+          "items": [
+            "Lighting",
+            "Wall art"
+          ]
+        }
+      ]
+    },
+    "budget": {
+      "eyebrow": "Budget intelligence",
+      "title": "Your budget is a first-class input",
+      "subtitle": "Athathi is built to design within a number you set — and to rebalance when you change your mind.",
+      "yourBudgetLabel": "Your budget",
+      "yourBudgetValue": "OMR 500",
+      "designCostLabel": "Recommended design",
+      "designCostValue": "OMR 472",
+      "remainingLabel": "Remaining",
+      "remainingValue": "OMR 28",
+      "abilities": [
+        "Find cheaper alternatives",
+        "Replace expensive pieces",
+        "Reuse existing furniture",
+        "Rebalance the whole room"
+      ],
+      "cta": "Find a cheaper alternative"
+    },
+    "beforeAfter": {
+      "eyebrow": "Before / After",
+      "title": "See the same room, transformed",
+      "subtitle": "A prototype representation of the intended result — drag to compare.",
+      "beforeLabel": "Before",
+      "afterLabel": "After",
+      "sliderLabel": "Reveal the redesigned room",
+      "piecesTitle": "5 pieces from this design",
+      "pieces": [
+        {
+          "name": "Modular Sofa",
+          "price": "OMR 320.000"
+        },
+        {
+          "name": "Textured Rug",
+          "price": "OMR 58.000"
+        },
+        {
+          "name": "Coffee Table",
+          "price": "OMR 69.000"
+        },
+        {
+          "name": "Floor Lamp",
+          "price": "OMR 42.000"
+        }
+      ]
+    },
+    "categories": {
+      "eyebrow": "Shop by category",
+      "title": "A marketplace built around real rooms",
+      "subtitle": "Browse the sample catalog by the category that fits your room.",
+      "items": [
+        "Sofas",
+        "Chairs",
+        "Beds",
+        "Dining",
+        "Tables",
+        "Lighting",
+        "Rugs",
+        "Storage",
+        "Decor",
+        "Outdoor"
+      ],
+      "count": "{count} pieces"
+    },
+    "featured": {
+      "eyebrow": "Featured furniture",
+      "title": "Pieces people are designing with",
+      "subtitle": "Sample catalog data — a taste of the real inventory to come.",
+      "badge": "Sample",
+      "items": [
+        {
+          "name": "Modular Sofa",
+          "meta": "Boucle · Warm Modern",
+          "price": "OMR 320.000"
+        },
+        {
+          "name": "Walnut Coffee Table",
+          "meta": "Solid walnut · 110 cm",
+          "price": "OMR 69.000"
+        },
+        {
+          "name": "Accent Chair",
+          "meta": "Oak & linen · Japandi",
+          "price": "OMR 145.000"
+        },
+        {
+          "name": "Floor Lamp",
+          "meta": "Brushed brass · 150 cm",
+          "price": "OMR 42.000"
+        },
+        {
+          "name": "Textured Rug",
+          "meta": "Wool blend · 200 × 290",
+          "price": "OMR 58.000"
+        },
+        {
+          "name": "Side Table",
+          "meta": "Travertine · Minimal",
+          "price": "OMR 38.000"
+        }
+      ]
+    },
+    "styles": {
+      "eyebrow": "Design by style",
+      "title": "Find your look, then let Athathi build it",
+      "subtitle": "Choose visually — no design vocabulary required.",
+      "items": [
+        {
+          "name": "Warm Modern",
+          "desc": "Soft neutrals, walnut, and natural light."
+        },
+        {
+          "name": "Japandi",
+          "desc": "Calm, functional, quietly refined."
+        },
+        {
+          "name": "Minimal",
+          "desc": "Clean lines and generous space."
+        },
+        {
+          "name": "Contemporary",
+          "desc": "Current, considered, comfortable."
+        },
+        {
+          "name": "Classic Modern",
+          "desc": "Timeless forms with a warm edge."
+        },
+        {
+          "name": "Boho",
+          "desc": "Layered textures and earthy tones."
+        }
+      ]
+    },
+    "reference": {
+      "eyebrow": "Design from a picture",
+      "title": "Seen a room you love?",
+      "subtitle": "Upload a reference you like and Athathi will find similar pieces you can actually buy from the marketplace.",
+      "note": "Style similarity and product discovery — no copying, no platform affiliation.",
+      "comingSoon": "Coming soon",
+      "cta": "Design My Space"
+    },
+    "custom": {
+      "eyebrow": "Custom furniture",
+      "title": "Can't find the exact piece?",
+      "subtitle": "Describe what you have in mind and Athathi will turn it into a specification — then connect it with suitable makers.",
+      "options": [
+        "Size",
+        "Colour",
+        "Material",
+        "Budget"
+      ],
+      "comingSoon": "Coming later",
+      "cta": "Notify me"
+    },
+    "supplier": {
+      "eyebrow": "For suppliers",
+      "title": "Athathi isn't only for customers",
+      "subtitle": "Stores, manufacturers, and workshops will be able to reach customers at the moment they're designing a room.",
+      "items": [
+        "List products and customisation options",
+        "Receive orders and custom requests",
+        "Manage inventory and leads"
+      ],
+      "cta": "For Suppliers"
+    },
+    "finalCta": {
+      "title": "Ready to design your space?",
+      "subtitle": "Start with a room, a budget, and a style. Athathi handles the rest.",
+      "ctaPrimary": "Design My Space",
+      "ctaSecondary": "Explore Furniture",
+      "omanNote": "Designed first for the Sultanate of Oman · prices in OMR"
+    }
+  },
+  "shop": {
+    "hero": {
+      "eyebrow": "The Athathi catalog",
+      "title": "Furniture chosen for real spaces.",
+      "subtitle": "Browse a curated sample catalog by category, style, colour and budget — the same structured data the Athathi designer will draw on."
+    },
+    "demoNotice": "Sample catalog — every product here is honest demo data, not real inventory.",
+    "allProductsTitle": "All furniture",
+    "browseAll": "All products",
+    "result": "result",
+    "results": "results",
+    "search": {
+      "label": "Search furniture",
+      "placeholder": "Search sofas, walnut, boho…",
+      "clear": "Clear search",
+      "submit": "Search"
+    },
+    "sort": {
+      "label": "Sort",
+      "recommended": "Recommended",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "newest": "Recently added",
+      "nameAsc": "Name: A–Z"
+    },
+    "filters": {
+      "title": "Filters",
+      "open": "Filters",
+      "close": "Close filters",
+      "apply": "Show results",
+      "clearAll": "Clear all",
+      "clear": "Clear",
+      "activeLabel": "active",
+      "category": "Category",
+      "style": "Style",
+      "color": "Colour",
+      "material": "Material",
+      "room": "Room",
+      "price": "Price",
+      "availability": "Availability",
+      "customizable": "Customisable only",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "priceRangeHint": "Set a minimum and maximum in OMR."
+    },
+    "availability": {
+      "label": "Availability",
+      "in-stock": "In stock",
+      "made-to-order": "Made to order",
+      "out-of-stock": "Out of stock"
+    },
+    "empty": {
+      "title": "No products match your filters",
+      "description": "Try removing a filter or searching for something else.",
+      "action": "Clear all filters",
+      "customPrompt": "Can't find it? Have it made to order.",
+      "customAction": "Request custom furniture"
+    },
+    "card": {
+      "sample": "Sample",
+      "from": "From",
+      "save": "Save to favourites",
+      "saved": "Saved to favourites",
+      "customizable": "Customisable"
+    },
+    "product": {
+      "breadcrumbShop": "Shop",
+      "back": "Back to shop",
+      "demoSupplierLabel": "Demo supplier",
+      "demoNote": "Sample product — demo data for this prototype, not real inventory.",
+      "descriptionTitle": "About this piece",
+      "colorsTitle": "Colour",
+      "selectColor": "Select colour",
+      "materialsTitle": "Materials",
+      "dimensionsTitle": "Dimensions",
+      "styleTitle": "Style",
+      "roomTitle": "Works well in",
+      "featuresTitle": "Details",
+      "quantity": "Quantity",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity",
+      "addToCart": "Add to cart",
+      "added": "Added — view cart",
+      "tryInRoom": "Try in My Room",
+      "tryInRoomNote": "Coming in a later phase",
+      "relatedTitle": "You might also like",
+      "dimWidth": "Width",
+      "dimDepth": "Depth",
+      "dimHeight": "Height",
+      "dimSeatHeight": "Seat height",
+      "dimDiameter": "Diameter",
+      "unitCm": "cm",
+      "customizableBadge": "Customisable",
+      "customizableNote": "This piece can be customised — full options arrive in a later phase.",
+      "customLink": "Request a custom version"
+    },
+    "cart": {
+      "title": "Your cart",
+      "emptyTitle": "Your cart is empty",
+      "emptyDescription": "Browse the catalog and add the pieces you like.",
+      "emptyAction": "Explore furniture",
+      "item": "item",
+      "items": "items",
+      "remove": "Remove",
+      "quantity": "Quantity",
+      "each": "each",
+      "colorLabel": "Colour",
+      "subtotal": "Subtotal",
+      "subtotalNote": "Delivery and any taxes are calculated in a later phase.",
+      "checkout": "Continue to checkout",
+      "checkoutNote": "Checkout arrives in a later phase — nothing is charged in this prototype.",
+      "continue": "Continue shopping",
+      "clear": "Clear cart"
+    }
+  },
+  "design": {
+    "title": "Design My Space",
+    "subtitle": "Tell Athathi about your room, budget and taste. It builds a design from real catalog products you can actually buy.",
+    "demoMode": "Demo Mode",
+    "stepLabel": "Step",
+    "ofLabel": "of",
+    "progressLabel": "Design progress",
+    "back": "Back",
+    "continue": "Continue",
+    "startOver": "Start over",
+    "generate": "Generate my design",
+    "stepNames": [
+      "Room photo",
+      "Room type",
+      "Budget",
+      "Style",
+      "Keep",
+      "Preferences",
+      "Review"
+    ],
+    "upload": {
+      "title": "Add a photo of your room",
+      "subtitle": "A visual reference for your design. Your photo stays in your browser.",
+      "demoNote": "Your photo stays in your browser here. In the next step you can optionally have it analysed — you'll confirm before it's sent anywhere.",
+      "dropHere": "Drag a photo here, or",
+      "browse": "browse files",
+      "formats": "JPEG, PNG or WEBP · up to 12 MB",
+      "replace": "Replace photo",
+      "remove": "Remove photo",
+      "invalid": "That file type isn't supported. Use JPEG, PNG or WEBP.",
+      "tooLarge": "That image is over 12 MB. Please choose a smaller file.",
+      "skipNote": "A photo is optional — you can continue without one.",
+      "previewAlt": "Your uploaded room"
+    },
+    "vision": {
+      "title": "Analyse my room with AI",
+      "optional": "Optional",
+      "intro": "Athathi can look at your photo and pre-fill the room type, style, colours, and existing furniture. You review and correct everything.",
+      "availableNote": "AI analysis is available. Your photo is sent securely for this analysis only.",
+      "demoOnlyNote": "Live AI analysis isn't configured in this prototype. You can preview the flow with a sample analysis, or simply continue and fill in the details yourself.",
+      "privacyTitle": "Before you analyse",
+      "privacyBody": "Your room image will be securely sent to the selected AI provider for analysis. It is used only to produce this analysis, is not shown publicly, and Athathi does not store it in this prototype.",
+      "consentLabel": "I understand my image will be sent to the AI provider for analysis.",
+      "analyze": "Analyse my room",
+      "analyzeSample": "See a sample analysis",
+      "analyzing": "Analysing your room…",
+      "statusPreparing": "Preparing image",
+      "statusAnalyzing": "Analysing room",
+      "statusStructuring": "Structuring results",
+      "tryAgain": "Try again",
+      "continueManually": "Continue manually",
+      "reanalyze": "Analyse again",
+      "notNow": "Not now",
+      "errors": {
+        "no-provider": "Live AI room analysis isn't set up in this prototype. You can continue by entering the details manually — or see a sample analysis.",
+        "invalid-image": "That image couldn't be read. Please use a JPEG, PNG or WEBP under 12 MB.",
+        "timeout": "The analysis took too long. You can try again or continue manually.",
+        "provider-error": "Room analysis isn't available right now. You can continue by entering the details manually.",
+        "invalid-output": "We couldn't read a clear result from that photo. Try another image, or continue manually.",
+        "rate-limited": "Too many analyses right now. Please wait a moment and try again.",
+        "unknown": "Room analysis isn't available right now. You can continue by entering the details manually."
+      },
+      "review": {
+        "title": "Here's what we found",
+        "subtitle": "A starting point from your photo — change anything before continuing.",
+        "sampleBadge": "Sample · Demo Mode",
+        "sampleNotice": "This is a sample analysis to demonstrate the flow — it was not generated from your photo.",
+        "aiBadge": "AI analysis",
+        "roomLabel": "Room",
+        "styleLabel": "Style",
+        "paletteLabel": "Palette",
+        "furnitureLabel": "Existing furniture",
+        "featuresLabel": "Room context",
+        "suggestionLabel": "AI suggestion",
+        "confidence": {
+          "high": "High confidence",
+          "medium": "Medium confidence",
+          "low": "Low confidence"
+        },
+        "dimensionsUnknown": "Dimensions can't be reliably measured from a single photo. You can add them manually in a later step.",
+        "notDetected": "Not detected",
+        "apply": "Use these in my design",
+        "applied": "Applied to your design",
+        "applyHint": "You can still change everything in the next steps — your choices always win.",
+        "editHint": "Edit any detection below.",
+        "remove": "Remove"
+      },
+      "features": {
+        "window": "Window",
+        "door": "Door",
+        "large-opening": "Large opening",
+        "wall-mounted-tv": "Wall-mounted TV",
+        "built-in-cabinetry": "Built-in cabinetry",
+        "ceiling-light": "Ceiling light",
+        "major-empty-wall": "Large empty wall",
+        "walkway": "Walkway"
+      },
+      "suggestionReason": {
+        "keep": "Looks neutral and compatible with your style.",
+        "replace": "May clash with the style you want.",
+        "unsure": "Worth a closer look — your call."
+      }
+    },
+    "agent": {
+      "title": "Ask Athathi",
+      "subtitle": "Adjust this design in your own words — Athathi searches real products, checks your budget, and updates your plan.",
+      "demoBadge": "Demo Agent",
+      "liveBadge": "AI Agent",
+      "inputLabel": "Ask Athathi to adjust this design",
+      "placeholder": "e.g. Make it cheaper and replace the rug",
+      "send": "Ask",
+      "working": "Working on it…",
+      "newTotal": "New total",
+      "remaining": "Remaining",
+      "quick": {
+        "cheaper": "Make it cheaper",
+        "underBudget": "Keep under OMR 400",
+        "addCart": "Add to cart"
+      },
+      "approveTitle": "Add {count} pieces to your cart for {total}?",
+      "confirmCart": "Confirm add to cart",
+      "cancel": "Cancel",
+      "addedToCart": "Added {count} pieces to your cart",
+      "viewCart": "View cart",
+      "errors": {
+        "invalid-request": "I couldn't read that request. Please try rephrasing.",
+        "message-too-long": "That message is too long — please shorten it.",
+        "state-too-large": "Your design is too large to process. Try removing a few items.",
+        "provider-error": "The Agent isn't available right now. Please try again.",
+        "timeout": "That took too long. Please try again.",
+        "unknown": "Something went wrong. Please try again."
+      }
+    },
+    "visualization": {
+      "title": "See it in your room",
+      "subtitle": "Preview how this design could look in your space.",
+      "cta": "Visualize in my room",
+      "regenerate": "Update preview",
+      "demoBadge": "Demo Preview",
+      "aiBadge": "AI Preview",
+      "beforeLabel": "Your room",
+      "afterLabel": "Athathi design",
+      "sliderLabel": "Drag to compare your room with the design preview",
+      "generating": "Preparing your preview…",
+      "disclaimer": "Visual preview — proportions and colours may vary in your actual space.",
+      "demoCompositionNote": "A demo composition over your photo — a styling preview, not a real AI-rendered room.",
+      "staleTitle": "Design changed — update preview",
+      "staleBody": "You changed the design after this preview was made, so it no longer matches.",
+      "staleAction": "Update preview",
+      "needPhotoTitle": "Add a room photo to preview",
+      "needPhotoBody": "Add a photo of your room in the first step to preview this design in your own space.",
+      "useSampleRoom": "Preview with a sample room",
+      "sampleRoomNote": "Showing a sample room — add your own photo for a preview of your space.",
+      "privacyNote": "Your photo stays in your browser for this demo preview — it isn't uploaded.",
+      "consentTitle": "Before generating",
+      "consentBody": "Your room photo will be sent securely to the AI provider to render this preview only. It isn't stored.",
+      "consentLabel": "I agree to send my photo to generate the preview.",
+      "usedTitle": "Products in this design",
+      "usedSubtitle": "Every piece resolves to a real catalog product — no invented names or prices.",
+      "colorLabel": "Colour",
+      "dimensionsLabel": "Dimensions",
+      "dimensionsWidth": "W",
+      "dimensionsDepth": "D",
+      "dimensionsHeight": "H",
+      "dimensionsUnit": "cm",
+      "dimensionsUnverified": "Dimensions not verified",
+      "scaleNote": "Furniture scale in the preview is illustrative. Check the dimensions above against your space — the preview doesn't prove physical fit.",
+      "viewProduct": "View product",
+      "errors": {
+        "no-image": "Add a room photo to generate a preview.",
+        "invalid-image": "That image couldn't be used. Try a JPEG, PNG or WEBP under 12 MB.",
+        "invalid-request": "This design can't be previewed right now. Try adjusting it and updating the preview.",
+        "no-consent": "Please agree to send your photo to generate the preview.",
+        "no-provider": "AI preview generation isn't set up in this prototype — showing a demo preview instead.",
+        "timeout": "The preview took too long. Please try again.",
+        "provider-error": "Preview generation isn't available right now. Please try again.",
+        "invalid-output": "We couldn't produce a clear preview. Please try again.",
+        "rate-limited": "Too many previews right now. Please wait a moment and try again.",
+        "unknown": "Something went wrong generating the preview. Please try again."
+      }
+    },
+    "room": {
+      "title": "What room are you designing?",
+      "subtitle": "This shapes which pieces Athathi suggests.",
+      "types": {
+        "living-room": "Living Room",
+        "bedroom": "Bedroom",
+        "majlis": "Majlis",
+        "dining-room": "Dining Room",
+        "office": "Office",
+        "kids-room": "Kids Room",
+        "outdoor": "Outdoor Space"
+      }
+    },
+    "budget": {
+      "title": "What's your furnishing budget?",
+      "subtitle": "In Omani Rial. Athathi designs within it — and won't push you to spend it all.",
+      "label": "Budget (OMR)",
+      "placeholder": "e.g. 500",
+      "quick": "Quick amounts",
+      "errorEmpty": "Enter a budget to continue.",
+      "errorInvalid": "Budget must be a positive number.",
+      "errorTooLow": "Budgets under OMR 30 are too low to furnish a room. Try a little more.",
+      "errorTooHigh": "That budget looks unusually high — please check the amount.",
+      "hint": "You can change this any time."
+    },
+    "style": {
+      "title": "Choose your style",
+      "subtitle": "Pick a main style. Add a second if you like a blend.",
+      "primary": "Main style",
+      "secondary": "Second style (optional)",
+      "clearSecondary": "No second style"
+    },
+    "existing": {
+      "title": "What do you want to keep?",
+      "subtitle": "Athathi won't replace what still works — so your budget goes where it matters.",
+      "keep": "Keep",
+      "replace": "Replace",
+      "unsure": "Not sure",
+      "keptNote": "Kept pieces are chosen by you in Demo Mode — Athathi doesn't detect them from the photo yet.",
+      "none": "There's nothing to set aside for this room — continue."
+    },
+    "preferences": {
+      "title": "Any preferences?",
+      "subtitle": "All optional — these fine-tune your recommendations.",
+      "colors": "Preferred colours",
+      "materials": "Preferred materials",
+      "note": "Anything else?",
+      "notePlaceholder": "e.g. I'd like the room to feel warmer, and I have young children.",
+      "noteHint": "Stored as a note in Demo Mode — not interpreted by AI yet.",
+      "optional": "Optional"
+    },
+    "review": {
+      "title": "Review your brief",
+      "subtitle": "Check everything, then let Athathi build your design.",
+      "room": "Room",
+      "budget": "Budget",
+      "style": "Style",
+      "keeping": "Keeping",
+      "colors": "Colours",
+      "materials": "Materials",
+      "note": "Note",
+      "photo": "Photo",
+      "photoAdded": "Added",
+      "none": "None",
+      "edit": "Edit"
+    },
+    "analysis": {
+      "title": "Athathi is preparing your design",
+      "subtitle": "Building a budget-aware plan from your brief and the Athathi catalog.",
+      "demoMode": "Demo Mode — this plan is deterministic, built from your selections and real catalog products. No AI room analysis in this phase."
+    },
+    "result": {
+      "eyebrow": "Your design plan",
+      "title": "Your Athathi design",
+      "demoNotice": "A demo design plan built from real catalog products — not a generated room image.",
+      "chooseOption": "Choose a design",
+      "tiers": {
+        "smart-saver": "Smart Saver",
+        "balanced": "Balanced",
+        "premium": "Premium"
+      },
+      "tierNotes": {
+        "smart-saver": "Lowest-cost bundle",
+        "balanced": "Best all-round match",
+        "premium": "Elevated picks"
+      },
+      "recommended": "Recommended",
+      "overBudgetBy": "Over budget by",
+      "budget": "Budget",
+      "newFurniture": "New furniture",
+      "existingKept": "Existing (kept)",
+      "remaining": "Remaining",
+      "budgetUsed": "of budget used",
+      "keepingTitle": "Keeping from your room",
+      "keepingNote": "Chosen by you — added at no cost.",
+      "itemsTitle": "Recommended pieces",
+      "reasonLabel": "Why this piece",
+      "replace": "Replace",
+      "replaceCheaper": "Find cheaper",
+      "replaceSimilar": "Find similar",
+      "replaceUpgrade": "Upgrade",
+      "remove": "Remove",
+      "noCheaper": "No cheaper alternative for this piece.",
+      "noSimilar": "No similar alternative for this piece.",
+      "noUpgrade": "No higher-end alternative for this piece.",
+      "addAll": "Add entire design to cart",
+      "addedTitle": "Design added to your cart",
+      "addedNote": "All recommended pieces are in your cart. Existing furniture you're keeping isn't added.",
+      "viewCart": "View cart",
+      "continueEditing": "Continue editing",
+      "saveDesign": "Save design",
+      "saved": "Design saved in this browser",
+      "startOver": "Start a new design",
+      "lowBudgetNote": "With this budget, Athathi is focusing on the highest-impact pieces.",
+      "empty": "No products matched this brief. Try a higher budget, a different style, or keeping fewer pieces.",
+      "kept": "Kept",
+      "customPrompt": "Want something bespoke instead?",
+      "customLink": "Request custom furniture"
+    }
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to save designs, favourites and rooms.",
+    "signupTitle": "Create your Athathi account",
+    "signupSubtitle": "Save your designs, favourites and rooms across visits.",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Your name",
+    "emailPlaceholder": "you@example.com",
+    "passwordHint": "At least 8 characters.",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signingIn": "Signing in…",
+    "signingUp": "Creating account…",
+    "noAccount": "New to Athathi?",
+    "haveAccount": "Already have an account?",
+    "toSignup": "Create an account",
+    "toLogin": "Sign in",
+    "signOut": "Sign out",
+    "demoBadge": "Demo Mode",
+    "demoNote": "No backend is configured, so this is a local demo account — it lives only in this browser and isn't stored on a server. Connect Supabase to enable real accounts.",
+    "errors": {
+      "invalid-credentials": "That email or password wasn't right. Please try again.",
+      "email-taken": "An account with that email already exists.",
+      "invalid-input": "Please enter a valid email and your name.",
+      "weak-password": "Please use a password of at least 8 characters.",
+      "backend-error": "We couldn't complete that right now. Please try again.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "account": {
+    "title": "Your account",
+    "greeting": "Signed in as {name}",
+    "demoTag": "Demo account · local to this browser",
+    "profile": "Profile",
+    "profileName": "Name",
+    "profileEmail": "Email",
+    "profileRole": "Account type",
+    "roleCustomer": "Customer",
+    "roleSupplier": "Supplier",
+    "savedDesigns": "Saved designs",
+    "savedDesignsEmpty": "No saved designs yet. Build one in Design My Space and save it here.",
+    "savedRooms": "Saved rooms",
+    "savedRoomsEmpty": "No saved rooms yet.",
+    "favorites": "Favourites",
+    "favoritesEmpty": "No favourites yet. Tap the heart on any product to save it.",
+    "orders": "Orders",
+    "ordersComingSoon": "Orders arrive with checkout in a later phase.",
+    "designMeta": "{room} · {style}",
+    "openDesign": "Open in designer",
+    "removeDesign": "Remove",
+    "savedAgo": "Saved",
+    "becomeSupplier": "Sell on Athathi",
+    "becomeSupplierBody": "Run a furniture business? Apply to become a supplier.",
+    "goToDashboard": "Open supplier dashboard",
+    "startDesigning": "Design My Space",
+    "browseShop": "Browse the shop"
+  },
+  "suppliers": {
+    "title": "Suppliers on Athathi",
+    "subtitle": "The furniture studios, showrooms and workshops behind the catalog.",
+    "empty": "No suppliers to show yet.",
+    "sampleBadge": "Sample · Demo",
+    "verifiedBadge": "Verified",
+    "productCount": "{count} products",
+    "viewProfile": "View supplier",
+    "location": "Location",
+    "type": "Type",
+    "types": {
+      "showroom": "Showroom",
+      "factory": "Factory",
+      "workshop": "Workshop",
+      "importer": "Importer",
+      "studio": "Studio"
+    },
+    "applyCta": "Become a supplier",
+    "applyTitle": "Apply to sell on Athathi",
+    "applySubtitle": "Tell us about your business. Applications are reviewed — suppliers are never auto-approved or auto-verified.",
+    "profileProducts": "Products from this supplier",
+    "profileEmpty": "This supplier has no public products yet.",
+    "apply": {
+      "businessName": "Business name (English)",
+      "businessNameAr": "Business name (Arabic)",
+      "type": "Business type",
+      "location": "Governorate / city",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone (optional)",
+      "description": "About your business",
+      "submit": "Submit application",
+      "submitting": "Submitting…",
+      "submittedTitle": "Application received",
+      "submittedBody": "Thanks — we've noted your interest. In this prototype, applications aren't reviewed by a real team yet.",
+      "demoNote": "No backend is configured, so this application is captured locally for the demo and isn't sent anywhere.",
+      "signedOutNote": "You can apply without an account, but signing in lets us link the application to you.",
+      "errorsTitle": "Please check the form",
+      "errors": {
+        "businessName": "Enter your business name.",
+        "type": "Choose a business type.",
+        "location": "Enter your governorate or city.",
+        "contactEmail": "Enter a valid contact email.",
+        "generic": "Please complete the required fields."
+      }
+    }
+  },
+  "supplier": {
+    "title": "Supplier dashboard",
+    "demoWorkspace": "Demo workspace · changes are saved locally in this browser",
+    "notMemberTitle": "You don't have a supplier workspace yet",
+    "notMemberBody": "Apply to become a supplier, or open the demo supplier workspace to explore the tools.",
+    "openDemo": "Open the demo supplier workspace",
+    "applyLink": "Apply to become a supplier",
+    "signInFirst": "Please sign in to access a supplier workspace.",
+    "tabs": {
+      "overview": "Overview",
+      "products": "Products",
+      "inventory": "Inventory",
+      "requests": "Requests",
+      "analytics": "Analytics",
+      "settings": "Settings"
+    },
+    "overview": {
+      "activeProducts": "Active products",
+      "draftProducts": "Drafts",
+      "outOfStock": "Out of stock",
+      "customizable": "Customizable",
+      "note": "These counts reflect your catalog only. Revenue and orders appear once checkout exists — we don't show numbers we don't have."
+    },
+    "products": {
+      "title": "Your products",
+      "sampleTitle": "Catalog samples (read-only)",
+      "sampleNote": "Sample catalog products attributed to this demo supplier. Create your own below.",
+      "localTitle": "Your products",
+      "empty": "You haven't added any products yet.",
+      "new": "New product",
+      "edit": "Edit",
+      "publish": "Publish",
+      "unpublish": "Move to draft",
+      "archive": "Archive",
+      "restore": "Restore",
+      "delete": "Delete",
+      "statusDraft": "Draft",
+      "statusActive": "Active",
+      "statusArchived": "Archived",
+      "localBadge": "Local draft"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "empty": "Add products to manage their inventory here.",
+      "status": "Status",
+      "in_stock": "In stock",
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock",
+      "made_to_order": "Made to order",
+      "note": "We never show fake urgency. Inventory reflects only what you set."
+    },
+    "requests": {
+      "title": "Requests",
+      "empty": "No requests yet. Custom requests and quotes arrive in a later phase."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "note": "Truthful analytics only. Charts appear once there is real order data — no invented revenue.",
+      "totalProducts": "Total products",
+      "publishedShare": "Published"
+    },
+    "settings": {
+      "title": "Settings",
+      "supplierName": "Supplier name",
+      "location": "Location",
+      "type": "Type",
+      "status": "Status",
+      "verified": "Verified",
+      "notVerified": "Not verified",
+      "demoNote": "This is a demo supplier profile. Real profile editing writes to the database when Supabase is configured."
+    },
+    "form": {
+      "newTitle": "New product",
+      "editTitle": "Edit product",
+      "sectionBasic": "Basic information",
+      "sectionPricing": "Pricing",
+      "sectionImages": "Images",
+      "sectionDimensions": "Dimensions",
+      "sectionMaterials": "Materials & colours",
+      "sectionInventory": "Inventory",
+      "sectionCustomization": "Customization",
+      "sectionPreview": "Preview",
+      "name": "Name (English)",
+      "nameAr": "Name (Arabic)",
+      "category": "Category",
+      "description": "Description (English)",
+      "descriptionAr": "Description (Arabic)",
+      "basePrice": "Base price (OMR)",
+      "priceHint": "In Omani Rial, up to 3 decimals.",
+      "widthCm": "Width (cm)",
+      "depthCm": "Depth (cm)",
+      "heightCm": "Height (cm)",
+      "dimensionSource": "Dimension source",
+      "sourceVerified": "Supplier-verified",
+      "sourceDemo": "Sample",
+      "sourceUnknown": "Unknown",
+      "styleTags": "Styles",
+      "roomTypes": "Rooms",
+      "colors": "Colours",
+      "materials": "Materials",
+      "inventoryStatus": "Inventory status",
+      "customizable": "This product is customizable",
+      "optionKind": "Type",
+      "optionLabel": "Label",
+      "optionPriceDelta": "Price change (OMR)",
+      "addOption": "Add option",
+      "removeOption": "Remove",
+      "imagesNote": "Image upload uses Supabase Storage when configured. In demo mode, products show the generated catalog artwork.",
+      "saveDraft": "Save draft",
+      "publish": "Publish",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "previewNote": "This is how your product appears to customers.",
+      "savedLocally": "Saved locally in this browser (demo mode).",
+      "errorsTitle": "Please fix the highlighted fields",
+      "errors": {
+        "name": "Enter an English name.",
+        "nameAr": "Enter an Arabic name.",
+        "category": "Choose a category.",
+        "basePrice": "Enter a valid positive price.",
+        "dimensions": "Enter valid positive dimensions.",
+        "generic": "Please complete the required fields."
+      }
+    }
+  },
+  "custom": {
+    "title": "Custom Furniture",
+    "subtitle": "Can't find exactly what you want? Describe it, and Athathi turns your idea into a specification suppliers can quote.",
+    "navLabel": "Custom",
+    "demoBadge": "Demo Mode",
+    "start": {
+      "eyebrow": "Custom Furniture",
+      "heading": "Tell Athathi what you have in mind",
+      "fromScratch": "Start from scratch",
+      "fromScratchDesc": "Describe a piece from a blank canvas.",
+      "fromProduct": "Base it on a catalog piece",
+      "fromProductDesc": "Start from a product and change what you need.",
+      "fromImage": "Upload a reference image",
+      "fromImageDesc": "Share a photo of something you like.",
+      "chooseCategory": "What are you making?",
+      "continue": "Continue"
+    },
+    "steps": {
+      "idea": "Your idea",
+      "spec": "Specification",
+      "review": "Review",
+      "suppliers": "Suppliers",
+      "quotes": "Quotes"
+    },
+    "idea": {
+      "title": "Describe your piece",
+      "subtitle": "In your own words — Athathi extracts what it can. You confirm everything next.",
+      "placeholder": "e.g. An L-shaped sofa, dark green velvet, 240 cm wide, 4 seats, budget OMR 120",
+      "extract": "Extract details",
+      "extracted": "Athathi filled in the fields it recognised — review and correct them.",
+      "extractNote": "Athathi only fills in details you actually stated. It never guesses measurements from a photo.",
+      "uploadTitle": "Reference image",
+      "uploadNote": "Your image stays in your browser in this demo — it isn't uploaded.",
+      "skip": "Skip and fill the form"
+    },
+    "spec": {
+      "title": "Your specification",
+      "subtitle": "Add what you know. Leave anything you're unsure about — you can ask the supplier to advise.",
+      "quantity": "Quantity",
+      "budget": "Budget (OMR)",
+      "budgetHint": "Optional, but it helps suppliers quote accurately.",
+      "notes": "Anything else?",
+      "notesPlaceholder": "Finish, delivery constraints, deadlines…",
+      "askSupplier": "Ask the supplier",
+      "unknown": "Not sure",
+      "fields": {
+        "style": "Style",
+        "color": "Colour",
+        "material": "Material",
+        "widthCm": "Width (cm)",
+        "depthCm": "Depth (cm)",
+        "heightCm": "Height (cm)",
+        "shape": "Shape",
+        "seatCount": "Seats",
+        "legStyle": "Legs",
+        "armStyle": "Arms",
+        "firmness": "Firmness",
+        "finish": "Finish",
+        "mattressSize": "Mattress size",
+        "storageLayout": "Storage layout"
+      },
+      "shapeOptions": {
+        "straight": "Straight",
+        "l-shaped": "L-shaped",
+        "u-shaped": "U-shaped",
+        "round": "Round",
+        "rectangular": "Rectangular",
+        "oval": "Oval"
+      },
+      "legOptions": {
+        "wooden": "Wooden",
+        "metal": "Metal",
+        "tapered": "Tapered",
+        "hairpin": "Hairpin",
+        "block": "Block",
+        "plinth": "Plinth"
+      },
+      "armOptions": {
+        "low": "Low",
+        "rolled": "Rolled",
+        "track": "Track",
+        "armless": "Armless"
+      },
+      "firmnessOptions": {
+        "soft": "Soft",
+        "medium": "Medium",
+        "firm": "Firm"
+      },
+      "finishOptions": {
+        "matte": "Matte",
+        "satin": "Satin",
+        "gloss": "Gloss",
+        "oiled": "Oiled",
+        "lacquered": "Lacquered"
+      },
+      "mattressOptions": {
+        "single": "Single",
+        "double": "Double",
+        "queen": "Queen",
+        "king": "King",
+        "super-king": "Super King"
+      },
+      "storageOptions": {
+        "open-shelving": "Open shelving",
+        "closed-doors": "Closed doors",
+        "mixed": "Mixed",
+        "drawers": "Drawers"
+      },
+      "continue": "Review specification",
+      "errorsTitle": "Please add a bit more",
+      "errors": {
+        "category": "Choose a category.",
+        "quantity": "Enter a quantity of at least 1.",
+        "budget": "Enter a valid budget, or leave it blank.",
+        "needs-detail": "Add at least one detail or a reference image so suppliers can quote.",
+        "generic": "Please complete the required fields."
+      }
+    },
+    "review": {
+      "title": "Your custom specification",
+      "subtitle": "Check everything before Athathi finds suppliers. Nothing is sent yet.",
+      "notSpecified": "Not specified",
+      "askSupplier": "Ask the supplier",
+      "referenceAdded": "Uploaded",
+      "referenceNone": "None",
+      "quantity": "Quantity",
+      "budget": "Budget",
+      "reference": "Reference image",
+      "edit": "Edit",
+      "findSuppliers": "Find suppliers"
+    },
+    "suppliers": {
+      "title": "Suitable suppliers",
+      "subtitle": "Athathi matched these from real supplier data. Choose who receives your request.",
+      "empty": "No suppliers currently make this to order. Try adjusting the category or material.",
+      "matchWhy": "Why this supplier",
+      "reasons": {
+        "handles-category": "Makes custom {value}",
+        "works-with-material": "Works with {value}",
+        "located-in": "Based in {value}",
+        "accepts-custom": "Accepts custom requests",
+        "verified": "Verified supplier"
+      },
+      "leadTime": "Typically {min}–{max} days",
+      "selected": "{count} selected",
+      "selectAll": "Select all",
+      "recommended": "Athathi recommended",
+      "continue": "Continue",
+      "sampleBadge": "Sample · Demo"
+    },
+    "send": {
+      "title": "Send your request for quotes",
+      "subtitle": "Suppliers will review your specification and reply with a quote. No payment is taken.",
+      "detailsTitle": "Request summary",
+      "supplierCount": "{count} suppliers",
+      "reference": "Reference image",
+      "budget": "Budget",
+      "confirm": "Send Request for Quotes",
+      "sending": "Sending…",
+      "demoNote": "In this demo, suppliers reply instantly with clearly-labelled sample quotes. Real suppliers quote when the backend is connected."
+    },
+    "quotes": {
+      "title": "Quotes for your request",
+      "subtitle": "Compare the offers and choose the one that suits you. Payment comes later.",
+      "demoQuote": "Sample · Demo Quote",
+      "empty": "No quotes yet.",
+      "sortLabel": "Sort by",
+      "sort": {
+        "recommended": "Recommended",
+        "lowest-price": "Lowest price",
+        "fastest": "Fastest",
+        "within-budget": "Within budget"
+      },
+      "supplier": "Supplier",
+      "total": "Total",
+      "furniture": "Furniture",
+      "delivery": "Delivery",
+      "installation": "Installation",
+      "manufacturing": "Manufacturing time",
+      "warranty": "Warranty",
+      "validUntil": "Valid until",
+      "days": "{count} days",
+      "freeDelivery": "Free delivery",
+      "withinBudget": "Within budget",
+      "overBudget": "Over budget by {amount}",
+      "noBudget": "No budget set",
+      "recommendedBadge": "Athathi's pick",
+      "why": "Why Athathi suggests this",
+      "recReasons": {
+        "within-budget": "Within your budget",
+        "lowest-total": "Lowest total price",
+        "fastest": "Fastest to make",
+        "includes-delivery": "Includes free delivery",
+        "verified-supplier": "Verified supplier"
+      },
+      "warranties": {
+        "warranty-1yr": "1-year warranty",
+        "warranty-2yr": "2-year warranty",
+        "warranty-structural-5yr": "5-year structural warranty"
+      },
+      "choose": "Accept this quote",
+      "accepted": "Accepted",
+      "declined": "Not chosen",
+      "acceptTitle": "Accept this quote?",
+      "acceptBody": "You'll accept {supplier}'s quote of {total}, ready {days}. Payment and the final order follow in a later phase — nothing is charged now.",
+      "acceptConfirm": "Accept Quote",
+      "cancel": "Cancel",
+      "acceptedTitle": "Quote accepted",
+      "acceptedBody": "Athathi has recorded your choice. The order and payment step arrives in a later phase.",
+      "readyForOrder": "Ready for order",
+      "backToRequests": "View my requests"
+    },
+    "account": {
+      "title": "Custom furniture requests",
+      "empty": "No custom requests yet. Describe a piece and Athathi will find suppliers to quote it.",
+      "startCta": "Start a custom request",
+      "status": {
+        "draft": "Draft",
+        "ready": "Ready",
+        "submitted": "Submitted",
+        "quotes_received": "Quotes received",
+        "customer_review": "In review",
+        "accepted": "Accepted",
+        "cancelled": "Cancelled",
+        "expired": "Expired"
+      },
+      "quotesCount": "{count} quotes",
+      "view": "View",
+      "remove": "Remove",
+      "created": "Created"
+    },
+    "supplier": {
+      "title": "Custom requests (RFQs)",
+      "subtitle": "Requests addressed to you. Send a quote — the customer compares and decides.",
+      "empty": "No custom requests yet.",
+      "tabs": {
+        "new": "New",
+        "quoted": "Quoted",
+        "closed": "Closed"
+      },
+      "specTitle": "Requested specification",
+      "sendQuote": "Send quote",
+      "editQuote": "Update quote",
+      "quoted": "Quoted",
+      "quoteForm": {
+        "title": "Your quote",
+        "basePrice": "Furniture price (OMR)",
+        "deliveryFee": "Delivery (OMR)",
+        "installationFee": "Installation (OMR)",
+        "total": "Total",
+        "manufacturingDays": "Manufacturing time (days)",
+        "warranty": "Warranty",
+        "notes": "Notes to the customer",
+        "validDays": "Valid for (days)",
+        "submit": "Submit quote",
+        "submitting": "Submitting…",
+        "submitted": "Quote submitted",
+        "demoNote": "Demo workspace — your quote is saved locally in this browser.",
+        "errorsTitle": "Please check the quote",
+        "errors": {
+          "basePrice": "Enter a valid furniture price.",
+          "deliveryFee": "Delivery can't be negative.",
+          "installationFee": "Installation can't be negative.",
+          "manufacturingDays": "Enter a realistic number of days.",
+          "generic": "Please complete the required fields."
+        }
+      }
+    },
+    "promotedNote": "Advertising never affects Athathi's recommendation. Suggestions are based only on how well a quote fits your request."
+  },
+  "footer": {
+    "tagline": "Upload your space, set your budget and style, and let Athathi design and prepare it for you.",
+    "madeIn": "Designed for the Sultanate of Oman",
+    "currency": "Prices in Omani Rial (OMR)",
+    "rights": "Prototype · Internal build — sample data throughout",
+    "columns": [
+      {
+        "title": "Explore",
+        "links": [
+          "Design My Space",
+          "Shop",
+          "Inspiration",
+          "Styles"
+        ]
+      },
+      {
+        "title": "Company",
+        "links": [
+          "About",
+          "For Suppliers",
+          "Custom Furniture",
+          "Contact"
+        ]
+      },
+      {
+        "title": "Support",
+        "links": [
+          "How it works",
+          "Delivery",
+          "Returns",
+          "Help"
+        ]
+      }
+    ]
+  }
+}

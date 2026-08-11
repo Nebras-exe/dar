@@ -1,26 +1,394 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================================
+   ATHATHI — DESIGN TOKENS
+   Premium interior studio × high-end furniture ecommerce × modern technology.
+   Warm, calm, editorial. One coherent light theme.
+   ============================================================================ */
+
+@theme {
+  /* ---- Typefaces -------------------------------------------------------- */
+  --font-sans: var(--font-hanken), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, "Iowan Old Style", Georgia, serif;
+  --font-arabic: var(--font-plex-arabic), "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+
+  /* ---- Core neutrals (warm) -------------------------------------------- */
+  --color-background: #f5f1ea; /* canvas — warm ivory */
+  --color-surface: #fbf8f3; /* raised panel */
+  --color-elevated: #ffffff; /* cards, dialogs, sheets */
+
+  --color-foreground: #262019; /* espresso — primary text */
+  --color-muted: #766c60; /* secondary text */
+  --color-subtle: #9a9184; /* tertiary text / captions */
+
+  --color-border: #e4dccf; /* default hairline */
+  --color-border-subtle: #ede7dc; /* softest hairline */
+
+  /* ---- Brand & accents -------------------------------------------------- */
+  --color-brand: #9a5b3b; /* warm clay / sienna */
+  --color-brand-hover: #834b2f;
+  --color-brand-soft: #f0e4da; /* tinted brand surface */
+  --color-brand-foreground: #fbf8f3;
+
+  --color-accent: #5e6a53; /* muted olive / sage */
+  --color-accent-soft: #e6e9e0;
+
+  /* ---- Semantic --------------------------------------------------------- */
+  --color-success: #4f6f52;
+  --color-success-soft: #e4ece2;
+  --color-warning: #a9792d;
+  --color-warning-soft: #f3e9d4;
+  --color-danger: #a8432f;
+  --color-danger-soft: #f3dfd8;
+
+  /* ---- Interior palette (documentation / swatches) --------------------- */
+  --color-ivory: #f5f1ea;
+  --color-cream: #efe7d9;
+  --color-sand: #e3d4bd;
+  --color-stone: #c9bfb1;
+  --color-taupe: #a99c8c;
+  --color-walnut: #6b4a32;
+  --color-charcoal: #2a2521;
+
+  /* ---- Radii ------------------------------------------------------------ */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+  --radius-full: 9999px;
+
+  /* ---- Shadows (soft, warm-tinted) ------------------------------------- */
+  --shadow-xs: 0 1px 2px rgba(38, 32, 25, 0.05);
+  --shadow-sm: 0 2px 10px -3px rgba(38, 32, 25, 0.09);
+  --shadow-md: 0 10px 28px -12px rgba(38, 32, 25, 0.16);
+  --shadow-lg: 0 24px 56px -20px rgba(38, 32, 25, 0.22);
+
+  /* ---- Motion ----------------------------------------------------------- */
+  --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 220ms;
+  --duration-slow: 340ms;
+
+  /* ---- Layout ----------------------------------------------------------- */
+  --container-content: 76rem; /* 1216px — primary content width */
+  --container-wide: 90rem; /* 1440px — full-bleed sections */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ============================================================================
+   BASE LAYER
+   ============================================================================ */
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+    /* Directional font mapping — headings + body follow the active language */
+    --font-heading: var(--font-display);
+    --font-body: var(--font-sans);
+  }
+
+  /* Arabic: use the Arabic typeface for both headings and body. */
+  [lang="ar"] {
+    --font-heading: var(--font-arabic);
+    --font-body: var(--font-arabic);
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-feature-settings: "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    line-height: 1.04;
+    letter-spacing: -0.018em;
+    font-weight: 480;
+    font-optical-sizing: auto;
+    text-wrap: balance;
+    color: var(--color-foreground);
+  }
+  /* Fraunces optical + soft axes tuned for editorial display. */
+  :root {
+    --fr-soft: 0;
+    --fr-wonk: 0;
+  }
+  h1 {
+    font-variation-settings: "SOFT" 0, "WONK" 0, "opsz" 144;
+  }
+
+  /* Arabic headings read best a touch heavier and without negative tracking. */
+  [lang="ar"] h1,
+  [lang="ar"] h2,
+  [lang="ar"] h3,
+  [lang="ar"] h4 {
+    letter-spacing: 0;
+    line-height: 1.22;
+    font-weight: 600;
+    font-variation-settings: normal;
+  }
+
+  [lang="ar"] body,
+  [lang="ar"] {
+    line-height: 1.85;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Consistent, visible focus for keyboard users only. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-brand) 22%, transparent);
+    color: var(--color-foreground);
+  }
+
+  ::placeholder {
+    color: var(--color-subtle);
+  }
+
+  /* Elegant, thin scrollbar tuned to the warm palette. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-taupe) transparent;
+  }
+
+  :where(h2, h3, h4)[id] {
+    scroll-margin-top: 6rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ============================================================================
+   UTILITIES
+   ============================================================================ */
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Editorial fine detail line for section eyebrows. */
+  .text-eyebrow {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+  [lang="ar"] .text-eyebrow {
+    letter-spacing: 0.06em;
+  }
+
+  /* Eyebrow with a leading hairline — an editorial section marker. */
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-brand);
+  }
+  .kicker::before {
+    content: "";
+    width: 1.75rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+  [lang="ar"] .kicker {
+    letter-spacing: 0.06em;
+  }
+
+  /* Oversized editorial display headline (hero). Fluid, tight, characterful. */
+  .text-display {
+    font-family: var(--font-heading);
+    font-weight: 460;
+    font-size: clamp(2.75rem, 6.4vw, 5.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 144;
+    text-wrap: balance;
+  }
+  [lang="ar"] .text-display {
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: 0;
+    font-variation-settings: normal;
+  }
+
+  /* A slim, warm hairline rule for editorial section breaks. */
+  .rule-hair {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-border),
+      transparent
+    );
+    border: 0;
+  }
+
+  /* Constrain measure for lead paragraphs. */
+  .measure {
+    max-width: 46ch;
+  }
+
+  /* Warm surface texture: a very subtle linen weave, used behind hero/editorial. */
+  .bg-linen {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(122, 90, 64, 0.02) 0 2px,
+        transparent 2px 4px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(122, 90, 64, 0.015) 0 2px,
+        transparent 2px 4px
+      );
+  }
+
+  /* Subtle warm paper grain used sparingly behind hero-like blocks. */
+  .bg-grain {
+    background-image: radial-gradient(
+      rgba(38, 32, 25, 0.035) 1px,
+      transparent 1px
+    );
+    background-size: 4px 4px;
+  }
+
+  /* One orchestrated entrance for above-the-fold hero elements. */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-fade-up {
+    animation: fade-up var(--duration-slow) var(--ease-out) both;
+  }
+
+  /* Scroll-reveal: elements start hidden and rise into place when observed.
+     Only the "hidden" state dims — so anything without JS/observer stays visible. */
+  [data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+    will-change: opacity, transform;
+  }
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+  }
+
+  /* Staggered reveal: children of a [data-reveal] container rise in sequence.
+     Set --stagger on the container; each child reads its --i index. */
+  [data-reveal-stagger] > * {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  [data-reveal-stagger="shown"] > * {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      transform var(--duration-slow) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+
+  /* Premium hover lift — a card rises with a warmer shadow. Compositor-only
+     (transform + box-shadow). Applied via `.lift` on a group/interactive card. */
+  .lift {
+    transition:
+      transform var(--duration-base) var(--ease-soft),
+      box-shadow var(--duration-base) var(--ease-soft);
+  }
+  .group:hover .lift,
+  .lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* A brief, one-shot highlight to draw the eye to a value that just changed
+     (budget total, agent update, new quote). Fades on its own. */
+  @keyframes value-pop {
+    0% {
+      background-color: color-mix(in srgb, var(--color-brand) 18%, transparent);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+  .animate-value-pop {
+    animation: value-pop 900ms var(--ease-out) both;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Sheen sweep for skeletons / loading media. */
+  @keyframes sheen {
+    100% {
+      transform: translateX(200%);
+    }
+  }
+}
+
+/* Reduced motion: never hide revealed content, never animate it. */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal="hidden"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   MOTION PREFERENCES
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files — never commit real secrets. The example template IS committed.
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +40,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ── Athathi: local-only, not for a public repo ──────────────────────────────
+# QA artifacts (rendered-page HTML dumps / preview snapshots — regenerated locally).
+/docs/qa/
+# Local-machine skills inventory — documents this developer's private machine
+# and unrelated projects; not part of the Athathi product.
+/docs/ALL_LOCAL_SKILLS_INVENTORY.md
+# Internal AI build-brief prompts (phase specs incl. unbuilt future work + local
+# paths). Kept locally; not part of the shipped product. Remove this line to publish them.
+/.claude-prompts/
+# Scratch / editor / OS noise
+*.bak
+*.swp
+*.orig
+Thumbs.db
