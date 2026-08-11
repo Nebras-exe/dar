@@ -12,6 +12,7 @@ import { getDictionary } from "@/i18n/dictionaries";
 import { Header } from "@/components/layout/header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { ShopProviders } from "@/features/shop/shop-providers";
+import { ChatWidget } from "@/features/chat/chat-widget";
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -116,6 +117,16 @@ export default async function LocaleLayout({
             {children}
           </main>
           <SiteFooter locale={typedLocale} footer={dict.footer} />
+          <ChatWidget
+            locale={typedLocale}
+            dicts={{
+              chat: dict.chat,
+              payment: dict.payment,
+              fulfillment: dict.fulfillment,
+              manufacturing: dict.manufacturing,
+              delivery: dict.delivery,
+            }}
+          />
         </ShopProviders>
       </body>
     </html>
