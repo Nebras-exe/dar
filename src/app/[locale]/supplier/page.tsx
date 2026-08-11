@@ -83,6 +83,7 @@ export default async function SupplierDashboardPage({
           tPay={dict.payment}
           tFul={dict.fulfillment}
           tMfg={dict.manufacturing}
+          tDel={dict.delivery}
           locale={locale}
         />
       </Container>

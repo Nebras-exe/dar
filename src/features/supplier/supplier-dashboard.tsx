@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   Archive, BarChart3, Boxes, Factory, LayoutDashboard, Package, Plus, RotateCcw, ShoppingBag,
-  Settings, Trash2, Upload, Inbox,
+  Settings, Trash2, Truck, Upload, Inbox,
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionaries";
@@ -21,12 +21,13 @@ import { toPreviewProduct } from "./local-product";
 import { SupplierRFQ } from "./supplier-rfq";
 import { SupplierOrders } from "@/features/orders/order-views";
 import { SupplierManufacturing } from "./manufacturing-workspace";
+import { SupplierDelivery } from "./delivery-workspace";
 
-type Tab = "overview" | "products" | "inventory" | "orders" | "manufacturing" | "requests" | "analytics" | "settings";
+type Tab = "overview" | "products" | "inventory" | "orders" | "manufacturing" | "delivery" | "requests" | "analytics" | "settings";
 
 const TAB_ICONS: Record<Tab, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   overview: LayoutDashboard, products: Package, inventory: Boxes,
-  orders: ShoppingBag, manufacturing: Factory, requests: Inbox, analytics: BarChart3, settings: Settings,
+  orders: ShoppingBag, manufacturing: Factory, delivery: Truck, requests: Inbox, analytics: BarChart3, settings: Settings,
 };
 
 /**
@@ -45,6 +46,7 @@ export function SupplierDashboard({
   tPay,
   tFul,
   tMfg,
+  tDel,
   locale,
 }: {
   supplier: Supplier;
@@ -56,6 +58,7 @@ export function SupplierDashboard({
   tPay: Dictionary["payment"];
   tFul: Dictionary["fulfillment"];
   tMfg: Dictionary["manufacturing"];
+  tDel: Dictionary["delivery"];
   locale: Locale;
 }) {
   const [tab, setTab] = React.useState<Tab>("overview");
@@ -63,7 +66,7 @@ export function SupplierDashboard({
   const { products, hydrated, create, update, setStatus, remove, byId } = useSupplierProducts(supplier.id);
 
   const supplierName = locale === "ar" ? supplier.nameAr : supplier.name;
-  const tabs: Tab[] = ["overview", "products", "inventory", "orders", "manufacturing", "requests", "analytics", "settings"];
+  const tabs: Tab[] = ["overview", "products", "inventory", "orders", "manufacturing", "delivery", "requests", "analytics", "settings"];
 
   const active = products.filter((p) => p.status === "active");
   const drafts = products.filter((p) => p.status === "draft");
@@ -213,6 +216,10 @@ export function SupplierDashboard({
         ) : tab === "manufacturing" ? (
           <section aria-label={t.tabs.manufacturing}>
             <SupplierManufacturing supplierId={supplier.id} t={tMfg} tCustom={tCustom} locale={locale} />
+          </section>
+        ) : tab === "delivery" ? (
+          <section aria-label={t.tabs.delivery}>
+            <SupplierDelivery supplierId={supplier.id} t={tDel} locale={locale} />
           </section>
         ) : tab === "requests" ? (
           <section aria-label={t.tabs.requests}>

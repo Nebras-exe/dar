@@ -57,6 +57,7 @@ import { isPaid, AGENT_CAN_PAY, type PaymentStatus } from "@/lib/payments";
 import { paymentMode } from "@/lib/payments/providers";
 import { AGENT_CAN_MANAGE_FULFILLMENT, type FulfillmentStatus } from "@/lib/fulfillment";
 import { AGENT_CAN_MANAGE_MANUFACTURING, type ManufacturingStatus } from "@/lib/manufacturing";
+import { AGENT_CAN_MANAGE_DELIVERY, type DeliveryStatus } from "@/lib/delivery";
 
 /** Compact product projection returned to the Agent (never the whole record). */
 export interface ToolProduct {
@@ -390,6 +391,50 @@ function summarizeManufacturingTool(args: Record<string, unknown>) {
   };
 }
 
+// ── Phase 12: summarize_delivery (READ-ONLY; the Agent never manages) ─────────
+/**
+ * Summarize an order's per-supplier delivery + installation progress and the
+ * customer-safe next step. The Agent is strictly READ-ONLY on delivery (§31): it
+ * may say "your sofa is scheduled for delivery tomorrow afternoon", but it can
+ * NEVER schedule, change the address, assign a driver, mark out-for-delivery /
+ * delivered, complete installation, or confirm handover. Takes the client's own
+ * delivery statuses (one per supplier group).
+ */
+const DELIVERY_STATUSES: readonly DeliveryStatus[] = [
+  "awaiting_schedule", "scheduled", "assigned", "out_for_delivery", "delivered",
+  "delivery_failed", "reschedule_required", "cancelled", "completed",
+];
+function summarizeDeliveryTool(args: Record<string, unknown>) {
+  const raw = Array.isArray(args.statuses) ? args.statuses : (args.status !== undefined ? [args.status] : []);
+  const statuses = raw.filter((s): s is DeliveryStatus =>
+    typeof s === "string" && (DELIVERY_STATUSES as readonly string[]).includes(s));
+  const counts = { preparing: 0, scheduled: 0, outForDelivery: 0, delivered: 0, completed: 0, needsAttention: 0 };
+  for (const s of statuses) {
+    if (s === "awaiting_schedule") counts.preparing++;
+    else if (s === "scheduled" || s === "assigned" || s === "reschedule_required") counts.scheduled++;
+    else if (s === "out_for_delivery") counts.outForDelivery++;
+    else if (s === "delivered") counts.delivered++;
+    else if (s === "completed") counts.completed++;
+    else if (s === "delivery_failed") counts.needsAttention++;
+  }
+  const total = statuses.length;
+  const allCompleted = total > 0 && counts.completed === total;
+  // Customer-safe next-step hint — never a raw failure code (calm wording).
+  const nextStep =
+    total === 0 ? "no-delivery-yet"
+    : allCompleted ? "all-completed"
+    : counts.needsAttention > 0 ? "rescheduling"
+    : counts.outForDelivery > 0 ? "on-the-way"
+    : counts.scheduled > 0 ? "scheduled"
+    : counts.delivered > 0 ? "delivered-awaiting-handover"
+    : "preparing";
+  return {
+    total, counts, allCompleted, nextStep,
+    agentCanManage: AGENT_CAN_MANAGE_DELIVERY, // always false — read-only
+    note: "read-only",
+  };
+}
+
 // ── Phase 09 RFQ tools (deterministic; never invent quotes/suppliers/prices) ──
 
 /** create_custom_spec — validate a proposed custom-furniture spec (user still reviews). */
@@ -570,6 +615,11 @@ export const toolRegistry: Record<string, AgentTool> = {
     name: "summarize_manufacturing",
     description: "Read-only: summarize a custom order's manufacturing + quality-check progress and the customer-safe next step. The Agent can NEVER start/complete manufacturing, pass/fail QC, or mark ready for delivery — the supplier does that in the UI.",
     run: summarizeManufacturingTool,
+  },
+  summarize_delivery: {
+    name: "summarize_delivery",
+    description: "Read-only: summarize an order's per-supplier delivery + installation progress and the customer-safe next step (e.g. scheduled window). The Agent can NEVER schedule, change the address, assign a driver, mark out-for-delivery/delivered, complete installation, or confirm handover.",
+    run: summarizeDeliveryTool,
   },
   // ── Phase 09 RFQ tools ──────────────────────────────────────────────────────
   create_custom_spec: {

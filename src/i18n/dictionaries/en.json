@@ -891,7 +891,8 @@
       "requests": "Requests",
       "analytics": "Analytics",
       "settings": "Settings",
-      "manufacturing": "Manufacturing"
+      "manufacturing": "Manufacturing",
+      "delivery": "Delivery"
     },
     "overview": {
       "activeProducts": "Active products",
@@ -1731,6 +1732,166 @@
       "ready": "Ready for delivery",
       "allReady": "All custom pieces ready for delivery",
       "label": "Manufacturing"
+    }
+  },
+  "delivery": {
+    "demoNote": "Delivery runs in Demo Mode - scheduling, assignment, and notifications are recorded locally, not sent to a real courier.",
+    "navLabel": "Delivery",
+    "status": {
+      "awaiting_schedule": "Awaiting scheduling",
+      "scheduled": "Scheduled",
+      "assigned": "Assigned",
+      "out_for_delivery": "Out for delivery",
+      "delivered": "Delivered",
+      "delivery_failed": "Delivery failed",
+      "reschedule_required": "Reschedule required",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
+    },
+    "installStatus": {
+      "not_required": "Not required",
+      "awaiting_schedule": "Awaiting scheduling",
+      "scheduled": "Scheduled",
+      "in_progress": "In progress",
+      "completed": "Installed",
+      "issue": "Issue"
+    },
+    "groups": {
+      "awaiting": "Awaiting scheduling",
+      "scheduled": "Scheduled",
+      "outForDelivery": "Out for delivery",
+      "delivered": "Delivered",
+      "attention": "Needs attention",
+      "completed": "Completed"
+    },
+    "slots": {
+      "title": "Delivery window",
+      "pickDate": "Choose a date",
+      "pickPeriod": "Choose a window",
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening",
+      "morningHours": "9:00-12:00",
+      "afternoonHours": "12:00-16:00",
+      "eveningHours": "16:00-20:00",
+      "demoLabel": "Demo scheduling - local windows, no live courier availability.",
+      "confirm": "Confirm delivery window",
+      "invalid": "Please choose a valid future date and window.",
+      "chosen": "Your chosen window",
+      "cancel": "Cancel"
+    },
+    "card": {
+      "area": "Area",
+      "slot": "Window",
+      "noSlot": "Not scheduled",
+      "installRequired": "Installation included",
+      "updated": "Updated",
+      "open": "Open delivery",
+      "empty": "No deliveries yet. Ready items appear here once manufacturing or fulfilment completes.",
+      "item": "Item",
+      "customItem": "Custom furniture",
+      "catalogItem": "Catalog item"
+    },
+    "detail": {
+      "title": "Delivery",
+      "back": "Back to deliveries",
+      "address": "Delivery address",
+      "phone": "Phone",
+      "notes": "Delivery notes",
+      "items": "Items in this delivery",
+      "slot": "Delivery window",
+      "assignment": "Assignment",
+      "timeline": "Delivery timeline",
+      "installation": "Installation",
+      "actions": "Actions",
+      "noActions": "No actions available in this state.",
+      "snapshotNote": "This is the delivery address captured at order time. Address changes need a future change request.",
+      "attempts": "Delivery attempts",
+      "attemptDelivered": "Delivered",
+      "attemptFailed": "Failed"
+    },
+    "actions": {
+      "schedule": "Schedule delivery",
+      "assign": "Assign Demo Delivery Team",
+      "mark_out_for_delivery": "Mark out for delivery",
+      "mark_delivered": "Mark delivered",
+      "mark_failed": "Report failed delivery",
+      "reschedule": "Reschedule",
+      "schedule_installation": "Schedule installation",
+      "start_installation": "Start installation",
+      "complete_installation": "Complete installation",
+      "confirm_handover": "Confirm handover",
+      "complete": "Confirm handover & complete"
+    },
+    "failure": {
+      "title": "Report a failed delivery",
+      "intro": "Choose why the delivery couldn't be completed. The customer sees a calm status, not this reason.",
+      "reasonLabel": "Reason",
+      "submit": "Report failure",
+      "cancel": "Cancel",
+      "reasons": {
+        "customer_unavailable": "Customer unavailable",
+        "incorrect_address": "Incorrect address",
+        "access_issue": "Access issue",
+        "vehicle_issue": "Vehicle issue",
+        "item_issue": "Item issue",
+        "other": "Other"
+      }
+    },
+    "installIssue": {
+      "title": "Record an installation issue",
+      "categoryLabel": "Category",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Internal note - the customer doesn't see this.",
+      "submit": "Record issue",
+      "categories": {
+        "missing_component": "Missing component",
+        "damage_found": "Damage found",
+        "fit_issue": "Fit issue",
+        "customer_request": "Customer request",
+        "other": "Other"
+      }
+    },
+    "assignment": {
+      "demoTeam": "Demo Delivery Team",
+      "assignedTo": "Assigned to",
+      "unassigned": "Not assigned yet"
+    },
+    "tracking": {
+      "title": "Delivery & tracking",
+      "perSupplier": "Tracking by supplier",
+      "current": "Now",
+      "window": "Window",
+      "nextStep": "Next step",
+      "stage": {
+        "preparing": "Preparing your delivery",
+        "scheduled": "Delivery scheduled",
+        "out_for_delivery": "On the way",
+        "delivered": "Delivered",
+        "installation": "Installation",
+        "completed": "Completed"
+      },
+      "installStage": {
+        "awaiting_schedule": "Installation to be scheduled",
+        "scheduled": "Installation scheduled",
+        "in_progress": "Installation in progress",
+        "completed": "Installed"
+      },
+      "reschedulingTitle": "Delivery didn't go through",
+      "reschedulingBody": "We couldn't complete this delivery. A new time is being arranged.",
+      "chooseSlotTitle": "Choose your delivery window",
+      "chooseSlotBody": "Your item is ready. Pick a delivery window that suits you.",
+      "completedBody": "This item has been delivered and handed over. Thank you.",
+      "noTracking": "Tracking will appear here once your item is ready for delivery."
+    },
+    "summary": {
+      "label": "Delivery",
+      "preparing": "Preparing delivery",
+      "scheduled": "Delivery scheduled",
+      "outForDelivery": "Out for delivery",
+      "completedCount": "{done} of {total} deliveries completed",
+      "allCompleted": "All deliveries completed",
+      "needsAttention": "A delivery needs attention"
     }
   }
 }

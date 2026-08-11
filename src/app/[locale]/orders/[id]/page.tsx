@@ -40,6 +40,7 @@ export default async function OrderPage({
           tPay={dict.payment}
           tFul={dict.fulfillment}
           tMfg={dict.manufacturing}
+          tDel={dict.delivery}
           tCustom={dict.custom}
           locale={locale}
           customerId={session!.user.id}

@@ -1,6 +1,6 @@
 # Athathi — Technical Architecture
 
-Status: **Through Phase 11B (Custom Manufacturing)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), the manufacturing layer (Phase 11B, §5.10), and the direction for later phases. It intentionally does not over-engineer ahead of need.
+Status: **Through Phase 12 (Delivery + Installation)**. Documents the chosen stack, the catalog data layer (Phase 03, §5), the design domain layer (Phase 04, §5.1), the vision layer (Phase 05, §5.2), the agent layer (Phase 06, §5.3), the visualization layer (Phase 07, §5.4), the backend/repository/auth layer (Phase 08, §5.5), the RFQ layer (Phase 09, §5.6), the orders layer (Phase 10A, §5.7), the payment layer (Phase 10B, §5.8), the fulfillment layer (Phase 11A, §5.9), the manufacturing layer (Phase 11B, §5.10), the delivery layer (Phase 12, §5.11), and the direction for later phases. It intentionally does not over-engineer ahead of need.
 
 **Testing:** deterministic catalog + design + vision + agent + visualization + repository/auth + i18n + rfq + orders logic is covered by `node --test` (`catalog.test.ts`, `design.test.ts`, `vision.test.ts`, `agent.test.ts`, `visualization.test.ts`, `repository.test.ts`, `auth.test.ts`, `i18n.test.ts`, `rfq.test.ts`, `orders.test.ts` — 155 tests) with no test-framework dependency and **no external/paid API calls** (vision, the agent's LLM path, and the visualization live path are exercised with injected mock providers). A tiny ESM resolve hook (`scripts/register-ts-resolver.mjs` + `ts-resolver.mjs`) lets the runner execute the app's TypeScript sources unchanged, mapping both extensionless relative imports and the `@/…` path alias; run with `npm test`.
 
@@ -333,6 +333,30 @@ supabase/migrations/{0012_manufacturing,0013_manufacturing_rls}.sql
 - **Authorization (§25).** Customer reads a safe view; supplier reads/manages own supplier only; customer never writes; issue descriptions supplier-only; `AGENT_CAN_MANAGE_MANUFACTURING=false`; `summarize_manufacturing` is read-only. Mirrored in `0013` RLS.
 - **Notifications (§24).** `ManufacturingNotifier` + `manufacturingNotifier` (records, `delivered:false`) — ZERO external messaging.
 - **Mode.** Demo: a labelled `localStorage` store (`athathi.manufacturing.v1`, `isDemo`). Supabase: `manufacturing_jobs`/`manufacturing_events`/`quality_checks`/`quality_issues` (RLS-scoped). Delivery/installation is Phase 12.
+
+### 5.11 Delivery + installation layer (Phase 12)
+
+`src/lib/delivery/` (pure) is the operational finish — scheduling → assignment →
+out-for-delivery → delivered → optional installation → handover → `completed`. A
+FIFTH SEPARATE domain. No real courier / GPS. Full detail in
+`docs/DELIVERY_INSTALLATION_WORKFLOW.md`.
+
+```
+src/lib/delivery/  types.ts status-machine.ts slots.ts delivery.ts authorization.ts notifications.ts index.ts delivery.test.ts
+src/features/orders/  delivery-store.ts  slot-picker.tsx  (+ order-views.tsx: customer tracking)
+src/features/supplier/  delivery-workspace.tsx
+supabase/migrations/{0014_delivery,0015_delivery_rls}.sql
+```
+
+- **Eligibility (§5).** `canCreateDelivery(isCustom, fulfillmentStatus, manufacturingStatus)` — custom needs manufacturing `ready_for_delivery`; catalog needs fulfillment `ready_for_next_stage`. Ready-stock never manufactures. The `assert_delivery_eligible` insert trigger enforces the same.
+- **State machines (§7/§21).** Delivery: `awaiting_schedule → scheduled → assigned → out_for_delivery → delivered → completed`, fail loop `out_for_delivery → delivery_failed → reschedule_required → scheduled`. Installation: `not_required / awaiting_schedule → scheduled → in_progress → completed / issue`. `completed`/`cancelled` terminal; illegal jumps rejected.
+- **Completion rule (§25).** `delivered → completed` requires any REQUIRED installation to be `completed`; handover is customer-safe (no signature/biometrics).
+- **Address snapshot (§10).** An immutable `DeliveryAddressSnapshot` captured at creation — never follows later account-address edits.
+- **Slots (§11/§12).** Deterministic demo windows over the next 7 days; `isValidSlot` rejects past/malformed/impossible; no external calendar, no invented availability.
+- **Append-only history (§8/§19).** Every transition appends an event; failed delivery attempts are preserved across reschedules.
+- **Authorization (§33).** Customer reads own + sets only the slot; supplier reads/manages own supplier only (incl. the customer phone/address snapshot); customer never writes status; `AGENT_CAN_MANAGE_DELIVERY=false`; `summarize_delivery` is read-only. Mirrored in `0015` RLS.
+- **No fake GPS (§28).** Tracking is status + timeline only; assignment is a labelled Demo Delivery Team; notifications are Demo/Log (`delivered:false`) — ZERO external.
+- **Mode.** Demo: a labelled `localStorage` store (`athathi.deliveries.v1`, `isDemo`). Supabase: `deliveries`/`delivery_events`/`delivery_attempts`/`installations`/`installation_events` (RLS-scoped). Real courier/GPS is a future phase.
 
 ## 6. AI agent architecture (direction)
 

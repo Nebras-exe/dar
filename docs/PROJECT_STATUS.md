@@ -4,7 +4,7 @@ _Last updated: 2026-08-11_
 
 ## Current phase
 
-**Phase 11B — Custom Manufacturing + Quality Check — ✅ Complete & verified.**
+**Phase 12 — Delivery + Installation + Tracking — ✅ Complete & verified.**
 
 ## Completed phases
 
@@ -35,9 +35,11 @@ _Last updated: 2026-08-11_
 
 - **Phase 11B** — Custom Manufacturing + Quality Check: custom furniture continues from `ready_for_next_stage` through production and a real QC loop to **`ready_for_delivery`** (`src/lib/manufacturing/`: types/status-machine/manufacturing/authorization/notifications). A FOURTH separate domain (order · payment · fulfillment · manufacturing). Catalog/ready-stock groups bypass manufacturing. Deterministic state machine (`not_started → manufacturing → manufacturing_completed → quality_check → qc_passed → ready_for_delivery`; fail loop `quality_check → qc_failed → rework → manufacturing_completed`), append-only event + QC history (a failed inspection is never overwritten), owner/supplier authorization mirrored in RLS, supplier **Manufacturing** dashboard tab (stage-grouped board + job detail + QC checklist/issue/rework), customer-safe manufacturing timeline (calm "quality review" wording; never exposes QC issues), read-only Agent (`summarize_manufacturing`), Demo/Log notifier (records, never sends). Migrations `0012_manufacturing.sql` (+ custom+ready insert trigger) + `0013_manufacturing_rls.sql` (gated). **External paid credits consumed: 0.** **221 tests** (+25), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1352 leaves); runs on :3000. See `docs/phase-reports/PHASE_11B_REPORT.md`, `docs/MANUFACTURING_WORKFLOW.md`.
 
+- **Phase 12** — Delivery + Installation + Tracking: the operational journey finishes — a ready supplier group (custom `ready_for_delivery` or catalog `ready_for_next_stage`) flows through scheduling → assignment → out-for-delivery → delivered → optional installation → handover → **`completed`** (`src/lib/delivery/`: types/status-machine/slots/delivery/authorization/notifications). A FIFTH separate domain (order · payment · fulfillment · manufacturing · delivery). Each group delivers independently. Deterministic delivery + installation state machines (failure/reschedule loop; completion rule gates `delivered → completed` on required installation), append-only event + attempt history (failed attempts preserved), an IMMUTABLE delivery-address snapshot, owner/supplier authorization mirrored in RLS, supplier **Delivery** dashboard tab (stage board + detail + failure/installation/handover), a strong customer **Delivery & tracking** section + demo slot picker (customer-friendly language, NO fake GPS/map), read-only Agent (`summarize_delivery`), Demo/Log notifier + labelled Demo Delivery Team. Migrations `0014_delivery.sql` (+ eligibility insert trigger) + `0015_delivery_rls.sql` (gated). **External paid API calls: 0. Paid credits consumed: 0.** **245 tests** (+24), lint/typecheck/build/audit:arabic green, EN/AR parity exact (1479 leaves); runs on :3000. See `docs/phase-reports/PHASE_12_REPORT.md`, `docs/DELIVERY_INSTALLATION_WORKFLOW.md`.
+
 ## Upcoming phases
 
-- **Phase 12 (recommended next)** — Delivery + Installation + Tracking: pick up at `ready_for_delivery` and schedule delivery/installation, driver/handover, and customer-facing tracking, as a separate auditable domain layered on manufacturing. See `docs/phase-reports/PHASE_11B_REPORT.md` § Recommended next phase. **Not started.**
+- **Phase 13 (recommended next)** — Notifications + User Memory + Agent Follow-up: wire the fulfillment/manufacturing/delivery Demo/Log notification abstractions to a real in-app notification centre + user memory + agent follow-up, behind the same interfaces, still zero-credit until real providers are supplied. See `docs/phase-reports/PHASE_12_REPORT.md` § Recommended next phase. **Not started.**
 
 ## Important architectural decisions
 

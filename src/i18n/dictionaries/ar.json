@@ -891,7 +891,8 @@
       "requests": "الطلبات",
       "analytics": "التحليلات",
       "settings": "الإعدادات",
-      "manufacturing": "التصنيع"
+      "manufacturing": "التصنيع",
+      "delivery": "التوصيل"
     },
     "overview": {
       "activeProducts": "المنتجات النشطة",
@@ -1731,6 +1732,166 @@
       "ready": "جاهز للتسليم",
       "allReady": "جميع القطع المخصّصة جاهزة للتسليم",
       "label": "التصنيع"
+    }
+  },
+  "delivery": {
+    "demoNote": "يعمل التوصيل في الوضع التجريبي — تُسجَّل الجدولة والإسناد والإشعارات محليًا ولا تُرسل إلى شركة شحن حقيقية.",
+    "navLabel": "التوصيل",
+    "status": {
+      "awaiting_schedule": "بانتظار الجدولة",
+      "scheduled": "مجدول",
+      "assigned": "مُسند",
+      "out_for_delivery": "قيد التوصيل",
+      "delivered": "تم التسليم",
+      "delivery_failed": "فشل التوصيل",
+      "reschedule_required": "يتطلب إعادة جدولة",
+      "cancelled": "أُلغي",
+      "completed": "مكتمل"
+    },
+    "installStatus": {
+      "not_required": "غير مطلوب",
+      "awaiting_schedule": "بانتظار الجدولة",
+      "scheduled": "مجدول",
+      "in_progress": "قيد التنفيذ",
+      "completed": "تم التركيب",
+      "issue": "مشكلة"
+    },
+    "groups": {
+      "awaiting": "بانتظار الجدولة",
+      "scheduled": "مجدول",
+      "outForDelivery": "قيد التوصيل",
+      "delivered": "تم التسليم",
+      "attention": "يحتاج انتباه",
+      "completed": "مكتمل"
+    },
+    "slots": {
+      "title": "نافذة التوصيل",
+      "pickDate": "اختر التاريخ",
+      "pickPeriod": "اختر الفترة",
+      "morning": "صباحًا",
+      "afternoon": "بعد الظهر",
+      "evening": "مساءً",
+      "morningHours": "9:00–12:00",
+      "afternoonHours": "12:00–16:00",
+      "eveningHours": "16:00–20:00",
+      "demoLabel": "جدولة تجريبية — فترات محلية دون توفر شركة شحن فعلية.",
+      "confirm": "تأكيد نافذة التوصيل",
+      "invalid": "يرجى اختيار تاريخ مستقبلي ونافذة صالحة.",
+      "chosen": "النافذة التي اخترتها",
+      "cancel": "إلغاء"
+    },
+    "card": {
+      "area": "المنطقة",
+      "slot": "النافذة",
+      "noSlot": "غير مجدول",
+      "installRequired": "يشمل التركيب",
+      "updated": "آخر تحديث",
+      "open": "فتح التوصيل",
+      "empty": "لا توجد عمليات توصيل بعد. تظهر العناصر الجاهزة هنا بعد اكتمال التصنيع أو التجهيز.",
+      "item": "العنصر",
+      "customItem": "أثاث مخصّص",
+      "catalogItem": "عنصر من الكتالوج"
+    },
+    "detail": {
+      "title": "التوصيل",
+      "back": "العودة إلى عمليات التوصيل",
+      "address": "عنوان التوصيل",
+      "phone": "الهاتف",
+      "notes": "ملاحظات التوصيل",
+      "items": "العناصر في هذا التوصيل",
+      "slot": "نافذة التوصيل",
+      "assignment": "الإسناد",
+      "timeline": "الجدول الزمني للتوصيل",
+      "installation": "التركيب",
+      "actions": "الإجراءات",
+      "noActions": "لا توجد إجراءات متاحة في هذه الحالة.",
+      "snapshotNote": "هذا هو عنوان التوصيل المُسجَّل وقت الطلب. تغيير العنوان يتطلب طلب تغيير مستقبلي.",
+      "attempts": "محاولات التوصيل",
+      "attemptDelivered": "تم التسليم",
+      "attemptFailed": "فشل"
+    },
+    "actions": {
+      "schedule": "جدولة التوصيل",
+      "assign": "إسناد إلى فريق التوصيل التجريبي",
+      "mark_out_for_delivery": "تحديد قيد التوصيل",
+      "mark_delivered": "تحديد كمُسلَّم",
+      "mark_failed": "الإبلاغ عن فشل التوصيل",
+      "reschedule": "إعادة جدولة",
+      "schedule_installation": "جدولة التركيب",
+      "start_installation": "بدء التركيب",
+      "complete_installation": "إكمال التركيب",
+      "confirm_handover": "تأكيد التسليم",
+      "complete": "تأكيد التسليم والإكمال"
+    },
+    "failure": {
+      "title": "الإبلاغ عن فشل التوصيل",
+      "intro": "اختر سبب تعذّر إتمام التوصيل. يرى العميل حالة موجزة وليس هذا السبب.",
+      "reasonLabel": "السبب",
+      "submit": "الإبلاغ عن الفشل",
+      "cancel": "إلغاء",
+      "reasons": {
+        "customer_unavailable": "العميل غير متاح",
+        "incorrect_address": "عنوان غير صحيح",
+        "access_issue": "مشكلة في الوصول",
+        "vehicle_issue": "مشكلة في المركبة",
+        "item_issue": "مشكلة في العنصر",
+        "other": "أخرى"
+      }
+    },
+    "installIssue": {
+      "title": "تسجيل مشكلة تركيب",
+      "categoryLabel": "الفئة",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "ملاحظة داخلية — لا يراها العميل.",
+      "submit": "تسجيل المشكلة",
+      "categories": {
+        "missing_component": "مكوّن ناقص",
+        "damage_found": "تلف مكتشف",
+        "fit_issue": "مشكلة ملاءمة",
+        "customer_request": "طلب العميل",
+        "other": "أخرى"
+      }
+    },
+    "assignment": {
+      "demoTeam": "فريق التوصيل التجريبي",
+      "assignedTo": "مُسند إلى",
+      "unassigned": "لم يُسند بعد"
+    },
+    "tracking": {
+      "title": "التوصيل والتتبّع",
+      "perSupplier": "التتبّع حسب المورّد",
+      "current": "الآن",
+      "window": "النافذة",
+      "nextStep": "الخطوة التالية",
+      "stage": {
+        "preparing": "نجهّز توصيلك",
+        "scheduled": "تم جدولة التوصيل",
+        "out_for_delivery": "في الطريق",
+        "delivered": "تم التسليم",
+        "installation": "التركيب",
+        "completed": "مكتمل"
+      },
+      "installStage": {
+        "awaiting_schedule": "سيتم جدولة التركيب",
+        "scheduled": "تم جدولة التركيب",
+        "in_progress": "التركيب قيد التنفيذ",
+        "completed": "تم التركيب"
+      },
+      "reschedulingTitle": "لم يتم التوصيل",
+      "reschedulingBody": "لم نتمكن من إتمام هذا التوصيل. يجري ترتيب موعد جديد.",
+      "chooseSlotTitle": "اختر نافذة التوصيل",
+      "chooseSlotBody": "عنصرك جاهز. اختر نافذة توصيل تناسبك.",
+      "completedBody": "تم تسليم هذا العنصر وتسليمه إليك. شكرًا لك.",
+      "noTracking": "سيظهر التتبّع هنا عندما يصبح عنصرك جاهزًا للتوصيل."
+    },
+    "summary": {
+      "label": "التوصيل",
+      "preparing": "تجهيز التوصيل",
+      "scheduled": "تم جدولة التوصيل",
+      "outForDelivery": "قيد التوصيل",
+      "completedCount": "اكتمل {done} من {total} عمليات توصيل",
+      "allCompleted": "اكتملت جميع عمليات التوصيل",
+      "needsAttention": "توصيل يحتاج انتباه"
     }
   }
 }

@@ -148,6 +148,11 @@ export function useSupplierManufacturing(
 
 // ── Customer-side hook (READ-ONLY — §25) ──────────────────────────────────────
 
+/** Plain read of the manufacturing job for a group (non-hook; used by the delivery store). */
+export function getManufacturingJob(orderId: string, supplierId: string): ManufacturingJob | null {
+  return findJob(store.get(), orderId, supplierId);
+}
+
 /** Manufacturing jobs for an order's custom groups (customer timeline). Read-only. */
 export function useOrderManufacturing(order: Order | null): { jobs: ManufacturingJob[]; hydrated: boolean } {
   const all = React.useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);

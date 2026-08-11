@@ -21,6 +21,10 @@ import {
   buildCustomerTimeline,
   type ManufacturingJob, type ManufacturingStage, type ManufacturingStepState,
 } from "@/lib/manufacturing";
+import {
+  buildTracking, type Delivery, type TrackingStepState, type DeliveryWindow,
+} from "@/lib/delivery";
+import { CalendarClock, Truck } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -28,6 +32,8 @@ import { useOrders, useSupplierOrders } from "./order-store";
 import { usePaymentStatus } from "./payment-store";
 import { useSupplierFulfillment, useOrderFulfillments, useFulfillmentSummary } from "./fulfillment-store";
 import { useOrderManufacturing } from "./manufacturing-store";
+import { useOrderDeliveries, useDeliverySummary } from "./delivery-store";
+import { SlotPicker, formatWindow } from "./slot-picker";
 
 function orderDate(ts: number, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === "ar" ? "ar-OM" : "en-GB", {
@@ -90,9 +96,9 @@ function FulfillmentStatusBadge({
 
 /** Customer account → Orders list (real; honest empty state). */
 export function AccountOrders({
-  t, tPay, tFul, locale, customerId,
+  t, tPay, tFul, tDel, locale, customerId,
 }: {
-  t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"]; locale: Locale; customerId: string;
+  t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"]; tDel: Dictionary["delivery"]; locale: Locale; customerId: string;
 }) {
   const { orders, hydrated } = useOrders(customerId);
   if (!hydrated) return null;
@@ -111,7 +117,7 @@ export function AccountOrders({
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
           {orders.map((o) => (
-            <AccountOrderRow key={o.id} order={o} t={t} tPay={tPay} tFul={tFul} locale={locale} />
+            <AccountOrderRow key={o.id} order={o} t={t} tPay={tPay} tFul={tFul} tDel={tDel} locale={locale} />
           ))}
         </ul>
       )}
@@ -130,14 +136,28 @@ function fulfillmentSummaryLabel(s: FulfillmentSummary, tFul: Dictionary["fulfil
   return tFul.summary.awaitingAll;
 }
 
+/** A deterministic one-line delivery summary for an account order card (§29). */
+function deliverySummaryLabel(s: ReturnType<typeof useDeliverySummary>["summary"], tDel: Dictionary["delivery"]): string | null {
+  if (s.total === 0) return null;
+  if (s.allCompleted) return tDel.summary.allCompleted;
+  if (s.needsAttention > 0) return tDel.summary.needsAttention;
+  if (s.completed > 0) return tDel.summary.completedCount.replace("{done}", String(s.completed)).replace("{total}", String(s.total));
+  if (s.outForDelivery > 0) return tDel.summary.outForDelivery;
+  if (s.scheduled > 0) return tDel.summary.scheduled;
+  return tDel.summary.preparing;
+}
+
 function AccountOrderRow({
-  order: o, t, tPay, tFul, locale,
+  order: o, t, tPay, tFul, tDel, locale,
 }: {
-  order: Order; t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"]; locale: Locale;
+  order: Order; t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"]; tDel: Dictionary["delivery"]; locale: Locale;
 }) {
   const { status } = usePaymentStatus(o.id);
   const { summary } = useFulfillmentSummary(o, status);
-  const fulLabel = fulfillmentSummaryLabel(summary, tFul);
+  const { summary: delSummary } = useDeliverySummary(o);
+  // Prefer the delivery summary once any group has reached delivery; else fulfillment.
+  const delLabel = deliverySummaryLabel(delSummary, tDel);
+  const fulLabel = delLabel ? null : fulfillmentSummaryLabel(summary, tFul);
   return (
     <li>
       <Link href={`/${locale}/orders/${o.id}`}
@@ -151,12 +171,17 @@ function AccountOrderRow({
             {orderDate(o.createdAt, locale)} · {t.items.replace("{count}", String(o.totals.itemCount))}
             {o.totals.supplierCount > 1 && ` · ${t.suppliers.replace("{count}", String(o.totals.supplierCount))}`}
           </p>
-          {fulLabel && (
+          {delLabel ? (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+              <Truck className="size-3.5 text-brand" strokeWidth={1.75} aria-hidden="true" />
+              {tDel.summary.label}: {delLabel}
+            </p>
+          ) : fulLabel ? (
             <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
               <CircleDot className="size-3.5 text-brand" strokeWidth={1.75} aria-hidden="true" />
               {tFul.summary.label}: {fulLabel}
             </p>
-          )}
+          ) : null}
         </div>
         <div className="flex items-center gap-2.5">
           <PaymentStatusBadge status={status} tPay={tPay} />
@@ -170,10 +195,10 @@ function AccountOrderRow({
 
 /** Order detail (customer view). Full supplier grouping + address + fulfillment timeline. */
 export function OrderDetail({
-  t, tPay, tFul, tMfg, tCustom, locale, customerId, orderId,
+  t, tPay, tFul, tMfg, tDel, tCustom, locale, customerId, orderId,
 }: {
   t: Dictionary["orders"]; tPay: Dictionary["payment"]; tFul: Dictionary["fulfillment"];
-  tMfg: Dictionary["manufacturing"]; tCustom: Dictionary["custom"]; locale: Locale;
+  tMfg: Dictionary["manufacturing"]; tDel: Dictionary["delivery"]; tCustom: Dictionary["custom"]; locale: Locale;
   customerId: string; orderId: string;
 }) {
   const { byId, hydrated } = useOrders(customerId);
@@ -207,6 +232,7 @@ export function OrderDetail({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_18rem]">
         <div className="flex flex-col gap-5">
+          <OrderDeliveryTracking order={order} tDel={tDel} locale={locale} />
           <OrderFulfillmentTimeline order={order} payStatus={payStatus} tFul={tFul} tMfg={tMfg} locale={locale} />
           {order.groups.map((g) => (
             <GroupBlock key={g.supplierId} group={g} t={t} tCustom={tCustom} locale={locale} />
@@ -248,6 +274,145 @@ export function OrderDetail({
           </div>
         </aside>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Customer delivery tracking (Phase 12, §26/§27). ONE tracker PER supplier —
+ * never one misleading status for the whole order. Customer-friendly language
+ * only (no internal logistics codes); a slot picker appears when the item is
+ * ready to schedule; failed attempts read calmly. No fake GPS/map/distance (§28).
+ */
+function OrderDeliveryTracking({
+  order, tDel, locale,
+}: {
+  order: Order; tDel: Dictionary["delivery"]; locale: Locale;
+}) {
+  const { deliveries, hydrated, chooseSlot } = useOrderDeliveries(order);
+  if (!hydrated || deliveries.length === 0) return null; // shown once a group is ready
+  const multi = order.groups.length > 1;
+
+  return (
+    <section className="rounded-xl border border-border-subtle bg-surface p-5">
+      <h2 className="flex items-center gap-2 text-base font-semibold text-foreground">
+        <Truck className="size-4 text-brand" strokeWidth={1.75} aria-hidden="true" />
+        {tDel.tracking.title}
+      </h2>
+      {multi && <p className="mt-0.5 text-xs text-muted">{tDel.tracking.perSupplier}</p>}
+      <p className="mt-1 text-xs text-subtle">{tDel.demoNote}</p>
+      <div className="mt-4 flex flex-col gap-6">
+        {deliveries.map((d) => (
+          <SupplierDeliveryTracker key={d.supplierId} delivery={d} showSupplierName={multi}
+            tDel={tDel} locale={locale}
+            onChooseSlot={(w) => chooseSlot(d.id, w)} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const trackIcon: Record<TrackingStepState, React.ComponentType<{ className?: string; strokeWidth?: number; "aria-hidden"?: boolean }>> = {
+  done: Check, current: CircleDot, upcoming: CircleDot, attention: Ban,
+};
+
+function SupplierDeliveryTracker({
+  delivery, showSupplierName, tDel, locale, onChooseSlot,
+}: {
+  delivery: Delivery; showSupplierName: boolean; tDel: Dictionary["delivery"]; locale: Locale;
+  onChooseSlot: (window: DeliveryWindow) => void;
+}) {
+  const tk = tDel.tracking;
+  const tracking = buildTracking(delivery);
+  const [scheduling, setScheduling] = React.useState(false);
+  const canSchedule = delivery.status === "awaiting_schedule" || delivery.status === "reschedule_required";
+
+  return (
+    <div>
+      {showSupplierName && (
+        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+          <Store className="size-4 text-brand" strokeWidth={1.75} aria-hidden="true" />
+          {delivery.supplierName}
+        </p>
+      )}
+
+      {/* Chosen window (calm, customer-friendly) */}
+      {delivery.window && !canSchedule && (
+        <p className="mb-2 flex items-center gap-1.5 text-xs text-muted">
+          <CalendarClock className="size-3.5 text-brand" strokeWidth={1.75} aria-hidden="true" />
+          {tk.window}: {formatWindow(delivery.window, tDel.slots, locale)}
+        </p>
+      )}
+
+      <ol className="flex flex-col">
+        {tracking.steps.map((step, i) => {
+          const Icon = trackIcon[step.state];
+          const isCurrent = step.state === "current";
+          const isFuture = step.state === "upcoming";
+          const isLast = i === tracking.steps.length - 1;
+          const label = step.stage === "installation"
+            ? tk.installStage[delivery.installation.status as keyof typeof tk.installStage] ?? tk.stage.installation
+            : tk.stage[step.stage];
+          return (
+            <li key={step.stage} className="flex gap-3">
+              <div className="flex flex-col items-center">
+                <span className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-full border",
+                  step.state === "done" ? "border-success bg-success text-white"
+                  : isCurrent ? "border-brand bg-brand-soft text-brand"
+                  : step.state === "attention" ? "border-warning/50 bg-warning-soft text-warning"
+                  : "border-border bg-surface text-subtle",
+                )}>
+                  <Icon className="size-3.5" strokeWidth={2} aria-hidden={true} />
+                </span>
+                {!isLast && <span className={cn("w-px flex-1", step.state === "done" ? "bg-success/40" : "bg-border-subtle")} style={{ minHeight: "1.5rem" }} aria-hidden="true" />}
+              </div>
+              <div className={cn("pb-4", isFuture && "opacity-60")}>
+                <p className={cn("flex flex-wrap items-center gap-2 text-sm", isCurrent ? "font-semibold text-foreground" : "font-medium text-foreground")}>
+                  {label}
+                  {isCurrent && <Badge tone="brand">{tk.current}</Badge>}
+                </p>
+                {step.at !== undefined && step.state !== "upcoming" && (
+                  <p className="mt-0.5 text-xs text-muted">{orderDateTime(step.at, locale)}</p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {/* Rescheduling note (calm, never a raw code) */}
+      {tracking.rescheduling && (
+        <div className="mt-1 rounded-lg border border-warning/40 bg-warning-soft px-3 py-2" role="status">
+          <p className="text-xs font-medium text-foreground">{tk.reschedulingTitle}</p>
+          <p className="mt-0.5 text-xs text-muted">{tk.reschedulingBody}</p>
+        </div>
+      )}
+
+      {/* Slot picker when the customer needs to choose a window */}
+      {canSchedule && (
+        <div className="mt-2">
+          {scheduling ? (
+            <SlotPicker t={tDel.slots} locale={locale}
+              onConfirm={(w) => { onChooseSlot(w); setScheduling(false); }} onCancel={() => setScheduling(false)} />
+          ) : (
+            <div className="rounded-lg border border-brand/30 bg-brand-soft/40 p-3">
+              <p className="text-sm font-medium text-foreground">{tk.chooseSlotTitle}</p>
+              <p className="mt-0.5 text-xs text-muted">{tk.chooseSlotBody}</p>
+              <Button size="sm" className="mt-2" onClick={() => setScheduling(true)} iconStart={<CalendarClock className="size-4" strokeWidth={1.75} />}>
+                {tDel.actions.schedule}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {delivery.status === "completed" && (
+        <p className="mt-1 flex items-center gap-1.5 text-xs text-success">
+          <PackageCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+          {tk.completedBody}
+        </p>
+      )}
     </div>
   );
 }

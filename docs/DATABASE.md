@@ -164,12 +164,34 @@ updates/inserts ONLY their own supplier's jobs (A can never touch B, §26);
 §17); quality-issue descriptions are supplier-only. `ready_for_delivery` is terminal
 (Phase 12 seam). Each custom group progresses independently (multi-item safe, §21).
 
+## Phase 12 tables (`0014_delivery.sql` + `0015_delivery_rls.sql`)
+
+Delivery + installation + tracking (full detail in
+`docs/DELIVERY_INSTALLATION_WORKFLOW.md`). A FIFTH separate domain from order/payment/
+fulfillment/manufacturing status. Enums `delivery_status`
+(`awaiting_schedule/scheduled/assigned/out_for_delivery/delivered/delivery_failed/
+reschedule_required/cancelled/completed`), `installation_status`, `delivery_slot_period`,
+`delivery_event_type`, `delivery_actor_role`, `delivery_failure_reason`,
+`installation_issue_category`. Tables: `deliveries` (**one per `order_group_id`** —
+references order/order_group/**fulfillment**/(manufacturing_job)/supplier; **immutable
+jsonb address snapshot**, §10; slot; labelled demo assignee; `installation_required`/
+`installation_status`) guarded by an `assert_delivery_eligible` **insert trigger**
+(custom → manufacturing `ready_for_delivery`; catalog → fulfillment
+`ready_for_next_stage`, §5); `delivery_events` + `delivery_attempts` (append-only —
+failed attempts preserved, §8/§19); `installations`; `installation_events`
+(supplier-only issue descriptions, §23). RLS (`0015`): the owning **customer** reads
+their own delivery and may update only the slot columns (never operational status,
+§33); a **supplier member** reads/updates/inserts ONLY their own supplier's deliveries
+(A can never read/mutate B's, incl. the customer phone/address, §35); events/attempts
+have no update/delete policy (append-only). `completed` is terminal — a real
+courier/GPS provider is a future phase (§16/§28). Each group delivers independently
+(§9).
+
 ## Future tables (documented, intentionally NOT built)
 
-`refunds` (a documented, auditable transition off a `paid` intent), plus `deliveries`,
-`installations`, `delivery_tracking` (Phase 12 — delivery + installation + tracking).
-`ready_for_delivery` is the seam to Phase 12. The current schema is designed to extend
-cleanly.
+`refunds` (a documented, auditable transition off a `paid` intent), plus real
+courier/logistics provider tables, driver assignment, and GPS/delivery-proof tracking
+(a future phase). The current schema is designed to extend cleanly.
 
 ## Secrets (§30/§47)
 
