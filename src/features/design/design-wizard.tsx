@@ -29,6 +29,7 @@ import {
 import { DemoAnalysis } from "./demo-analysis";
 import { DesignResult } from "./design-result";
 import { MemorySeedCard } from "./memory-seed";
+import { EngineBadge } from "./engine-badge";
 import { RoomImageProvider } from "./room-image-context";
 
 /**
@@ -152,7 +153,10 @@ function DesignWizardInner({
       <Container width="content">
         {/* Intro */}
         <div className="mb-8 max-w-2xl">
-          <p className="text-eyebrow mb-3">{t.demoMode}</p>
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <p className="text-eyebrow">{t.demoMode}</p>
+            <EngineBadge t={dict.design.engine} />
+          </div>
           <h1 className="text-3xl sm:text-4xl">{t.title}</h1>
           <p className="mt-3 text-lg text-muted">{t.subtitle}</p>
         </div>

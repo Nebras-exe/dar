@@ -773,6 +773,19 @@
       "customPrompt": "Want something bespoke instead?",
       "customLink": "Request custom furniture",
       "colourLabel": "Colour"
+    },
+    "engine": {
+      "title": "Athathi AI design engine",
+      "claudeMode": "Claude Vision",
+      "demoMode": "Demo Analysis",
+      "note": "A multi-agent engine grounds every recommendation in the real catalog. With a Claude key it uses Claude Vision + planning; without one, the deterministic demo runs — no external calls.",
+      "steps": {
+        "analyzing_room": "Analysing your room",
+        "planning": "Understanding your style",
+        "searching_catalog": "Searching real furniture",
+        "validating_budget": "Checking your budget",
+        "preparing_visualization": "Preparing your design"
+      }
     }
   },
   "auth": {

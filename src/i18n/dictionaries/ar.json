@@ -773,6 +773,19 @@
       "customPrompt": "تريد قطعة مصمّمة خصيصاً بدلاً من ذلك؟",
       "customLink": "اطلب أثاثاً مخصّصاً",
       "colourLabel": "اللون"
+    },
+    "engine": {
+      "title": "محرك تصميم أثاثي الذكي",
+      "claudeMode": "رؤية Claude",
+      "demoMode": "تحليل تجريبي",
+      "note": "محرك متعدد الوكلاء يربط كل توصية بالكتالوج الحقيقي. مع مفتاح Claude يستخدم رؤية Claude والتخطيط؛ وبدونه يعمل العرض التجريبي الحتمي — دون أي اتصال خارجي.",
+      "steps": {
+        "analyzing_room": "تحليل غرفتك",
+        "planning": "فهم أسلوبك",
+        "searching_catalog": "البحث عن أثاث حقيقي",
+        "validating_budget": "التحقق من ميزانيتك",
+        "preparing_visualization": "تجهيز تصميمك"
+      }
     }
   },
   "auth": {
