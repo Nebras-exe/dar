@@ -28,6 +28,7 @@ import { currentSummary } from "./wizard-state";
 import { BudgetMeter } from "./budget-meter";
 import { DesignItemCard } from "./design-item-card";
 import { AgentPanel } from "./agent-panel";
+import { RoomAgentPanel } from "./room-agent-panel";
 import { VisualizationSection } from "./visualization-section";
 
 const TIER_ORDER: DesignTier[] = ["smart-saver", "balanced", "premium"];
@@ -167,6 +168,12 @@ export function DesignResult({
           {tr.lowBudgetNote}
         </p>
       )}
+
+      {/* Room Image Catalog Agent — analyse the uploaded room and ground every
+          recommendation in the REAL catalog (Claude Vision-ready; demo by default). */}
+      <div className="mt-8">
+        <RoomAgentPanel input={input} design={t} locale={locale} />
+      </div>
 
       {/* Before / After — see the design in the user's room (Phase 07) */}
       <div className="mt-8">

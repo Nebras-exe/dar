@@ -24,10 +24,11 @@ import { validateBrief } from "./validation";
 import { computeBudget, trimToBudget } from "./budget";
 import { validateLayout } from "./layout-agent";
 import { groundCatalog } from "./catalog-agent";
-import { NEGATIVE_CONSTRAINTS } from "./render-spec";
+import { NEGATIVE_CONSTRAINTS, buildRenderSpec } from "./render-spec";
 import { INTERIOR_LIMITS } from "./config";
 import type { DesignerProvider } from "./provider";
 import type { InteriorRunInput } from "./types";
+import type { RoomAnalysis } from "@/lib/vision";
 
 const baseInput: InteriorRunInput = {
   locale: "en",
@@ -235,4 +236,51 @@ test("the run output never contains an API key or secret-shaped field", async ()
   assert.equal(/sk-ant|x-api-key|ANTHROPIC_API_KEY/i.test(serialized), false);
   // Provider meta carries only an enum + a model name, never a credential.
   assert.ok(run.provider.designer === "claude" || run.provider.designer === "demo");
+});
+
+// ── Empty catalog: honest CATALOG_EMPTY (no fabrication) ──────────────────────
+
+test("an empty catalog yields no-catalog-matches, never a fabricated product", async () => {
+  __setCatalogProductsForTests([]); // force empty for this run
+  try {
+    const run = await runInteriorDesign(baseInput, { designerOverride: mockDesigner(goodPlan) });
+    assert.equal(run.status, "failed");
+    assert.equal(run.error, "no-catalog-matches");
+    assert.equal(run.catalogSelections.length, 0);
+    assert.equal(run.renderSpec, null);
+  } finally {
+    __setCatalogProductsForTests(sampleCatalog); // restore for the rest of the file
+  }
+});
+
+// ── Existing-room furniture exception + allow-list (§14/§17) ───────────────────
+
+test("kept existing-room furniture flows into the RenderSpec preserve allow-list only", () => {
+  const analysis: RoomAnalysis = {
+    roomType: "living-room",
+    roomTypeConfidence: 0.6,
+    style: { primary: "modern", secondary: null, confidence: 0.6 },
+    palette: [],
+    existingFurniture: [
+      { category: "rugs", rawLabel: "rug", confidence: 0.7, approximateColorId: "beige", approximateMaterialId: null, suggestion: "keep" },
+      { category: "chairs", rawLabel: "old chair", confidence: 0.6, approximateColorId: null, approximateMaterialId: null, suggestion: "replace" },
+    ],
+    architecturalFeatures: ["window", "major-empty-wall"],
+    dimensionsStatus: "unknown",
+    source: "demo",
+    provider: "demo",
+    promptVersion: "test",
+  };
+  const brief = validateBrief(goodPlan).brief!;
+  const { selections } = groundCatalog(brief.needs);
+  const spec = buildRenderSpec("room:test", analysis, brief, selections, "modern", undefined);
+
+  // Only KEEP furniture is preserved (replace is not); it is a category, never a fabricated product.
+  assert.deepEqual(spec.preserveExistingFurniture, ["rugs"]);
+  assert.ok(spec.preserveArchitecture.includes("window"));
+  // Inserts are exactly the grounded real selections — nothing outside the allow-list.
+  const insertSlugs = spec.insertProducts.map((i) => i.slug).sort();
+  const selectionSlugs = selections.map((s) => s.slug).sort();
+  assert.deepEqual(insertSlugs, selectionSlugs);
+  assert.ok(spec.negativeConstraints.includes("do_not_invent_extra_furniture"));
 });

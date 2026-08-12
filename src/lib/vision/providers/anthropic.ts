@@ -13,17 +13,29 @@ import {
  * Anthropic (Claude) vision provider via the Messages REST API — no SDK
  * dependency. The API key is read server-side only and never leaves this
  * module; it is not logged and not returned to the client. Enable by setting
- * `ANTHROPIC_API_KEY` (and optionally `ATHATHI_VISION_MODEL`).
+ * `ANTHROPIC_API_KEY`; the model resolves from `ATHATHI_VISION_MODEL` (a
+ * vision-specific override) or the shared `ANTHROPIC_MODEL`, else a safe default.
  */
-const MODEL = process.env.ATHATHI_VISION_MODEL || "claude-sonnet-5";
+function resolveModel(): string {
+  return (
+    process.env.ATHATHI_VISION_MODEL?.trim() ||
+    process.env.ANTHROPIC_MODEL?.trim() ||
+    "claude-sonnet-5"
+  );
+}
 
 export const anthropicProvider: VisionProvider = {
   name: "anthropic",
-  model: MODEL,
+  // A getter so a model set in the environment is honoured at call time, not
+  // frozen at import (keeps ATHATHI_VISION_MODEL / ANTHROPIC_MODEL in sync).
+  get model() {
+    return resolveModel();
+  },
   isConfigured: () => Boolean(process.env.ANTHROPIC_API_KEY),
   async analyze(input: VisionImageInput, signal: AbortSignal): Promise<unknown> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) throw new Error("anthropic: not configured");
+    const MODEL = resolveModel();
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

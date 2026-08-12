@@ -796,6 +796,31 @@
         "validating_budget": "Checking your budget",
         "preparing_visualization": "Preparing your design"
       }
+    },
+    "roomAgent": {
+      "title": "Room Image Agent",
+      "subtitle": "Analyses your uploaded room, then recommends only furniture that actually exists in the Athathi catalog.",
+      "catalogOnlyNote": "Every recommendation is a real catalog product with a real price and photo — nothing is invented.",
+      "analyzeCta": "Analyse my room",
+      "analyzeNoImageCta": "Suggest from my choices",
+      "noImageHint": "Add a room photo in step 1 for a photo-based analysis. Without one, suggestions come from your room type, budget and style.",
+      "running": "Analysing…",
+      "errorGeneric": "The analysis could not be completed. Please try again.",
+      "catalogEmpty": "Your room has been analysed, but there are currently no products available in the catalog.",
+      "analysisTitle": "What the agent saw",
+      "keepTitle": "Existing furniture to keep",
+      "productsTitle": "Recommended from the catalog",
+      "noMatch": "No matching catalog products were found for this room yet.",
+      "unmetPrefix": "No catalog match yet for:",
+      "budgetTotal": "New furniture total",
+      "budgetRemaining": "Remaining budget",
+      "budgetOver": "Over budget by",
+      "handoffTitle": "Ready for visualization",
+      "handoffNote": "Only kept furniture and the selected catalog products are passed to the design preview.",
+      "handoffInserts": "Catalog products",
+      "handoffKeep": "Kept from room",
+      "handoffConstraint": "The preview may not add any furniture outside this list.",
+      "rerun": "Analyse again"
     }
   },
   "auth": {
