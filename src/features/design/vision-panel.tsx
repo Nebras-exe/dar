@@ -68,12 +68,16 @@ export function VisionPanel({
   const busy = status !== "idle";
 
   async function runAnalysis(mode: "auto" | "demo") {
+    // Never analyse without a real uploaded image — no fabricated room
+    // observations. (The button is also disabled without a file; this is
+    // defence-in-depth so analysis can never run on an empty upload.)
+    if (!file) return;
     setError(null);
     setStatus("preparing");
     try {
       const form = new FormData();
       form.set("mode", mode);
-      if (file) form.set("image", file);
+      form.set("image", file);
       setStatus("analyzing");
       const res = await fetch("/api/vision/analyze", { method: "POST", body: form });
       const data = (await res.json()) as AnalyzeResponse;
@@ -178,8 +182,11 @@ export function VisionPanel({
         )
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-2.5">
-        {canAnalyzeReal ? (
+      {/* Analyse only with a real provider AND a real uploaded image. When no
+          provider is configured we show the guidance above — we never fabricate
+          a "here's what we found" from a demo fixture. */}
+      {canAnalyzeReal && (
+        <div className="mt-4 flex flex-wrap items-center gap-2.5">
           <Button
             onClick={() => runAnalysis("auto")}
             disabled={!consent || !file}
@@ -187,17 +194,8 @@ export function VisionPanel({
           >
             {t.analyze}
           </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={() => runAnalysis("demo")}
-            disabled={configured === null}
-            iconStart={<Sparkles className="size-4.5" strokeWidth={1.75} />}
-          >
-            {t.analyzeSample}
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

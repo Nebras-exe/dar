@@ -1,24 +1,20 @@
+import Image from "next/image";
 import { ArrowRight, Sparkles, Wallet } from "lucide-react";
 import type { Dictionary } from "@/i18n/dictionaries";
 import type { Locale } from "@/i18n/config";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
 import { ImageFrame } from "@/components/ui/image-frame";
-import { ProductImage } from "@/components/shop/product-image";
-import { getAllProducts, formatOmr, type Product } from "@/lib/catalog";
-import { RoomIllustration } from "./room-illustration";
 
 /**
  * The hero — an editorial "show, don't tell" opening. Left: an oversized display
  * headline + the three-beat promise (room → budget/taste → real design) + CTAs.
- * Right: an immersive room scene with REAL catalog pieces floating over it (name
- * + OMR price) and the AI/budget cue — communicating room + AI + real furniture
- * in one glance. All product data is real; the render is a labelled sample.
+ * Right: a real AI room-design preview (a finished, catalog-annotated room) with
+ * a sample badge, the AI cue, and a budget/estimated-total strip beneath it.
  */
 export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const h = dict.home.hero;
-  // Surface the first few real catalog pieces (empty until real products are added).
-  const pieces: Product[] = getAllProducts().slice(0, 3);
+  const roomAlt = locale === "ar" ? "معاينة غرفة مصمّمة بالذكاء الاصطناعي من دار" : "AI-designed room preview by DAR";
   const steps = [h.step1, h.step2, h.step3];
 
   return (
@@ -41,8 +37,7 @@ export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
               className="text-display animate-fade-up mt-5"
               style={{ animationDelay: "60ms" }}
             >
-              {h.titleLine1}{" "}
-              <span className="text-brand">{h.titleLine2}</span>
+              {h.titleLine1} <em>{h.titleLine2}</em>
             </h1>
 
             <p
@@ -92,13 +87,20 @@ export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
             className="animate-fade-up relative"
             style={{ animationDelay: "140ms" }}
           >
-            {/* Immersive room */}
+            {/* Real AI room-design preview */}
             <ImageFrame
               ratio="wide"
               rounded="xl"
               className="shadow-[var(--shadow-lg)] ring-1 ring-black/[0.04]"
             >
-              <RoomIllustration variant="after" />
+              <Image
+                src="/images/ai/ai-room-preview.webp"
+                alt={roomAlt}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-cover"
+              />
             </ImageFrame>
 
             {/* Sample badge */}
@@ -112,36 +114,8 @@ export function Hero({ dict, locale }: { dict: Dictionary; locale: Locale }) {
               {h.matchesValue}
             </div>
 
-            {/* Floating REAL product references (hidden until real products exist) */}
-            <div className="pointer-events-none absolute -bottom-5 start-2 end-2 flex items-end justify-between gap-3 sm:-bottom-6">
-              {pieces.map((p, i) => {
-                const name = locale === "ar" ? p.nameAr : p.name;
-                return (
-                  <figure
-                    key={p.slug}
-                    className={
-                      "flex items-center gap-2.5 rounded-xl border border-border-subtle bg-elevated/95 p-2 shadow-[var(--shadow-md)] backdrop-blur-sm" +
-                      (i === 1 ? " hidden sm:flex" : "")
-                    }
-                  >
-                    <span className="size-11 shrink-0 overflow-hidden rounded-lg">
-                      <ProductImage product={p} alt={name} sizes="44px" />
-                    </span>
-                    <figcaption className="pe-1">
-                      <span className="block max-w-[8.5rem] truncate text-xs font-medium text-foreground">
-                        {name}
-                      </span>
-                      <span className="block text-xs font-semibold text-brand tabular">
-                        {formatOmr(p.price, locale)}
-                      </span>
-                    </figcaption>
-                  </figure>
-                );
-              })}
-            </div>
-
-            {/* Budget + total strip under the floating cards */}
-            <div className="mt-10 flex items-center justify-between gap-3 rounded-xl border border-border-subtle bg-surface/80 px-4 py-3 backdrop-blur-sm sm:mt-12">
+            {/* Budget + estimated-total strip under the room preview */}
+            <div className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-border-subtle bg-surface/80 px-4 py-3 backdrop-blur-sm">
               <span className="inline-flex items-center gap-1.5 text-sm text-muted">
                 <Wallet className="size-4 text-brand" strokeWidth={1.75} aria-hidden="true" />
                 {h.budgetLabel}: <span className="font-semibold text-foreground tabular">{h.budgetValue}</span>

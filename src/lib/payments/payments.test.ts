@@ -18,7 +18,7 @@ import type { Order } from "@/lib/orders";
 // The real catalog is empty; use a fixed-price fixture so totals stay exact.
 const PAY_SOFA = "test-pay-sofa"; // 320
 before(() => __setCatalogProductsForTests([
-  makeProduct({ slug: PAY_SOFA, category: "sofas", price: 320, colors: ["beige"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
+  makeProduct({ slug: PAY_SOFA, category: "sofas", price: 320, colors: ["beige"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "DAR Studio Collection" }),
 ]));
 after(() => __resetCatalogProductsForTests());
 import {

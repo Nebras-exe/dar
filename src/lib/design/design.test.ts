@@ -23,6 +23,7 @@ import {
   findReplacements,
   getCandidates,
   getOption,
+  pickCustomerOption,
   pickReplacement,
   summarize,
 } from "./recommend";
@@ -209,4 +210,41 @@ test("buildOption is deterministic (same input → same slugs)", () => {
   const a = buildOption(baseInput(), "balanced").items.map((i) => i.slug);
   const b = buildOption(baseInput(), "balanced").items.map((i) => i.slug);
   assert.deepEqual(a, b);
+});
+
+// ── Single customer plan (no spending tiers) ──────────────────────────────────
+
+test("pickCustomerOption returns ONE budget-fit plan (best value, not the priciest)", () => {
+  const rec = generateDemoDesign(baseInput({ budget: 500 }));
+  const option = pickCustomerOption(rec);
+  // It equals the best-VALUE (balanced) option when that fits — never the premium
+  // max-spend plan just to use up the budget.
+  const balanced = getOption(rec, "balanced");
+  if (balanced.summary.overBudget === 0) {
+    assert.equal(option.tier, "balanced");
+    // Best value doesn't artificially max the budget: total ≤ premium's total.
+    const premium = getOption(rec, "premium");
+    assert.ok(option.summary.newFurnitureTotal <= premium.summary.newFurnitureTotal);
+  }
+  assert.ok(option.items.length >= 1);
+});
+
+test("pickCustomerOption never silently exceeds the budget when a fit exists", () => {
+  const rec = generateDemoDesign(baseInput({ budget: 900 }));
+  const anyInBudget = rec.options.some((o) => o.summary.overBudget === 0);
+  const option = pickCustomerOption(rec);
+  if (anyInBudget) {
+    assert.equal(option.summary.overBudget, 0, "chosen plan is within budget");
+    assert.ok(option.summary.newFurnitureTotal <= rec.input.budget);
+  }
+});
+
+test("pickCustomerOption falls back to the leanest plan and SURFACES overspend when nothing fits", () => {
+  // A budget too small for any essential → overspend must be reported, not hidden.
+  const rec = generateDemoDesign(baseInput({ budget: 20 }));
+  const option = pickCustomerOption(rec);
+  const minOverspend = Math.min(...rec.options.map((o) => o.summary.overBudget));
+  assert.equal(option.summary.overBudget, minOverspend, "smallest possible overspend");
+  // Every chosen item is still a real catalog product (never fabricated).
+  for (const item of option.items) assert.ok(getProductBySlug(item.slug));
 });

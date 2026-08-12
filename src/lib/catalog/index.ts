@@ -8,4 +8,5 @@ export * from "./types";
 export * from "./taxonomy";
 export * from "./queries";
 export * from "./pricing";
+export * from "./curation";
 export { products } from "./products";

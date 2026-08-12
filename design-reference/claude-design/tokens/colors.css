@@ -1,0 +1,37 @@
+:root{
+/* base palette */
+--sand-50:#FBF7F1;
+--sand-100:#F8F3EC;
+--sand-200:#F1E9DD;
+--sand-300:#E4D7C3;
+--sand-400:#DCD0BE;
+--ink-900:#2B2621;
+--ink-700:#4A4338;
+--ink-500:#6E6559;
+--olive-900:#3C4530;
+--olive-700:#4F5A3E;
+--olive-500:#6B7857;
+--olive-300:#9BA687;
+--terracotta-700:#9B4E2E;
+--terracotta-500:#B15E39;
+--terracotta-300:#D69A72;
+--cream-white:#FDFBF8;
+
+/* semantic aliases */
+--bg-page:var(--sand-100);
+--bg-surface:var(--cream-white);
+--bg-surface-alt:var(--sand-200);
+--bg-inverse:var(--olive-900);
+--border-subtle:var(--sand-400);
+--border-strong:var(--olive-700);
+--text-primary:var(--ink-900);
+--text-secondary:var(--ink-500);
+--text-on-inverse:var(--sand-100);
+--text-eyebrow:var(--olive-500);
+--accent-primary:var(--olive-700);
+--accent-primary-hover:var(--olive-900);
+--accent-secondary:var(--terracotta-500);
+--accent-secondary-hover:var(--terracotta-700);
+--link-color:var(--olive-700);
+--link-hover:var(--olive-900);
+}

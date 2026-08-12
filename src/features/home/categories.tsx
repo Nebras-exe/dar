@@ -6,11 +6,14 @@ import { Container } from "@/components/ui/container";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { ImageFrame } from "@/components/ui/image-frame";
 import { ProductImage } from "@/components/shop/product-image";
+import { variantsFor, variantImageUrl } from "@/lib/catalog-preview";
 import {
   getCategory,
   getProductsByCategory,
+  homepageEligible,
   label,
   type CategorySlug,
+  type ColorId,
   type Product,
 } from "@/lib/catalog";
 
@@ -43,10 +46,21 @@ export function Categories({
   const tiles = HOME_CATEGORIES.map((slug) => {
     const category = getCategory(slug);
     const products = getProductsByCategory(slug);
-    return category && products[0]
-      ? { slug, category, hero: products[0] as Product, count: products.length }
+    // Calm curation: prefer a piece with a muted variant and show that variant;
+    // fall back to the first product only if none is calm-eligible.
+    const calm = homepageEligible(products)[0];
+    const hero = (calm?.product ?? products[0]) as Product | undefined;
+    const heroColor = calm?.displayColorId;
+    return category && hero
+      ? { slug, category, hero, heroColor, count: products.length }
       : null;
   }).filter((x): x is NonNullable<typeof x> => x !== null);
+
+  const heroImageSrc = (hero: Product, heroColor: ColorId | undefined): string | undefined => {
+    if (!heroColor) return undefined;
+    const v = variantsFor(hero.slug).find((x) => x.colorId === heroColor);
+    return v ? variantImageUrl(v) : undefined;
+  };
 
   return (
     <Section id="shop" tone="surface" spacing="lg">
@@ -63,7 +77,7 @@ export function Categories({
         </div>
 
         <ul className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {tiles.map(({ slug, category, hero, count }, i) => {
+          {tiles.map(({ slug, category, hero, heroColor, count }, i) => {
             const featured = i === 0;
             return (
               <li
@@ -83,6 +97,7 @@ export function Categories({
                     <ProductImage
                       product={hero}
                       alt={label(category.name, locale)}
+                      overrideSrc={heroImageSrc(hero, heroColor)}
                       sizes={featured ? "(max-width:1024px) 100vw, 40vw" : "(max-width:640px) 50vw, 22vw"}
                     />
                   </ImageFrame>

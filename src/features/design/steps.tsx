@@ -11,6 +11,8 @@ import {
   Trees,
   Check,
   Pencil,
+  Sparkles,
+  ImageOff,
   type LucideIcon,
 } from "lucide-react";
 import type { Locale } from "@/i18n/config";
@@ -26,7 +28,7 @@ import {
   type StyleTag,
 } from "@/lib/catalog";
 import type { DesignRoomType, FurnitureDisposition } from "@/lib/design";
-import { getDecisionCategories } from "@/lib/design";
+import { detectedKeepItems, type DetectedItem } from "@/lib/vision";
 import { Chip } from "@/components/ui/chip";
 import { cn, formatNumber } from "@/lib/utils";
 import { ImageUpload } from "./image-upload";
@@ -276,15 +278,69 @@ export function BudgetStep({ state, dispatch, t, locale }: StepProps) {
 
 // ── Step 4: Style ───────────────────────────────────────────────────────────
 export function StyleStep({ state, dispatch, t, locale }: StepProps) {
-  const { primaryStyle, secondaryStyle } = state.draft;
+  const { primaryStyle, secondaryStyle, styleMode } = state.draft;
+  const ai = t.style.aiRecommend;
+  const isAi = styleMode === "ai-recommended";
+  // The AI style only exists once the room photo has been analysed.
+  const aiStyle = isAi ? primaryStyle : undefined;
+  const hasAnalysis = Boolean(state.analysis);
+
   return (
     <div>
       <StepHeader title={t.style.title} subtitle={t.style.subtitle} />
 
+      {/* Prominent: let DAR recommend the best style from the room photo. */}
+      <button
+        type="button"
+        role="radio"
+        aria-checked={isAi}
+        onClick={() => dispatch({ type: "SET_STYLE_MODE", mode: "ai-recommended" })}
+        className={cn(
+          "flex w-full items-start gap-3 rounded-xl border p-4 text-start transition-colors",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+          isAi
+            ? "border-brand bg-brand-soft/50 ring-1 ring-brand"
+            : "border-border bg-elevated hover:border-taupe hover:bg-surface",
+        )}
+      >
+        <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-lg", isAi ? "bg-brand text-brand-foreground" : "bg-surface text-brand")}>
+          <Sparkles className="size-5" strokeWidth={1.75} aria-hidden="true" />
+        </span>
+        <span className="min-w-0">
+          <span className="flex items-center gap-2 text-[0.95rem] font-semibold text-foreground">
+            {ai.title}
+            {isAi && <Check className="size-4 shrink-0 text-brand" strokeWidth={2.5} aria-hidden="true" />}
+          </span>
+          <span className="mt-0.5 block text-sm text-muted">{ai.subtitle}</span>
+        </span>
+      </button>
+
+      {/* AI-recommended feedback: either the chosen style, or a prompt to upload. */}
+      {isAi && (
+        aiStyle ? (
+          <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-brand/30 bg-brand-soft/40 px-4 py-3 text-sm text-foreground">
+            <span className="font-medium">{ai.chosen}</span>
+            <span className="font-semibold text-brand">{label(styleLabels[aiStyle], locale)}</span>
+            <span className="text-muted">· {ai.changeHint}</span>
+          </p>
+        ) : (
+          <p className="mt-3 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-foreground">
+            <ImageOff className="mt-0.5 size-4 shrink-0 text-warning" strokeWidth={1.75} aria-hidden="true" />
+            {hasAnalysis ? ai.noStyleDetected : ai.needPhoto}
+          </p>
+        )
+      )}
+
+      <div className="my-6 flex items-center gap-3">
+        <span className="h-px flex-1 bg-border-subtle" />
+        <span className="text-xs uppercase tracking-wide text-subtle">{ai.orChoose}</span>
+        <span className="h-px flex-1 bg-border-subtle" />
+      </div>
+
       <p className="mb-2.5 text-sm font-medium text-foreground">{t.style.primary}</p>
       <div role="radiogroup" aria-label={t.style.primary} className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {STYLE_CHOICES.map((s) => {
-          const selected = primaryStyle === s;
+          const selected = !isAi && primaryStyle === s;
           return (
             <button
               key={s}
@@ -336,72 +392,116 @@ export function StyleStep({ state, dispatch, t, locale }: StepProps) {
   );
 }
 
-// ── Step 5: Existing furniture ──────────────────────────────────────────────
+// ── Step 5: Existing furniture (ONLY what the room photo actually shows) ──────
 const DISPOSITIONS: FurnitureDisposition[] = ["keep", "replace", "unsure"];
 
-export function ExistingStep({ state, dispatch, t, locale }: StepProps) {
-  const room = state.draft.roomType;
-  const categories = room ? getDecisionCategories(room) : [];
+/** One detected item's keep/replace/unsure control. */
+function KeepRow({
+  item,
+  state,
+  dispatch,
+  t,
+  locale,
+}: StepProps & { item: DetectedItem }) {
+  const cat = item.category;
+  const name = categoryBySlug.get(cat);
+  const catName = name ? label(name.name, locale) : item.rawLabel;
+  // Default to the detection's suggestion, else neutral "unsure" — never auto-replace.
+  const current = state.draft.decisions[cat] ?? item.suggestion ?? "unsure";
   const dispositionLabel: Record<FurnitureDisposition, string> = {
     keep: t.existing.keep,
     replace: t.existing.replace,
     unsure: t.existing.unsure,
   };
+  return (
+    <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+      <span className="flex items-center gap-2 text-[0.95rem] font-medium text-foreground">
+        {catName}
+        {item.approximateColorId && (
+          <span
+            className="size-3 rounded-full ring-1 ring-inset ring-black/10"
+            style={{ backgroundColor: colorSwatches[item.approximateColorId].hex }}
+            aria-hidden="true"
+          />
+        )}
+      </span>
+      <div
+        role="radiogroup"
+        aria-label={catName}
+        className="inline-flex rounded-full border border-border bg-elevated p-0.5"
+      >
+        {DISPOSITIONS.map((disp) => {
+          const selected = current === disp;
+          return (
+            <button
+              key={disp}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => dispatch({ type: "SET_DECISION", category: cat, disposition: disp })}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
+                selected
+                  ? disp === "keep"
+                    ? "bg-success text-white"
+                    : "bg-foreground text-background"
+                  : "text-muted hover:text-foreground",
+              )}
+            >
+              {dispositionLabel[disp]}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+export function ExistingStep({ state, dispatch, t, locale }: StepProps) {
+  // Source of truth: the actual room-photo analysis — never a hardcoded list.
+  const { items, maybe } = detectedKeepItems(state.analysis);
+  const rowProps = { state, dispatch, t, locale };
 
   return (
     <div>
       <StepHeader title={t.existing.title} subtitle={t.existing.subtitle} />
-      {categories.length === 0 ? (
-        <p className="text-muted">{t.existing.none}</p>
+
+      {!state.analysis ? (
+        // No photo analysed → we can't know what's in the room. Ask for a photo.
+        <p className="flex items-start gap-2 rounded-lg border border-border-subtle bg-surface px-4 py-3.5 text-sm text-muted">
+          <ImageOff className="mt-0.5 size-4 shrink-0 text-subtle" strokeWidth={1.75} aria-hidden="true" />
+          {t.existing.needPhoto}
+        </p>
+      ) : items.length === 0 && maybe.length === 0 ? (
+        // Analysed, but no furniture detected → honest almost-empty-room state.
+        <p className="flex items-start gap-2 rounded-lg border border-border-subtle bg-surface px-4 py-3.5 text-sm text-muted">
+          <Check className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={2} aria-hidden="true" />
+          {t.existing.emptyRoom}
+        </p>
       ) : (
-        <div className="flex flex-col divide-y divide-border-subtle">
-          {categories.map((cat) => {
-            const current = state.draft.decisions[cat] ?? "unsure";
-            const name = categoryBySlug.get(cat);
-            return (
-              <div
-                key={cat}
-                className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span className="text-[0.95rem] font-medium text-foreground">
-                  {name ? label(name.name, locale) : cat}
-                </span>
-                <div
-                  role="radiogroup"
-                  aria-label={name ? label(name.name, locale) : cat}
-                  className="inline-flex rounded-full border border-border bg-elevated p-0.5"
-                >
-                  {DISPOSITIONS.map((disp) => {
-                    const selected = current === disp;
-                    return (
-                      <button
-                        key={disp}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        onClick={() =>
-                          dispatch({ type: "SET_DECISION", category: cat, disposition: disp })
-                        }
-                        className={cn(
-                          "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand",
-                          selected
-                            ? disp === "keep"
-                              ? "bg-success text-white"
-                              : "bg-foreground text-background"
-                            : "text-muted hover:text-foreground",
-                        )}
-                      >
-                        {dispositionLabel[disp]}
-                      </button>
-                    );
-                  })}
-                </div>
+        <>
+          {items.length > 0 && (
+            <div className="flex flex-col divide-y divide-border-subtle">
+              {items.map((item) => (
+                <KeepRow key={item.category} item={item} {...rowProps} />
+              ))}
+            </div>
+          )}
+
+          {maybe.length > 0 && (
+            <div className="mt-6">
+              <p className="mb-1 text-sm font-medium text-foreground">{t.existing.maybeTitle}</p>
+              <div className="flex flex-col divide-y divide-border-subtle">
+                {maybe.map((item) => (
+                  <KeepRow key={item.category} item={item} {...rowProps} />
+                ))}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          )}
+
+          <DemoHint>{t.existing.detectedNote}</DemoHint>
+        </>
       )}
-      <DemoHint>{t.existing.keptNote}</DemoHint>
     </div>
   );
 }

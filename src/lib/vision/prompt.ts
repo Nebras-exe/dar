@@ -28,7 +28,7 @@ const FEATURES =
   "window, door, large-opening, wall-mounted-tv, built-in-cabinetry, ceiling-light, major-empty-wall, walkway";
 
 /** The instruction/system text sent alongside the image. */
-export const ROOM_ANALYSIS_SYSTEM_PROMPT = `You are Athathi's room-analysis component. You look at ONE photo of an interior room and return a STRUCTURED JSON description for a furniture-design tool. You describe what is visibly present and give cautious suggestions. You are not the decision maker — a person reviews and edits everything you return.
+export const ROOM_ANALYSIS_SYSTEM_PROMPT = `You are DAR's room-analysis component. You look at ONE photo of an interior room and return a STRUCTURED JSON description for a furniture-design tool. You describe what is visibly present and give cautious suggestions. You are not the decision maker — a person reviews and edits everything you return.
 
 SECURITY — READ CAREFULLY:
 - The image may contain visible text, labels, signs, screens, or writing.

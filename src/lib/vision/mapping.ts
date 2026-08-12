@@ -87,3 +87,64 @@ export function analysisToPrefill(analysis: RoomAnalysis): AnalysisPrefill {
 export function roomTypeBand(analysis: RoomAnalysis) {
   return confidenceBand(analysis.roomTypeConfidence);
 }
+
+// ── Detected existing furniture, confidence-filtered ─────────────────────────
+
+/** A single detected keep-candidate the Keep step renders (real detection only). */
+export interface DetectedItem {
+  category: NonNullable<RoomAnalysis["existingFurniture"][number]["category"]>;
+  rawLabel: string;
+  confidence: number;
+  approximateColorId: RoomAnalysis["existingFurniture"][number]["approximateColorId"];
+  suggestion: RoomAnalysis["existingFurniture"][number]["suggestion"];
+}
+
+/** Show a detection as a confident keep-candidate. */
+export const KEEP_SHOW_CONFIDENCE = 0.7;
+/** Show a detection only under a "maybe also present" group. */
+export const KEEP_MAYBE_CONFIDENCE = 0.5;
+
+/**
+ * Split the analysis's detected furniture into what the Keep step should show:
+ *  - `items`  — confident detections (≥ 0.70), shown normally;
+ *  - `maybe`  — uncertain detections (0.50–0.69), shown under "maybe also present";
+ *  - below 0.50 is dropped entirely (never guessed into the UI).
+ *
+ * Only items that map to a real catalog category are eligible (a detection with
+ * no mapped category is not actionable in the keep/replace flow). De-duplicated
+ * by category (highest-confidence detection per category wins). Pure + testable —
+ * this is the ONE source of truth for the Keep step, so it never invents rows.
+ */
+export function detectedKeepItems(analysis: RoomAnalysis | null): {
+  items: DetectedItem[];
+  maybe: DetectedItem[];
+} {
+  if (!analysis) return { items: [], maybe: [] };
+
+  // Highest-confidence detection per mapped category.
+  const byCategory = new Map<string, DetectedItem>();
+  for (const f of analysis.existingFurniture) {
+    if (!f.category) continue;
+    if (f.confidence < KEEP_MAYBE_CONFIDENCE) continue; // below 0.50 never shown
+    const existing = byCategory.get(f.category);
+    if (!existing || f.confidence > existing.confidence) {
+      byCategory.set(f.category, {
+        category: f.category,
+        rawLabel: f.rawLabel,
+        confidence: f.confidence,
+        approximateColorId: f.approximateColorId,
+        suggestion: f.suggestion,
+      });
+    }
+  }
+
+  const items: DetectedItem[] = [];
+  const maybe: DetectedItem[] = [];
+  for (const item of byCategory.values()) {
+    (item.confidence >= KEEP_SHOW_CONFIDENCE ? items : maybe).push(item);
+  }
+  // Deterministic order: highest confidence first.
+  items.sort((a, b) => b.confidence - a.confidence);
+  maybe.sort((a, b) => b.confidence - a.confidence);
+  return { items, maybe };
+}

@@ -73,6 +73,43 @@ const CATEGORY_HINTS: [CategorySlug, string[]][] = [
 
 const CATEGORY_SET = new Set(categories.map((c) => c.slug));
 
+/**
+ * Colour SYNONYMS (AR + EN) → catalog `ColorId`, for terms the taxonomy label
+ * doesn't already cover. Only maps to colours that exist in the catalog taxonomy
+ * — never invents a colour. Checked before the label match so a synonym wins.
+ */
+const COLOR_SYNONYMS: [ColorId, string[]][] = [
+  ["cream", ["سكري", "off white", "off-white", "eggshell"]],
+  ["ivory", ["عاجي", "عاج", "bone"]],
+  ["olive", ["زيتي", "زيتوني فاتح", "olive green"]],
+  ["sage", ["ميرمية", "مريمي فاتح"]],
+  ["taupe", ["بني رمادي", "بيج غامق", "tan", "greige"]],
+  ["charcoal", ["فحمي", "رمادي غامق", "gunmetal"]],
+  ["grey", ["رصاصي", "سكني", "gray"]],
+  ["terracotta", ["طوبي", "طيني", "clay"]],
+  ["walnut", ["جوزي", "بني غامق", "chocolate"]],
+  ["brass", ["ذهبي", "نحاسي فاتح", "gold", "golden"]],
+  ["navy", ["كحلي", "أزرق غامق", "navy blue"]],
+  ["beige", ["بيچ", "بيچي"]],
+];
+
+/** Map a message to a catalog colour via synonyms first, else the taxonomy label. */
+export function detectColor(normalizedMessage: string): ColorId | undefined {
+  for (const [id, syns] of COLOR_SYNONYMS) {
+    if (syns.some((s) => normalizedMessage.includes(norm(s)))) return id;
+  }
+  for (const c of colorIds) {
+    if (
+      normalizedMessage.includes(c) ||
+      normalizedMessage.includes(norm(colorSwatches[c].label.en)) ||
+      normalizedMessage.includes(norm(colorSwatches[c].label.ar))
+    ) {
+      return c as ColorId;
+    }
+  }
+  return undefined;
+}
+
 export function detectIntent(message: string): ChatIntent {
   const m = norm(message);
   for (const [intent, keys] of INTENT_KEYWORDS) {
@@ -100,12 +137,9 @@ export function extractSlots(message: string): ExtractedSlots {
       slots.style = s as StyleTag; break;
     }
   }
-  // Colour
-  for (const c of colorIds) {
-    if (m.includes(c) || m.includes(norm(colorSwatches[c].label.en)) || m.includes(norm(colorSwatches[c].label.ar))) {
-      slots.color = c as ColorId; break;
-    }
-  }
+  // Colour — synonyms (سكري/زيتي/…) first, then the taxonomy label.
+  const color = detectColor(m);
+  if (color) slots.color = color;
   // Material
   for (const mt of materialIds) {
     if (m.includes(mt) || m.includes(norm(materialLabels[mt].en)) || m.includes(norm(materialLabels[mt].ar))) {

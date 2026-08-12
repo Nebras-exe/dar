@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { productCardLabels } from "@/components/shared/product-card";
 import { Reveal } from "@/components/shared/reveal";
-import { getAllProducts, type Product } from "@/lib/catalog";
+import { homepageFeatured, type ColorId, type Product } from "@/lib/catalog";
 import { BeforeAfterSlider } from "./before-after";
 
 export function BeforeAfterSection({
@@ -19,8 +19,10 @@ export function BeforeAfterSection({
 }) {
   const ba = dict.home.beforeAfter;
   const labels = productCardLabels(dict.shop);
-  // Real catalog pieces for the illustrated room (empty until real products exist).
-  const pieces: Product[] = getAllProducts().slice(0, 4);
+  // Calm, category-balanced pieces (muted variants) — bright colours stay in the shop.
+  const picks = homepageFeatured(4);
+  const pieces: Product[] = picks.map((p) => p.product);
+  const displayColors = new Map<string, ColorId>(picks.map((p) => [p.product.slug, p.displayColorId]));
 
   return (
     <Section id="before-after" spacing="lg">
@@ -48,6 +50,7 @@ export function BeforeAfterSection({
               products={pieces}
               locale={locale}
               labels={labels}
+              displayColorFor={(p) => displayColors.get(p.slug)}
               className="mt-4 sm:grid-cols-4 lg:grid-cols-4"
             />
           </div>

@@ -169,6 +169,7 @@ test("USER WINS: applyPrefill never overwrites user-set fields", () => {
   // User already chose bedroom + japandi + a colour + a sofa decision.
   const userDraft = {
     budgetText: "",
+    styleMode: "manual" as const,
     roomType: "bedroom" as const,
     primaryStyle: "japandi" as const,
     decisions: { sofas: "replace" as const },
@@ -187,6 +188,7 @@ test("applyPrefill fills only empty fields", () => {
   const prefill = analysisToPrefill(parseRoomAnalysis(GOOD_RAW, META).analysis!);
   const empty = {
     budgetText: "",
+    styleMode: "manual" as const,
     decisions: {},
     preferredColors: [],
     preferredMaterials: [],

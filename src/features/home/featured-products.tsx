@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ProductGrid } from "@/components/shop/product-grid";
 import { productCardLabels } from "@/components/shared/product-card";
 import { Reveal } from "@/components/shared/reveal";
-import { getAllProducts, type Product } from "@/lib/catalog";
+import { homepageFeatured, type ColorId, type Product } from "@/lib/catalog";
 
 export function FeaturedProducts({
   dict,
@@ -17,8 +17,11 @@ export function FeaturedProducts({
 }) {
   const f = dict.home.featured;
   const labels = productCardLabels(dict.shop);
-  // The first few real catalog pieces (empty until real products are added).
-  const products: Product[] = getAllProducts().slice(0, 6);
+  // Calm, category-balanced homepage curation — each pick shows a muted/calm
+  // variant (bright pieces stay fully available in the shop, never featured here).
+  const picks = homepageFeatured(6);
+  const products: Product[] = picks.map((p) => p.product);
+  const displayColors = new Map<string, ColorId>(picks.map((p) => [p.product.slug, p.displayColorId]));
 
   return (
     <Section id="featured" spacing="lg">
@@ -40,7 +43,12 @@ export function FeaturedProducts({
               {f.emptyNote}
             </p>
           ) : (
-            <ProductGrid products={products} locale={locale} labels={labels} />
+            <ProductGrid
+              products={products}
+              locale={locale}
+              labels={labels}
+              displayColorFor={(p) => displayColors.get(p.slug)}
+            />
           )}
         </Reveal>
       </Container>

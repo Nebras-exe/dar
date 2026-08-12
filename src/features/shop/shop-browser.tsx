@@ -125,7 +125,19 @@ export function ShopBrowser({
               }
             />
           ) : (
-            <ProductGrid products={products} locale={locale} labels={labels} />
+            <ProductGrid
+              products={products}
+              locale={locale}
+              labels={labels}
+              // When a colour filter is active, each result shows the matching
+              // variant's own photo (variant-aware) — never a beige image for a
+              // "red" filter. Uses the first active colour the product actually has.
+              displayColorFor={
+                state.colors.length > 0
+                  ? (p) => state.colors.find((c) => p.colors.some((pc) => pc.id === c))
+                  : undefined
+              }
+            />
           )}
         </div>
       </div>

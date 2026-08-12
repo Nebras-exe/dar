@@ -19,7 +19,7 @@ export function generateStaticParams() {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#f5f1ea",
+  themeColor: "#f8f3ec",
   colorScheme: "light",
 };
 
@@ -42,7 +42,7 @@ export async function generateMetadata({
       template: `%s · ${dict.brand.name}`,
     },
     description: dict.home.hero.subtitle,
-    applicationName: "Athathi",
+    applicationName: "DAR",
     // Bilingual hreflang so search engines pair the EN/AR homepages (§34).
     alternates: {
       canonical: `/${safeLocale}`,

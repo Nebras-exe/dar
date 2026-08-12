@@ -11,7 +11,7 @@
 import {
   buildReason,
   generateDemoDesign,
-  getOption,
+  pickCustomerOption,
   summarize,
   type DesignInput,
   type DesignItem,
@@ -34,17 +34,33 @@ export const TOTAL_STEPS = 7; // brief steps 0..6
 
 export type WizardPhase = "brief" | "analysis" | "result";
 
+/** How the main style is chosen: the user picks one, or DAR recommends it. */
+export type StyleMode = "manual" | "ai-recommended";
+
 /** Editable draft — a superset of DesignInput with UI-friendly fields. */
 export interface DesignDraft {
   imageName?: string;
   roomType?: DesignRoomType;
   budgetText: string;
+  /** "manual" = user picks a style; "ai-recommended" = derived from the room photo. */
+  styleMode: StyleMode;
   primaryStyle?: StyleTag;
   secondaryStyle?: StyleTag;
   decisions: Record<string, FurnitureDisposition>;
   preferredColors: ColorId[];
   preferredMaterials: MaterialId[];
   note: string;
+}
+
+/** Minimum confidence for the AI-recommended style to be accepted from analysis. */
+const STYLE_MIN_CONFIDENCE = 0.5;
+
+/** The AI-recommended style from an analysis (a valid Athathi style id), or undefined. */
+export function recommendedStyleFrom(
+  analysis: RoomAnalysis | null,
+): StyleTag | undefined {
+  const s = analysis?.style;
+  return s && s.primary && s.confidence >= STYLE_MIN_CONFIDENCE ? s.primary : undefined;
 }
 
 export interface WizardState {
@@ -69,6 +85,7 @@ export const initialState: WizardState = {
   step: 0,
   draft: {
     budgetText: "",
+    styleMode: "manual",
     decisions: {},
     preferredColors: [],
     preferredMaterials: [],
@@ -89,6 +106,7 @@ export type WizardAction =
   | { type: "CLEAR_IMAGE" }
   | { type: "SET_ROOM"; room: DesignRoomType }
   | { type: "SET_BUDGET_TEXT"; text: string }
+  | { type: "SET_STYLE_MODE"; mode: StyleMode }
   | { type: "SET_PRIMARY_STYLE"; style: StyleTag }
   | { type: "SET_SECONDARY_STYLE"; style: StyleTag | undefined }
   | { type: "SET_DECISION"; category: CategorySlug; disposition: FurnitureDisposition }
@@ -100,7 +118,6 @@ export type WizardAction =
   | { type: "BACK" }
   | { type: "GENERATE" }
   | { type: "ANALYSIS_DONE" }
-  | { type: "SELECT_TIER"; tier: DesignTier }
   | { type: "REPLACE_ITEM"; index: number; slug: string }
   | { type: "SET_ITEM_COLOR"; index: number; color: ColorId }
   | { type: "REMOVE_ITEM"; index: number }
@@ -222,14 +239,33 @@ export function reducer(state: WizardState, action: WizardAction): WizardState {
       };
     case "SET_BUDGET_TEXT":
       return { ...state, draft: { ...state.draft, budgetText: action.text } };
+    case "SET_STYLE_MODE": {
+      if (action.mode === "ai-recommended") {
+        // Derive the style from the room photo's analysis (a valid Athathi id).
+        // With no image/analysis yet, `primaryStyle` stays undefined and the
+        // Style step asks the user to upload a photo first — never a fake claim.
+        const recommended = recommendedStyleFrom(state.analysis);
+        return {
+          ...state,
+          draft: {
+            ...state.draft,
+            styleMode: "ai-recommended",
+            primaryStyle: recommended,
+            secondaryStyle: recommended ? state.draft.secondaryStyle : undefined,
+          },
+        };
+      }
+      return { ...state, draft: { ...state.draft, styleMode: "manual" } };
+    }
     case "SET_PRIMARY_STYLE": {
       const secondaryStyle =
         state.draft.secondaryStyle === action.style
           ? undefined
           : state.draft.secondaryStyle;
+      // A manual pick switches out of AI-recommended mode (the user takes control).
       return {
         ...state,
-        draft: { ...state.draft, primaryStyle: action.style, secondaryStyle },
+        draft: { ...state.draft, styleMode: "manual", primaryStyle: action.style, secondaryStyle },
       };
     }
     case "SET_SECONDARY_STYLE":
@@ -269,29 +305,20 @@ export function reducer(state: WizardState, action: WizardAction): WizardState {
     case "GENERATE": {
       const input = draftToInput(state.draft);
       const recommendation = generateDemoDesign(input);
-      const tier = recommendation.recommendedTier;
+      // ONE budget-fit design for the customer (no spending tiers to choose).
+      const option = pickCustomerOption(recommendation);
       return {
         ...state,
         phase: "analysis",
         recommendation,
-        selectedTier: tier,
-        items: getOption(recommendation, tier).items,
+        selectedTier: option.tier,
+        items: option.items,
         addedToCart: false,
         saved: false,
       };
     }
     case "ANALYSIS_DONE":
       return { ...state, phase: "result" };
-    case "SELECT_TIER": {
-      if (!state.recommendation) return state;
-      return {
-        ...state,
-        selectedTier: action.tier,
-        items: getOption(state.recommendation, action.tier).items,
-        addedToCart: false,
-        saved: false,
-      };
-    }
     case "REPLACE_ITEM": {
       if (!state.recommendation) return state;
       const product = getProductBySlug(action.slug);
@@ -332,16 +359,30 @@ export function reducer(state: WizardState, action: WizardAction): WizardState {
       return { ...state, addedToCart: false };
     case "MARK_SAVED":
       return { ...state, saved: true };
-    case "SET_ANALYSIS":
-      return { ...state, analysis: action.analysis, analysisApplied: false };
+    case "SET_ANALYSIS": {
+      // In AI-recommended mode, keep the derived style in sync with the newest
+      // analysis (so choosing the option before analysing, then analysing, works).
+      const draft =
+        state.draft.styleMode === "ai-recommended"
+          ? { ...state.draft, primaryStyle: recommendedStyleFrom(action.analysis) }
+          : state.draft;
+      return { ...state, draft, analysis: action.analysis, analysisApplied: false };
+    }
     case "APPLY_PREFILL":
       return {
         ...state,
         draft: applyPrefill(state.draft, action.prefill),
         analysisApplied: true,
       };
-    case "CLEAR_ANALYSIS":
-      return { ...state, analysis: null, analysisApplied: false };
+    case "CLEAR_ANALYSIS": {
+      // Replacing/removing the image invalidates any analysis-derived state: the
+      // AI-recommended style is dropped (nothing to base it on until re-analysis).
+      const draft =
+        state.draft.styleMode === "ai-recommended"
+          ? { ...state.draft, primaryStyle: undefined, secondaryStyle: undefined }
+          : state.draft;
+      return { ...state, draft, analysis: null, analysisApplied: false };
+    }
     case "APPLY_AGENT_RESULT": {
       // The Agent operates on the current design; apply its structured result
       // (updated items, and possibly an updated budget/decisions) to the plan.

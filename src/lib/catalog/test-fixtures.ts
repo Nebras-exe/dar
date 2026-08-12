@@ -61,7 +61,7 @@ export function makeProduct(input: FixtureInput): Product {
     subcategory: input.subcategory,
     price: input.price,
     currency: "OMR",
-    supplier: input.supplier ?? "Athathi Demo Supplier",
+    supplier: input.supplier ?? "DAR Demo Supplier",
     isDemo: true,
     stockStatus: "in-stock",
     dimensions: {

@@ -72,7 +72,7 @@ export function buildVisualizationPrompt(request: VisualizationRequest): string 
       : "(none specified)";
 
   return [
-    "You are an interior-design visualization system for Athathi.",
+    "You are an interior-design visualization system for DAR.",
     "You are given a photograph of a real room as SOURCE VISUAL CONTEXT and a structured design brief.",
     "Produce a photorealistic preview of the SAME room restyled with the specified furniture.",
     "",

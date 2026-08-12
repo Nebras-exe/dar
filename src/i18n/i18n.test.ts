@@ -102,15 +102,19 @@ test("i18n: reversed-Arabic detector actually catches reversed text", () => {
   assert.equal(reversedReason("المنتجات النشطة والإعدادات"), null);
 });
 
-test("i18n: the Arabic brand is consistently أثاثي", () => {
+test("i18n: the public brand is consistently DAR / دار", () => {
   const am = new Map<string, string>();
   flatStrings(ar, "", am);
-  const wrong: string[] = [];
+  const stale: string[] = [];
   for (const [k, v] of am) {
-    // Flag reversed/alef-maksura brand forms; the correct form is أثاثي.
-    if (/يثاثأ|أثاثى/.test(v)) wrong.push(`${k}: "${v}"`);
+    // The public brand is now دار — no legacy "أثاثي" (or its reversed forms) may remain.
+    if (/أثاثي|يثاثأ|أثاثى/.test(v)) stale.push(`${k}: "${v}"`);
   }
-  assert.deepEqual(wrong, [], `wrong brand form:\n${wrong.join("\n")}`);
-  assert.equal(en.brand.name, "Athathi");
-  assert.equal(ar.brand.name, "أثاثي");
+  assert.deepEqual(stale, [], `stale legacy brand form:\n${stale.join("\n")}`);
+  const em = new Map<string, string>();
+  flatStrings(en, "", em);
+  const staleEn = [...em].filter(([, v]) => /Athathi/.test(v)).map(([k, v]) => `${k}: "${v}"`);
+  assert.deepEqual(staleEn, [], `stale English brand:\n${staleEn.join("\n")}`);
+  assert.equal(en.brand.name, "DAR");
+  assert.equal(ar.brand.name, "دار");
 });

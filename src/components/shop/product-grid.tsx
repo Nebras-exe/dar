@@ -4,13 +4,19 @@ import {
   type ProductCardLabels,
 } from "@/components/shared/product-card";
 import type { Locale } from "@/i18n/config";
-import type { Product } from "@/lib/catalog";
+import type { ColorId, Product } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
 export interface ProductGridProps {
   products: readonly Product[];
   locale: Locale;
   labels: ProductCardLabels;
+  /**
+   * Per-product colour variant to display (its own photo + highlighted swatch).
+   * Used when results are surfaced BECAUSE of a colour — a colour filter, a
+   * colour search, or the calm homepage variant. Returns undefined for default.
+   */
+  displayColorFor?: (product: Product) => ColorId | undefined;
   className?: string;
 }
 
@@ -19,7 +25,7 @@ export interface ProductGridProps {
  * tablet, 4 on desktop. Generous vertical rhythm keeps it from feeling like a
  * dense marketplace.
  */
-export function ProductGrid({ products, locale, labels, className }: ProductGridProps) {
+export function ProductGrid({ products, locale, labels, displayColorFor, className }: ProductGridProps) {
   return (
     <div
       className={cn(
@@ -33,6 +39,7 @@ export function ProductGrid({ products, locale, labels, className }: ProductGrid
           product={product}
           locale={locale}
           labels={labels}
+          displayColorId={displayColorFor?.(product)}
         />
       ))}
     </div>

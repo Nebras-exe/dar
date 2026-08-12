@@ -1,0 +1,43 @@
+<!-- @dsCard group="Components" viewport="700x760" name="Core" subtitle="Button, Badge, Tag, Input, Card, Nav, Tabs, Accordion, SectionHeading" -->
+<link rel="stylesheet" href="../../styles.css">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<div id="root" style="background:var(--bg-page);padding:20px"></div>
+<script type="text/babel">
+const { Button, Badge, Tag, Input, Card, NavBar, Tabs, Accordion, SectionHeading } = window.TerraInteriorsDesignSystem_ce1783;
+function Demo(){
+  return (
+    <div style={{display:'flex',flexDirection:'column',gap:24,fontFamily:'var(--font-sans-body)'}}>
+      <NavBar activeLink="Home" />
+      <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+        <Button variant="primary">Book a Consultation</Button>
+        <Button variant="secondary">Explore Our Work</Button>
+        <Button variant="outline">Learn More</Button>
+        <Button variant="ghost">Cancel</Button>
+        <Button variant="primary" disabled>Disabled</Button>
+      </div>
+      <div style={{display:'flex',gap:10,alignItems:'center'}}>
+        <Badge tone="olive">Featured</Badge>
+        <Badge tone="terracotta">New</Badge>
+        <Badge tone="sand">Draft</Badge>
+        <Tag onRemove={()=>{}}>Kitchen</Tag>
+        <Tag>Bathroom</Tag>
+      </div>
+      <div style={{display:'flex',gap:16}}>
+        <Input label="Email" placeholder="you@example.com" style={{flex:1}} />
+        <Input label="Notes" textarea style={{flex:1}} />
+      </div>
+      <SectionHeading eyebrow="What We Do" title={<>Thoughtful design for how <em>you</em> live.</>} />
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        <Card variant="service" icon="◆" eyebrow="" title="Full-Service Interior Design" description="From concept to completion, we handle every detail with care." />
+        <Card variant="project" title="Sagewood Residence" meta="Austin, Texas" />
+      </div>
+      <Tabs tabs={[{label:'Design',content:'We create a tailored design that reflects your lifestyle.'},{label:'Styling',content:'Curated pieces and finishing touches.'}]} />
+      <Accordion items={[{title:'How long does a project take?',content:'Every project timeline is tailored to scope.'},{title:'Do you work remotely?',content:'Yes, via our E-Design service.'}]} />
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<Demo />);
+</script>

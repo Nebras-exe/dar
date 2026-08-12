@@ -58,8 +58,8 @@ export default async function PreviewPage({
           <h1 className="text-3xl sm:text-4xl">Real Catalog Preview</h1>
           <p className="mt-3 text-muted">
             {locale === "ar"
-              ? "معاينة محلية فقط: صور أثاث واقعية تمثيلية (من Unsplash، مسموح بالربط، دون أي واجهات مدفوعة) معروضة عبر بطاقة المنتج الفعلية — لتقييم شكل أثاثي بصور حقيقية. لا تُعدَّل بيانات الكتالوج أو أي منطق أعمال."
-              : "Local-only: representative real furniture photography (Unsplash — hotlink-permitted, license-clean, no paid APIs) shown through the real product card, so you can evaluate how Athathi looks with real photos. No catalog data or business logic is changed."}
+              ? "معاينة محلية فقط: صور أثاث واقعية تمثيلية (من Unsplash، مسموح بالربط، دون أي واجهات مدفوعة) معروضة عبر بطاقة المنتج الفعلية — لتقييم شكل دار بصور حقيقية. لا تُعدَّل بيانات الكتالوج أو أي منطق أعمال."
+              : "Local-only: representative real furniture photography (Unsplash — hotlink-permitted, license-clean, no paid APIs) shown through the real product card, so you can evaluate how DAR looks with real photos. No catalog data or business logic is changed."}
           </p>
           <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 text-sm">
             <div className="flex items-baseline gap-2">

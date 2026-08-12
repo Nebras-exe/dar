@@ -25,6 +25,7 @@ import type {
 import { demoVisualizationProvider } from "./providers/demo";
 import { externalImageProvider } from "./providers/external";
 import { googleImageProvider } from "./providers/google";
+import { openaiImageProvider } from "./providers/openai";
 import { buildCatalogReferences } from "./references";
 import { critique } from "./critic";
 
@@ -39,6 +40,7 @@ const TIMEOUT_MS = 30_000;
  * `VisualizationProvider` registered here; nothing else in the app changes.
  */
 const REAL_PROVIDERS: Record<string, VisualizationProvider> = {
+  openai: openaiImageProvider,
   google: googleImageProvider,
   external: externalImageProvider,
 };

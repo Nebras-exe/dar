@@ -21,12 +21,12 @@ export function SiteFooter({
 }) {
   const home = `/${locale}`;
   return (
-    <footer className="mt-auto border-t border-border-subtle bg-surface">
-      <Container width="wide" className="py-12">
+    <footer className="mt-auto bg-[var(--color-inverse)] text-[var(--color-inverse-foreground)]">
+      <Container width="wide" className="py-16">
         <div className="grid gap-10 md:grid-cols-[1.3fr_2fr]">
           <div>
-            <Logo locale={locale} showAlternate />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted">
+            <Logo locale={locale} onInverse />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--color-inverse-foreground)]/80">
               {footer.tagline}
             </p>
           </div>
@@ -37,7 +37,7 @@ export function SiteFooter({
           >
             {footer.columns.map((col, ci) => (
               <div key={col.title}>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-subtle">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--color-inverse-foreground)]/75">
                   {col.title}
                 </h3>
                 <ul className="mt-3 space-y-2">
@@ -45,7 +45,7 @@ export function SiteFooter({
                     <li key={link}>
                       <a
                         href={`${home}${anchorMap[ci]?.[li] ?? "#top"}`}
-                        className="rounded text-sm text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+                        className="rounded text-sm text-[var(--color-inverse-foreground)]/80 transition-colors hover:text-[var(--color-inverse-foreground)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-inverse-foreground)]"
                       >
                         {link}
                       </a>
@@ -57,9 +57,9 @@ export function SiteFooter({
           </nav>
         </div>
 
-        <div className="mt-10 flex flex-col gap-2 border-t border-border-subtle pt-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-[var(--color-inverse-foreground)]/15 pt-6 text-sm text-[var(--color-inverse-foreground)]/80 sm:flex-row sm:items-center sm:justify-between">
           <p>{footer.madeIn} · {footer.currency}</p>
-          <p className="text-xs text-subtle">{footer.rights}</p>
+          <p className="text-xs text-[var(--color-inverse-foreground)]/70">{footer.rights}</p>
         </div>
       </Container>
     </footer>

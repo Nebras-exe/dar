@@ -120,8 +120,8 @@ export type StockStatus = "in-stock" | "made-to-order" | "out-of-stock";
 
 /** Clearly-fictional demo suppliers — never a real company. */
 export type DemoSupplier =
-  | "Athathi Studio Collection"
-  | "Athathi Demo Supplier"
+  | "DAR Studio Collection"
+  | "DAR Demo Supplier"
   | "Demo Furniture Lab";
 
 /** Structured dimensions in centimetres — the basis for future room-fit checks. */

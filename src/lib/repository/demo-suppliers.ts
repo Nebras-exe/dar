@@ -11,8 +11,8 @@ import type { Supplier } from "./types";
 
 /** The three demo supplier names used across the Phase 03 catalog. */
 export const DEMO_SUPPLIER_NAMES: DemoSupplier[] = [
-  "Athathi Studio Collection",
-  "Athathi Demo Supplier",
+  "DAR Studio Collection",
+  "DAR Demo Supplier",
   "Demo Furniture Lab",
 ];
 
@@ -20,12 +20,12 @@ export const demoSuppliers: Supplier[] = [
   {
     id: "demo-athathi-studio",
     slug: "athathi-studio-collection",
-    name: "Athathi Studio Collection",
-    nameAr: "مجموعة استوديو أثاثي",
+    name: "DAR Studio Collection",
+    nameAr: "مجموعة استوديو دار",
     description:
-      "A sample in-house collection used to demonstrate the Athathi marketplace. Not a real supplier.",
+      "A sample in-house collection used to demonstrate the DAR marketplace. Not a real supplier.",
     descriptionAr:
-      "مجموعة داخلية نموذجية لعرض سوق أثاثي. ليست مورّداً حقيقياً.",
+      "مجموعة داخلية نموذجية لعرض سوق دار. ليست مورّداً حقيقياً.",
     location: "Muscat",
     locationAr: "مسقط",
     type: "studio",
@@ -45,8 +45,8 @@ export const demoSuppliers: Supplier[] = [
   {
     id: "demo-athathi-supplier",
     slug: "athathi-demo-supplier",
-    name: "Athathi Demo Supplier",
-    nameAr: "مورّد أثاثي التجريبي",
+    name: "DAR Demo Supplier",
+    nameAr: "مورّد دار التجريبي",
     description:
       "A sample supplier account demonstrating the supplier dashboard and product tools.",
     descriptionAr:

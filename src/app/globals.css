@@ -12,26 +12,36 @@
   --font-display: var(--font-fraunces), ui-serif, "Iowan Old Style", Georgia, serif;
   --font-arabic: var(--font-plex-arabic), "Segoe UI", ui-sans-serif, system-ui, sans-serif;
 
-  /* ---- Core neutrals (warm) -------------------------------------------- */
-  --color-background: #f5f1ea; /* canvas — warm ivory */
-  --color-surface: #fbf8f3; /* raised panel */
+  /* ---- Core neutrals (warm sand + ink — Terra Interiors) ---------------- */
+  --color-background: #f8f3ec; /* canvas — sand-100 */
+  --color-surface: #fdfbf8; /* raised panel — cream-white */
   --color-elevated: #ffffff; /* cards, dialogs, sheets */
 
-  --color-foreground: #262019; /* espresso — primary text */
-  --color-muted: #766c60; /* secondary text */
-  --color-subtle: #9a9184; /* tertiary text / captions */
+  --color-foreground: #2b2621; /* ink-900 — primary text (warm near-black) */
+  --color-muted: #6e6559; /* ink-500 — secondary text (5.2:1 on bg) */
+  --color-subtle: #807663; /* tertiary text / captions (4.1:1 — AA-large; darker than the raw sand-ink for legibility) */
 
-  --color-border: #e4dccf; /* default hairline */
-  --color-border-subtle: #ede7dc; /* softest hairline */
+  --color-border: #e4d7c3; /* default hairline — sand-300 */
+  --color-border-subtle: #f1e9dd; /* softest hairline — sand-200 */
 
-  /* ---- Brand & accents -------------------------------------------------- */
-  --color-brand: #9a5b3b; /* warm clay / sienna */
-  --color-brand-hover: #834b2f;
-  --color-brand-soft: #f0e4da; /* tinted brand surface */
-  --color-brand-foreground: #fbf8f3;
+  /* ---- Brand & accents (olive primary, terracotta secondary) ----------- */
+  /* Terra leads with deep olive on buttons, links, icon circles, dark blocks;
+     terracotta is the sparse secondary warm accent. Two accents max on screen. */
+  --color-brand: #4f5a3e; /* olive-700 — primary */
+  --color-brand-hover: #3c4530; /* olive-900 */
+  --color-brand-soft: #e6e9e0; /* tinted olive surface */
+  --color-brand-foreground: #f8f3ec; /* text on olive — sand-100 */
 
-  --color-accent: #5e6a53; /* muted olive / sage */
-  --color-accent-soft: #e6e9e0;
+  /* Terracotta secondary. Uses the deeper 700 shade as the base because it
+     appears as TEXT (chips, links), not only fills — 5.4:1 on bg / 4.7:1 on
+     accent-soft meets WCAG AA. The Terra-500 tint lives on in --color-accent-soft. */
+  --color-accent: #9b4e2e; /* terracotta-700 — secondary (AA as text) */
+  --color-accent-hover: #843f22; /* terracotta-800 */
+  --color-accent-soft: #f1e2d7; /* tinted terracotta surface */
+
+  /* Dark inverse block (footer / dark sections) — deep olive, Terra bg-inverse. */
+  --color-inverse: #313a29; /* olive-950 (a touch deeper than olive-900) */
+  --color-inverse-foreground: #eef0e6; /* soft sand text on olive */
 
   /* ---- Semantic --------------------------------------------------------- */
   --color-success: #4f6f52;
@@ -55,8 +65,10 @@
   --radius-md: 0.625rem;
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
-  --radius-2xl: 1.75rem;
+  --radius-2xl: 1.75rem; /* 28px — Terra large card/photo radius */
   --radius-full: 9999px;
+  /* Organic asymmetric "blob" — Terra section-divider shape (use sparingly). */
+  --radius-blob: 2rem 6rem 2rem 6rem;
 
   /* ---- Shadows (soft, warm-tinted) ------------------------------------- */
   --shadow-xs: 0 1px 2px rgba(38, 32, 25, 0.05);
@@ -133,6 +145,23 @@
   }
   h1 {
     font-variation-settings: "SOFT" 0, "WONK" 0, "opsz" 144;
+  }
+
+  /* Terra headline treatment: emphasis via a single ITALIC word within an
+     otherwise-roman serif headline — never a colour or weight change, and never
+     applied to Arabic (italic serif is inappropriate for Arabic script). */
+  :where(h1, h2, h3, .text-display) em,
+  :where(h1, h2, h3, .text-display) i {
+    font-style: italic;
+    font-synthesis: none;
+    color: inherit;
+  }
+  /* Arabic can't take an italic serif, so the emphasis word instead picks up the
+     olive brand colour — an equivalent, script-appropriate accent. */
+  [lang="ar"] :where(h1, h2, h3, .text-display) em,
+  [lang="ar"] :where(h1, h2, h3, .text-display) i {
+    font-style: normal;
+    color: var(--color-brand);
   }
 
   /* Arabic headings read best a touch heavier and without negative tracking. */
@@ -243,6 +272,29 @@
     line-height: 1.12;
     letter-spacing: 0;
     font-variation-settings: normal;
+  }
+
+  /* Terra organic "blob": an asymmetric large radius for soft section shapes /
+     image frames. Use sparingly — a calm accent, not everywhere. Mirrors in RTL. */
+  .blob {
+    border-radius: var(--radius-blob);
+  }
+  [dir="rtl"] .blob {
+    border-radius: 6rem 2rem 6rem 2rem;
+  }
+
+  /* Terra card signature: a small olive circle badge holding a line icon, sitting
+     above a card/feature title. White icon on olive fill. */
+  .icon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-full);
+    background: var(--color-brand);
+    color: var(--color-brand-foreground);
+    box-shadow: var(--shadow-xs);
   }
 
   /* A slim, warm hairline rule for editorial section breaks. */

@@ -10,7 +10,7 @@
  * message — the client renders the user's own data (never sent to the server).
  */
 
-import { getAllProducts } from "@/lib/catalog";
+import { getAllProducts, colorSwatches, categoryBySlug, type ColorId } from "@/lib/catalog";
 import { detectIntent, extractSlots } from "./intents";
 import { searchCatalog, budgetFor } from "./tools";
 import type { ChatMessage, ChatResponse, ProductCardRef, QuickAction, ChatFlags } from "./types";
@@ -33,8 +33,63 @@ export function defaultQuickActions(locale: "en" | "ar"): QuickAction[] {
   ];
 }
 
-function cards(slugs: string[], reason?: Copy, locale?: "en" | "ar"): ProductCardRef[] {
-  return slugs.map((slug) => ({ slug, ...(reason && locale ? { reason: reason[locale] } : {}) }));
+function cards(slugs: string[], opts?: { reason?: Copy; locale?: "en" | "ar"; color?: ColorId }): ProductCardRef[] {
+  return slugs.map((slug) => ({
+    slug,
+    // Surfaced because of a colour → the card shows that variant's own photo.
+    ...(opts?.color ? { colorId: opts.color } : {}),
+    ...(opts?.reason && opts.locale ? { reason: opts.reason[opts.locale] } : {}),
+  }));
+}
+
+/**
+ * An honest, specific "no exact match" message. When both a category and colour
+ * were requested, it names them ("no red chairs available in DAR's catalog")
+ * and OFFERS to widen the search — but never widens automatically (§2). Falls
+ * back to a general no-match line otherwise.
+ */
+function zeroResultMessage(
+  category: string | undefined,
+  color: ColorId | undefined,
+  budget: number | undefined,
+  locale: "en" | "ar",
+): string {
+  if (category && color) {
+    const catName = categoryBySlug.get(category as never);
+    const catAr = catName ? catName.name.ar : category;
+    const catEn = catName ? catName.name.en.toLowerCase() : category;
+    const colAr = colorSwatches[color].label.ar;
+    const colEn = colorSwatches[color].label.en.toLowerCase();
+    return t(
+      {
+        ar: `لا توجد ${catAr} ${colAr} متاحة حاليًا في كتالوج دار. هل تريد مشاهدة أقرب لون متاح؟`,
+        en: `There are currently no ${colEn} ${catEn} available in DAR's catalog. Would you like to see the closest available colour?`,
+      },
+      locale,
+    );
+  }
+  if (color) {
+    const colAr = colorSwatches[color].label.ar;
+    const colEn = colorSwatches[color].label.en.toLowerCase();
+    return t(
+      {
+        ar: `لا توجد قطع باللون ${colAr} تطابق طلبك حاليًا في كتالوج دار. هل أوسّع البحث؟`,
+        en: `There are currently no ${colEn} pieces matching that in DAR's catalog. Shall I widen the search?`,
+      },
+      locale,
+    );
+  }
+  return t(
+    {
+      en: budget
+        ? `I couldn't find a match within ${budget} OMR. Tell me a different category or a higher budget — or the room, and I'll design it.`
+        : "I couldn't find a match in the catalog for that. Try a different category or colour — or tell me the room and I'll design it.",
+      ar: budget
+        ? `لم أجد تطابقًا ضمن ${budget} ر.ع. أخبرني بفئة مختلفة أو ميزانية أعلى — أو بالغرفة وسأصمّمها.`
+        : "لم أجد تطابقًا في الكتالوج لذلك. جرّب فئة أو لونًا مختلفًا — أو أخبرني بالغرفة وسأصمّمها.",
+    },
+    locale,
+  );
 }
 
 /** Build a deterministic response for the latest user message. */
@@ -140,7 +195,7 @@ export function demoRespond(messages: ChatMessage[], locale: "en" | "ar", contex
         message: slugs.length > 0
           ? t({ en: "Many pieces come in several colours and finishes — open a product to switch the colour and see the price update.", ar: "تأتي العديد من القطع بألوان وتشطيبات متعددة — افتح المنتج لتبديل اللون ورؤية تحديث السعر." }, locale)
           : t({ en: "I couldn't find a match — tell me the item and colour you're after.", ar: "لم أجد تطابقًا — أخبرني بالقطعة واللون الذي تريده." }, locale),
-        cards: cards(slugs),
+        cards: cards(slugs, { color: slots.color }),
         intent: "find_variants",
       });
     }
@@ -152,11 +207,11 @@ export function demoRespond(messages: ChatMessage[], locale: "en" | "ar", contex
     default: {
       const slugs = searchCatalog({ category: slots.category, style: slots.style, color: slots.color, material: slots.material, maxPrice: budget, limit: 6 });
       if (slugs.length === 0) {
+        // Honest, SPECIFIC no-result message. We NEVER silently relax the
+        // filters — if a colour+category was asked and has no exact match, say so
+        // and offer to widen only WITH the user's approval.
         return base({
-          message: t({
-            en: "I couldn't find a match in the catalog for that. Try a different category, colour, or a higher budget — or tell me the room and I'll design it.",
-            ar: "لم أجد تطابقًا في الكتالوج لذلك. جرّب فئة أو لونًا مختلفًا أو ميزانية أعلى — أو أخبرني بالغرفة وسأصمّمها.",
-          }, locale),
+          message: zeroResultMessage(slots.category, slots.color, budget, locale),
           intent: intent === "unknown" ? "find_furniture" : intent,
         });
       }
@@ -166,7 +221,7 @@ export function demoRespond(messages: ChatMessage[], locale: "en" | "ar", contex
         : t({ en: "Here are some pieces from the catalog. Open one to see colours, size and materials.", ar: "إليك بعض القطع من الكتالوج. افتح واحدة لرؤية الألوان والمقاس والخامات." }, locale);
       return base({
         message: b && !b.withinBudget ? t({ en: "These are the closest matches, though a few edge past your budget.", ar: "هذه أقرب الخيارات، مع أن بعضها يتجاوز ميزانيتك قليلًا." }, locale) : msg,
-        cards: cards(slugs),
+        cards: cards(slugs, { color: slots.color }),
         intent: intent === "unknown" ? "find_furniture" : intent,
       });
     }

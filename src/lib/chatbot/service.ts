@@ -51,7 +51,9 @@ function groundClaudePlan(raw: unknown, locale: "en" | "ar", context: ChatReques
     const material = typeof q.material === "string" && isMaterialId(q.material) ? (q.material as MaterialId) : undefined;
     const maxPrice = typeof q.maxPrice === "number" && q.maxPrice > 0 ? q.maxPrice : (context?.budget ?? undefined);
     const slugs = searchCatalog({ category, style, color, material, maxPrice });
-    cards = slugs.map((slug) => ({ slug }));
+    // When a colour was requested, surface each result's matching variant photo
+    // (variant-aware) — never the default colour for a colour-specific ask.
+    cards = slugs.map((slug) => ({ slug, ...(color ? { colorId: color } : {}) }));
   }
 
   // Map intents to safe client flags (order/memory/cart data stays on the client).

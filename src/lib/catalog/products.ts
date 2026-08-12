@@ -44,7 +44,7 @@ function toProduct(r: RawProduct): Product {
     sourceLabel: r.sourceLabel,
     sourceUrl: r.sourceUrl,
     model: r.model,
-    supplier: "Athathi Studio Collection",
+    supplier: "DAR Studio Collection",
     isDemo: true,
     stockStatus: r.stockStatus,
     dimensions: r.dimensions,

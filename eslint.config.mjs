@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design reference export (read-only inspiration material, not app code).
+    "design-reference/**",
   ]),
 ]);
 

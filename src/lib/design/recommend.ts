@@ -218,6 +218,29 @@ export function getOption(
 }
 
 /**
+ * The SINGLE design shown to the customer (no spending tiers to choose).
+ *
+ * Prefers the BEST-VALUE plan that fits the customer's budget — the "balanced"
+ * option (best style/colour/material match per category that stays within
+ * budget), rather than artificially spending the full amount. If even the
+ * balanced plan can't fit (an essential category has nothing affordable), it
+ * falls back to the leanest plan (smallest overspend), which the UI surfaces
+ * honestly. Deterministic; the money math still comes from catalog prices.
+ */
+export function pickCustomerOption(
+  recommendation: DesignRecommendation,
+): DesignOption {
+  const balanced = getOption(recommendation, "balanced");
+  if (balanced.summary.overBudget === 0) return balanced;
+  // Balanced overspends → choose the option with the smallest overspend (leanest).
+  return [...recommendation.options].sort(
+    (a, b) =>
+      a.summary.overBudget - b.summary.overBudget ||
+      TIER_RANK[a.tier] - TIER_RANK[b.tier],
+  )[0];
+}
+
+/**
  * Replacement candidates for an item, deterministic per mode:
  * - `cheaper`  — priced below the current item, nearest-cheaper first.
  * - `upgrade`  — priced above, nearest step-up first.

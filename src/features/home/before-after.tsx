@@ -1,6 +1,6 @@
 "use client";
 
-import { RoomIllustration } from "./room-illustration";
+import Image from "next/image";
 import { BeforeAfterSlider as GenericBeforeAfterSlider } from "@/components/ui/before-after-slider";
 
 export interface BeforeAfterProps {
@@ -10,10 +10,16 @@ export interface BeforeAfterProps {
   sliderLabel: string;
 }
 
+/** Shared sizing so both layers crop identically and stay aligned as the slider
+ *  moves (same room, same camera — never crop Before and After differently). */
+const LAYER_SIZES = "(max-width: 1024px) 100vw, 90vw";
+
 /**
- * Homepage before/after: the original SVG interior illustration (bare "before" →
- * furnished "after"), driven by the shared, accessible `BeforeAfterSlider`. The
- * same slider backs the Phase 07 room visualization — one interaction, two uses.
+ * Homepage before/after: REAL room photography — the same empty room (before) and
+ * its furnished redesign (after) — driven by the shared, accessible
+ * `BeforeAfterSlider`. Both layers use identical `fill` + `object-cover` +
+ * `object-center` so the room stays perfectly registered while dragging. The same
+ * slider also backs the Phase 07 room visualization — one interaction, two uses.
  */
 export function BeforeAfterSlider({
   dir,
@@ -27,8 +33,25 @@ export function BeforeAfterSlider({
       beforeLabel={beforeLabel}
       afterLabel={afterLabel}
       sliderLabel={sliderLabel}
-      after={<RoomIllustration variant="after" />}
-      before={<RoomIllustration variant="before" />}
+      aspectClassName="aspect-[16/9]"
+      after={
+        <Image
+          src="/images/before-after/room-after.webp"
+          alt=""
+          fill
+          sizes={LAYER_SIZES}
+          className="object-cover object-center"
+        />
+      }
+      before={
+        <Image
+          src="/images/before-after/room-before.webp"
+          alt=""
+          fill
+          sizes={LAYER_SIZES}
+          className="object-cover object-center"
+        />
+      }
     />
   );
 }

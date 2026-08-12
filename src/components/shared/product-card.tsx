@@ -11,8 +11,10 @@ import {
   label,
   materialLabels,
   styleLabels,
+  type ColorId,
   type Product,
 } from "@/lib/catalog";
+import { variantsFor, variantImageUrl } from "@/lib/catalog-preview";
 import { cn } from "@/lib/utils";
 
 export interface ProductCardLabels {
@@ -29,6 +31,13 @@ export interface ProductCardProps {
   product: Product;
   locale: Locale;
   labels: ProductCardLabels;
+  /**
+   * A real colour variant to DISPLAY (its own photo + a highlighted swatch) —
+   * used when the card is surfaced because of a specific colour (a colour filter,
+   * a "red chair" search, or the calm homepage variant). Must be a real variant
+   * of this product; otherwise it's ignored and the default image is shown.
+   */
+  displayColorId?: ColorId;
   className?: string;
 }
 
@@ -39,9 +48,19 @@ export interface ProductCardProps {
  * badge and a favourite toggle. The whole card is a link (stretched-link
  * pattern) while the favourite button stays independently operable.
  */
-export function ProductCard({ product, locale, labels, className }: ProductCardProps) {
+export function ProductCard({ product, locale, labels, displayColorId, className }: ProductCardProps) {
   const name = locale === "ar" ? product.nameAr : product.name;
   const href = `/${locale}/product/${product.slug}`;
+  // Show the requested colour's OWN photo (variant-aware), when it's a real
+  // variant of this product; otherwise fall back to the default product image.
+  const isRealVariantColor = displayColorId && product.colors.some((c) => c.id === displayColorId);
+  const shownColorId = isRealVariantColor ? displayColorId : undefined;
+  const variant = shownColorId ? variantsFor(product.slug).find((v) => v.colorId === shownColorId) : undefined;
+  const overrideSrc = variant ? variantImageUrl(variant) : undefined;
+  // Order swatches so the shown colour leads.
+  const orderedColors = shownColorId
+    ? [...product.colors].sort((a, b) => Number(b.id === shownColorId) - Number(a.id === shownColorId))
+    : product.colors;
   const meta = [
     product.materials[0] && label(materialLabels[product.materials[0]], locale),
     product.styleTags[0] && label(styleLabels[product.styleTags[0]], locale),
@@ -59,7 +78,7 @@ export function ProductCard({ product, locale, labels, className }: ProductCardP
     >
       <div className="lift relative overflow-hidden rounded-lg bg-elevated shadow-[var(--shadow-xs)] ring-1 ring-border-subtle">
         <ImageFrame ratio="square" rounded="lg" zoomOnHover>
-          <ProductImage product={product} alt={name} />
+          <ProductImage product={product} alt={name} overrideSrc={overrideSrc} />
         </ImageFrame>
         <div className="pointer-events-none absolute inset-x-3 top-3 z-10 flex items-start justify-between gap-2">
           <div className="flex flex-col items-start gap-1.5">
@@ -95,18 +114,21 @@ export function ProductCard({ product, locale, labels, className }: ProductCardP
             </Link>
           </h3>
           {meta && <p className="mt-0.5 line-clamp-1 text-sm text-muted">{meta}</p>}
-          {product.colors.length > 0 && (
+          {orderedColors.length > 0 && (
             <div className="mt-2 flex items-center gap-1.5" aria-hidden="true">
-              {product.colors.slice(0, 4).map((c) => (
+              {orderedColors.slice(0, 4).map((c) => (
                 <span
                   key={c.id}
-                  className="size-3.5 rounded-full ring-1 ring-inset ring-black/10 transition-transform group-hover:scale-110"
+                  className={cn(
+                    "size-3.5 rounded-full ring-1 ring-inset ring-black/10 transition-transform group-hover:scale-110",
+                    shownColorId === c.id && "ring-2 ring-brand ring-offset-1 ring-offset-elevated",
+                  )}
                   style={{ backgroundColor: c.hex }}
                 />
               ))}
-              {product.colors.length > 4 && (
+              {orderedColors.length > 4 && (
                 <span className="text-[0.7rem] text-subtle">
-                  +{product.colors.length - 4}
+                  +{orderedColors.length - 4}
                 </span>
               )}
             </div>

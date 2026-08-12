@@ -33,18 +33,18 @@ import {
 } from "./index";
 
 // Test fixtures spanning THREE distinct demo suppliers (the real catalog is empty).
-const SOFA = "test-studio-sofa"; // Athathi Studio Collection, 320
+const SOFA = "test-studio-sofa"; // DAR Studio Collection, 320
 const SOFA2 = "test-studio-sofa-2"; // same supplier (merge test)
-const SECTIONAL = "test-supplier-sectional"; // Athathi Demo Supplier, 445
+const SECTIONAL = "test-supplier-sectional"; // DAR Demo Supplier, 445
 const LEATHER = "test-lab-leather-sofa"; // Demo Furniture Lab, 520
-const RUG = "test-checkout-rug"; // Athathi Demo Supplier, 58
+const RUG = "test-checkout-rug"; // DAR Demo Supplier, 58
 
 const ordersFixtures = [
-  makeProduct({ slug: SOFA, category: "sofas", price: 320, colors: ["cream", "beige", "grey"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
-  makeProduct({ slug: SOFA2, category: "sofas", price: 280, colors: ["beige", "grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "Athathi Studio Collection" }),
-  makeProduct({ slug: SECTIONAL, category: "sofas", subcategory: "sectional", price: 445, colors: ["grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "Athathi Demo Supplier" }),
+  makeProduct({ slug: SOFA, category: "sofas", price: 320, colors: ["cream", "beige", "grey"], materials: ["boucle"], styleTags: ["warm-modern"], roomTypes: ["living-room"], supplier: "DAR Studio Collection" }),
+  makeProduct({ slug: SOFA2, category: "sofas", price: 280, colors: ["beige", "grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "DAR Studio Collection" }),
+  makeProduct({ slug: SECTIONAL, category: "sofas", subcategory: "sectional", price: 445, colors: ["grey"], materials: ["linen"], styleTags: ["modern"], roomTypes: ["living-room"], supplier: "DAR Demo Supplier" }),
   makeProduct({ slug: LEATHER, category: "sofas", price: 520, colors: ["walnut", "charcoal"], materials: ["leather"], styleTags: ["mid-century"], roomTypes: ["living-room"], supplier: "Demo Furniture Lab" }),
-  makeProduct({ slug: RUG, category: "rugs", price: 58, colors: ["sand", "grey"], materials: ["wool"], styleTags: ["boho"], roomTypes: ["living-room"], supplier: "Athathi Demo Supplier" }),
+  makeProduct({ slug: RUG, category: "rugs", price: 58, colors: ["sand", "grey"], materials: ["wool"], styleTags: ["boho"], roomTypes: ["living-room"], supplier: "DAR Demo Supplier" }),
 ];
 
 before(() => __setCatalogProductsForTests(ordersFixtures));
