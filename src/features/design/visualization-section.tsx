@@ -6,6 +6,7 @@ import {
   Info,
   Loader2,
   RefreshCw,
+  Ruler,
   Sparkles,
   TriangleAlert,
   Wand2,
@@ -16,15 +17,18 @@ import type { Dictionary } from "@/i18n/dictionaries";
 import type { DesignInput, DesignItem } from "@/lib/design";
 import {
   buildVisualizationRequest,
+  createCamera,
   currentDesignFingerprint,
   isPreviewStale,
+  projectPlan,
+  type RoomPlan,
   type VisualizationErrorCode,
   type VisualizationSuccess,
 } from "@/lib/visualization";
-import type { ColorId } from "@/lib/catalog";
+import { getProductBySlug, type ColorId } from "@/lib/catalog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import type { WizardAction } from "./wizard-state";
 import { useRoomImage } from "./room-image-context";
 import { VisualizationCompare } from "./visualization-preview";
@@ -34,6 +38,91 @@ import { RoomIllustration } from "@/features/home/room-illustration";
 interface CapabilityResponse {
   configured?: boolean;
   mode?: "live" | "demo";
+}
+
+/**
+ * Says plainly how the furniture in the preview was scaled: against the room the
+ * user measured, or against a labelled stand-in when they skipped it. Also names
+ * any piece that could not be fitted, so a partial room never reads as complete.
+ */
+function PlanNote({
+  plan,
+  roomTypeLabel,
+  tv,
+  locale,
+  onEditSpace,
+}: {
+  plan: RoomPlan;
+  roomTypeLabel: string;
+  tv: Dictionary["design"]["visualization"];
+  locale: Locale;
+  onEditSpace: () => void;
+}) {
+  const names = (slugs: readonly string[]) =>
+    slugs
+      .map((slug) => getProductBySlug(slug))
+      .filter((p): p is NonNullable<typeof p> => Boolean(p))
+      .map((p) => (locale === "ar" ? p.nameAr : p.name));
+
+  // Wouldn't fit in the room at all.
+  const unplacedNames = names(plan.unplaced);
+  // Fits, but sits in the strip of floor this camera angle can't show.
+  const outOfFrameNames = React.useMemo(
+    () => names(projectPlan(createCamera(plan.space), plan.placements).outOfFrame),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `names` is a pure local closure over locale
+    [plan.space, plan.placements, locale],
+  );
+
+  return (
+    <div className="mt-3 space-y-2">
+      <p
+        className={cn(
+          "flex items-start gap-2 rounded-lg px-3.5 py-2.5 text-xs",
+          plan.assumed
+            ? "border border-warning/40 bg-warning-soft text-foreground"
+            : "border border-border-subtle bg-elevated text-muted",
+        )}
+      >
+        <Ruler className="mt-0.5 size-3.5 shrink-0 text-brand" strokeWidth={1.75} aria-hidden="true" />
+        <span>
+          {plan.assumed
+            ? tv.planAssumed.replace("{room}", roomTypeLabel)
+            : tv.planMeasured
+                .replace("{width}", formatNumber(plan.space.widthM, locale))
+                .replace("{length}", formatNumber(plan.space.lengthM, locale))}{" "}
+          {plan.assumed && (
+            <button
+              type="button"
+              onClick={onEditSpace}
+              className="font-medium text-brand underline underline-offset-2 hover:text-brand-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            >
+              {tv.planEditSpace}
+            </button>
+          )}
+        </span>
+      </p>
+
+      {unplacedNames.length > 0 && (
+        <p className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning-soft px-3.5 py-2.5 text-xs text-foreground">
+          <TriangleAlert className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.75} aria-hidden="true" />
+          <span>
+            {tv.planUnplaced.replace("{count}", formatNumber(unplacedNames.length, locale))}{" "}
+            {unplacedNames.join("، ")}
+          </span>
+        </p>
+      )}
+
+      {outOfFrameNames.length > 0 && (
+        <p className="flex items-start gap-2 rounded-lg border border-border-subtle bg-elevated px-3.5 py-2.5 text-xs text-muted">
+          <Info className="mt-0.5 size-3.5 shrink-0 text-subtle" strokeWidth={1.75} aria-hidden="true" />
+          <span>
+            {tv.planOutOfFrame.replace("{count}", formatNumber(outOfFrameNames.length, locale))}{" "}
+            {outOfFrameNames.join("، ")}
+          </span>
+        </p>
+      )}
+    </div>
+  );
 }
 
 /**
@@ -327,6 +416,17 @@ export function VisualizationSection({
               <TriangleAlert className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.75} aria-hidden="true" />
               {tv.notApprovedNote}
             </p>
+          )}
+
+          {/* How the pieces were scaled — measured room, or a labelled default. */}
+          {preview.preview.kind === "demo-composition" && (
+            <PlanNote
+              plan={preview.preview.scheme.plan}
+              roomTypeLabel={t.room.types[input.roomType]}
+              tv={tv}
+              locale={locale}
+              onEditSpace={() => dispatch({ type: "GO_TO_STEP", step: 2 })}
+            />
           )}
 
           {/* Honest disclosures */}

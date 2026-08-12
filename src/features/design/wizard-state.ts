@@ -18,6 +18,7 @@ import {
   type DesignRecommendation,
   type DesignTier,
   type FurnitureDisposition,
+  type RoomSpace,
 } from "@/lib/design";
 import { getProductBySlug } from "@/lib/catalog";
 import type {
@@ -30,17 +31,24 @@ import type { DesignRoomType } from "@/lib/design";
 import type { AnalysisPrefill, RoomAnalysis } from "@/lib/vision";
 
 export const STORAGE_KEY = "athathi.design.v1";
-export const TOTAL_STEPS = 7; // brief steps 0..6
+export const TOTAL_STEPS = 8; // brief steps 0..7
 
 export type WizardPhase = "brief" | "analysis" | "result";
 
 /** How the main style is chosen: the user picks one, or DAR recommends it. */
 export type StyleMode = "manual" | "ai-recommended";
 
+/** The room measurements the user can enter, as raw input text. */
+export type RoomDimension = "width" | "length" | "height";
+
 /** Editable draft — a superset of DesignInput with UI-friendly fields. */
 export interface DesignDraft {
   imageName?: string;
   roomType?: DesignRoomType;
+  /** Room size in metres, kept as typed text so partial input stays editable. */
+  roomWidthText: string;
+  roomLengthText: string;
+  roomHeightText: string;
   budgetText: string;
   /** "manual" = user picks a style; "ai-recommended" = derived from the room photo. */
   styleMode: StyleMode;
@@ -84,6 +92,9 @@ export const initialState: WizardState = {
   phase: "brief",
   step: 0,
   draft: {
+    roomWidthText: "",
+    roomLengthText: "",
+    roomHeightText: "",
     budgetText: "",
     styleMode: "manual",
     decisions: {},
@@ -105,6 +116,8 @@ export type WizardAction =
   | { type: "SET_IMAGE"; name: string }
   | { type: "CLEAR_IMAGE" }
   | { type: "SET_ROOM"; room: DesignRoomType }
+  | { type: "SET_ROOM_DIMENSION"; dimension: RoomDimension; text: string }
+  | { type: "CLEAR_ROOM_SPACE" }
   | { type: "SET_BUDGET_TEXT"; text: string }
   | { type: "SET_STYLE_MODE"; mode: StyleMode }
   | { type: "SET_PRIMARY_STYLE"; style: StyleTag }
@@ -175,6 +188,56 @@ export function parseBudget(text: string): number {
 export const MIN_BUDGET = 30;
 export const MAX_BUDGET = 100000;
 
+// Room measurements, in metres. The bounds mirror the server-side validator so
+// a value the UI accepts is never silently dropped later.
+export const MIN_ROOM_M = 1.2;
+export const MAX_ROOM_M = 30;
+export const MIN_CEILING_M = 1.8;
+export const MAX_CEILING_M = 8;
+
+/** Parse a typed dimension into metres, or NaN when it isn't a number yet. */
+export function parseDimension(text: string): number {
+  const cleaned = text.replace(/[^\d.]/g, "");
+  if (cleaned === "") return NaN;
+  return Number(cleaned);
+}
+
+/** Validate one dimension. Returns null when it's empty or in range. */
+export function dimensionError(
+  text: string,
+  dimension: RoomDimension,
+): "invalid" | "range" | null {
+  if (text.trim() === "") return null; // optional — an empty field is fine
+  const value = parseDimension(text);
+  if (!Number.isFinite(value) || value <= 0) return "invalid";
+  const [min, max] =
+    dimension === "height" ? [MIN_CEILING_M, MAX_CEILING_M] : [MIN_ROOM_M, MAX_ROOM_M];
+  return value < min || value > max ? "range" : null;
+}
+
+/**
+ * The draft's room size, or undefined. Width AND length are both required — a
+ * half-measured room can't be planned against, so it falls back to the labelled
+ * default rather than to a guess. Height is optional.
+ */
+export function draftRoomSpace(draft: DesignDraft): RoomSpace | undefined {
+  if (
+    dimensionError(draft.roomWidthText, "width") !== null ||
+    dimensionError(draft.roomLengthText, "length") !== null ||
+    dimensionError(draft.roomHeightText, "height") !== null
+  ) {
+    return undefined;
+  }
+  const widthM = parseDimension(draft.roomWidthText);
+  const lengthM = parseDimension(draft.roomLengthText);
+  if (!Number.isFinite(widthM) || !Number.isFinite(lengthM)) return undefined;
+
+  const heightM = parseDimension(draft.roomHeightText);
+  return Number.isFinite(heightM)
+    ? { widthM, lengthM, heightM }
+    : { widthM, lengthM };
+}
+
 /** Validate the current step; returns true when Continue/Generate is allowed. */
 export function canAdvance(state: WizardState): boolean {
   const d = state.draft;
@@ -183,17 +246,25 @@ export function canAdvance(state: WizardState): boolean {
       return true; // photo optional
     case 1:
       return Boolean(d.roomType);
-    case 2: {
+    case 2:
+      // Room size is optional — but a value that IS typed must be valid, so a
+      // typo can't silently fall back to the assumed room.
+      return (
+        dimensionError(d.roomWidthText, "width") === null &&
+        dimensionError(d.roomLengthText, "length") === null &&
+        dimensionError(d.roomHeightText, "height") === null
+      );
+    case 3: {
       const b = parseBudget(d.budgetText);
       return Number.isFinite(b) && b >= MIN_BUDGET && b <= MAX_BUDGET;
     }
-    case 3:
-      return Boolean(d.primaryStyle);
     case 4:
-      return true; // decisions default to "unsure"
+      return Boolean(d.primaryStyle);
     case 5:
-      return true; // preferences optional
+      return true; // decisions default to "unsure"
     case 6:
+      return true; // preferences optional
+    case 7:
       return true; // review → generate
     default:
       return true;
@@ -216,6 +287,7 @@ export function draftToInput(draft: DesignDraft): DesignInput {
     decisions,
     note: draft.note.trim() || undefined,
     imageName: draft.imageName,
+    roomSpace: draftRoomSpace(draft),
   };
 }
 
@@ -236,6 +308,26 @@ export function reducer(state: WizardState, action: WizardAction): WizardState {
       return {
         ...state,
         draft: { ...state.draft, roomType: action.room, decisions: {} },
+      };
+    case "SET_ROOM_DIMENSION": {
+      const field = (
+        {
+          width: "roomWidthText",
+          length: "roomLengthText",
+          height: "roomHeightText",
+        } as const
+      )[action.dimension];
+      return { ...state, draft: { ...state.draft, [field]: action.text } };
+    }
+    case "CLEAR_ROOM_SPACE":
+      return {
+        ...state,
+        draft: {
+          ...state.draft,
+          roomWidthText: "",
+          roomLengthText: "",
+          roomHeightText: "",
+        },
       };
     case "SET_BUDGET_TEXT":
       return { ...state, draft: { ...state.draft, budgetText: action.text } };
@@ -423,7 +515,12 @@ export function deserialize(raw: string): WizardState | null {
     const items = Array.isArray(parsed.items)
       ? parsed.items.filter((i) => getProductBySlug(i.slug))
       : [];
-    return { ...initialState, ...parsed, items };
+    // Merge the draft field-by-field: a brief saved before a field existed must
+    // still restore, with the new field at its default rather than undefined.
+    const draft: DesignDraft = { ...initialState.draft, ...parsed.draft };
+    // Clamp a step saved when the wizard had a different number of steps.
+    const step = Math.min(Math.max(parsed.step ?? 0, 0), TOTAL_STEPS - 1);
+    return { ...initialState, ...parsed, draft, items, step };
   } catch {
     return null;
   }

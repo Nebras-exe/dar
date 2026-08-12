@@ -18,7 +18,8 @@ import {
   type WizardState,
 } from "./wizard-state";
 
-const BUDGET_STEP = 2;
+// Budget is step 3 (0-indexed): Upload → Room → Room-space → Budget → …
+const BUDGET_STEP = 3;
 
 function atBudgetStep(budgetText: string): WizardState {
   return {

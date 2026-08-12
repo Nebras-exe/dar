@@ -25,4 +25,26 @@ export {
   currentDesignFingerprint,
   buildVisualizationRequest,
 } from "./mapping";
+export {
+  planRoomLayout,
+  resolveRoomSpace,
+  isFlatCategory,
+  isMountedCategory,
+  DEFAULT_CEILING_M,
+} from "./layout";
+export {
+  createCamera,
+  projectFloorPoint,
+  projectUpright,
+  projectFloorRect,
+  projectPlan,
+  quadToPercent,
+  DEFAULT_CAMERA,
+  type Camera,
+  type ProjectedBox,
+  type ProjectedPiece,
+  type ProjectedPlan,
+  type ProjectedPoint,
+  type ProjectedQuad,
+} from "./projection";
 export { buildDemoScheme } from "./providers/demo";

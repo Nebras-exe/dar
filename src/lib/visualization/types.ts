@@ -19,7 +19,7 @@ import type {
   MaterialId,
   StyleTag,
 } from "@/lib/catalog";
-import type { DesignRoomType } from "@/lib/design";
+import type { DesignRoomType, RoomSpace } from "@/lib/design";
 
 /** Whether a real image provider ran, or the deterministic demo composition. */
 export type VisualizationMode = "live" | "demo";
@@ -50,6 +50,52 @@ export interface VisualizationOptions {
 }
 
 /**
+ * The room's real dimensions in metres, as entered BY THE USER. A single
+ * ordinary photo never yields authoritative measurements, so this is the only
+ * trusted source of room size — it is never inferred from the image. Defined in
+ * the design layer (the wizard collects it) and re-exported here so the
+ * visualization contracts read standalone.
+ */
+export type { RoomSpace } from "@/lib/design";
+
+/**
+ * One product positioned on the room's floor plan, in metres from the room's
+ * front-left corner. Every dimension comes from the product's REAL catalog
+ * dimensions — nothing here is scaled to make a piece "look right".
+ */
+export interface PlacedItem {
+  slug: string;
+  category: CategorySlug;
+  colorId?: ColorId;
+  /** Footprint centre, metres from the front-left corner. */
+  xM: number;
+  zM: number;
+  widthM: number;
+  depthM: number;
+  heightM: number;
+  /** Lies flat on the floor (a rug) — drawn as a floor quad, under everything. */
+  flat: boolean;
+  /** Hangs on a wall — no floor footprint. */
+  mounted: boolean;
+  /** The piece is larger than the room itself. Surfaced, never hidden. */
+  oversize: boolean;
+}
+
+/** The deterministic floor plan a composition is drawn from. */
+export interface RoomPlan {
+  /** The footprint actually planned against (the user's, or an assumed one). */
+  space: Required<RoomSpace>;
+  /** True when `space` is an assumed default because the user gave no size. */
+  assumed: boolean;
+  /** Placed pieces, ordered back-to-front for correct overlap. */
+  placements: PlacedItem[];
+  /** Slugs that would not fit inside the room footprint. */
+  unplaced: string[];
+  /** Fraction 0..1 of the floor covered by the placed footprints. */
+  floorUsage: number;
+}
+
+/**
  * The typed request the client sends. Deliberately structured — never
  * uncontrolled prose. The server re-validates every value against the catalog
  * taxonomy and drops anything that doesn't resolve.
@@ -67,6 +113,8 @@ export interface VisualizationRequest {
   replace: CategorySlug[];
   /** Preferred palette (catalog colour ids) — influences the mood only. */
   paletteColors: ColorId[];
+  /** The user's own room dimensions, when they entered them. Never inferred. */
+  roomSpace?: RoomSpace;
   /** Deterministic fingerprint of the design this request represents. */
   designFingerprint: string;
   options: VisualizationOptions;
@@ -86,6 +134,11 @@ export interface DemoScheme {
   overlayAngle: number;
   /** Deterministic warm/tint strength 0..1 for the wash. */
   washStrength: number;
+  /**
+   * The deterministic floor plan the client draws over the room photo — real
+   * catalog dimensions positioned in the user's own room footprint.
+   */
+  plan: RoomPlan;
 }
 
 /**

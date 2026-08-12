@@ -18,7 +18,8 @@ import {
 } from "./wizard-state";
 import type { RoomAnalysis } from "@/lib/vision";
 
-const STYLE_STEP = 3;
+// Style is step 4 (0-indexed): Upload → Room → Room-space → Budget → Style → …
+const STYLE_STEP = 4;
 
 function analysisWithStyle(primary: RoomAnalysis["style"]["primary"], confidence: number): RoomAnalysis {
   return {

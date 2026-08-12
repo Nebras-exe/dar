@@ -496,6 +496,7 @@
     "stepNames": [
       "Room photo",
       "Room type",
+      "Room size",
       "Budget",
       "Style",
       "Keep",
@@ -680,7 +681,15 @@
         "invalid-output": "We couldn't produce a clear preview. Please try again.",
         "rate-limited": "Too many previews right now. Please wait a moment and try again.",
         "unknown": "Something went wrong generating the preview. Please try again."
-      }
+      },
+      "planTitle": "Placed to scale",
+      "planAssumed": "Room size not measured — this preview uses a typical {room} and places furniture approximately. Add your room's width and depth for true scale.",
+      "planMeasured": "Placed in your {width} × {length} m room using each piece's real catalog dimensions.",
+      "planUnplaced": "{count} piece(s) wouldn't fit in this room and aren't shown:",
+      "planOversize": "Larger than the room itself",
+      "planUsage": "Floor coverage",
+      "planEditSpace": "Edit room size",
+      "planOutOfFrame": "{count} piece(s) sit in the part of the floor this photo angle doesn't show:"
     },
     "room": {
       "title": "What room are you designing?",
@@ -694,6 +703,30 @@
         "kids-room": "Kids Room",
         "outdoor": "Outdoor Space"
       }
+    },
+    "space": {
+      "title": "How big is the room?",
+      "subtitle": "Measure the wall you'd stand facing, and how deep the room runs back. This is what lets the preview place furniture at true scale.",
+      "width": "Room width",
+      "length": "Room depth",
+      "height": "Ceiling height",
+      "unit": "m",
+      "presets": "Or start from a typical size",
+      "presetLabels": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large"
+      },
+      "clear": "Clear",
+      "areaLabel": "Floor area",
+      "areaUnit": "m²",
+      "scaleOn": "furniture will be placed to scale",
+      "needBoth": "Enter both the width and the depth — one side alone isn't enough to plan the room.",
+      "skipNote": "Optional. Without measurements the preview uses a typical room for your room type and says so — furniture scale will be approximate.",
+      "measureHint": "A rough tape measure is plenty. The preview is a styling guide, not a fit guarantee.",
+      "errorInvalid": "Enter a number in metres.",
+      "errorRange": "Enter a width between 1.2 and 30 m.",
+      "errorCeilingRange": "Enter a ceiling height between 1.8 and 8 m."
     },
     "budget": {
       "title": "What's your budget for this space?",
@@ -759,7 +792,9 @@
       "photo": "Photo",
       "photoAdded": "Added",
       "none": "None",
-      "edit": "Edit"
+      "edit": "Edit",
+      "space": "Room size",
+      "spaceUnmeasured": "Not measured"
     },
     "analysis": {
       "title": "DAR is preparing your design",
