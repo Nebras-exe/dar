@@ -23,6 +23,7 @@ import {
   PreferencesStep,
   ReviewStep,
   RoomStep,
+  SpaceStep,
   StyleStep,
   UploadStep,
 } from "./steps";
@@ -139,11 +140,12 @@ function DesignWizardInner({
   const steps = [
     <UploadStep key="0" {...stepProps} />,
     <RoomStep key="1" {...stepProps} />,
-    <BudgetStep key="2" {...stepProps} />,
-    <StyleStep key="3" {...stepProps} />,
-    <ExistingStep key="4" {...stepProps} />,
-    <PreferencesStep key="5" {...stepProps} />,
-    <ReviewStep key="6" {...stepProps} />,
+    <SpaceStep key="2" {...stepProps} />,
+    <BudgetStep key="3" {...stepProps} />,
+    <StyleStep key="4" {...stepProps} />,
+    <ExistingStep key="5" {...stepProps} />,
+    <PreferencesStep key="6" {...stepProps} />,
+    <ReviewStep key="7" {...stepProps} />,
   ];
   const isLast = state.step === TOTAL_STEPS - 1;
   const canGo = canAdvance(state);
@@ -161,8 +163,9 @@ function DesignWizardInner({
           <p className="mt-3 text-lg text-muted">{t.subtitle}</p>
         </div>
 
-        {/* Saved-style offer (Phase 13) — surfaced with consent, never applied silently. */}
-        {state.step <= 3 && (
+        {/* Saved-style offer (Phase 13) — surfaced with consent, never applied
+            silently. Shown through the style step, which it pre-fills. */}
+        {state.step <= 4 && (
           <MemorySeedCard
             t={dict.designMemory}
             onApplyStyle={(style) => dispatch({ type: "SET_PRIMARY_STYLE", style })}

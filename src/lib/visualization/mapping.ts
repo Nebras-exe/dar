@@ -60,6 +60,7 @@ export function buildVisualizationRequest(
     keep,
     replace,
     paletteColors: input.preferredColors,
+    roomSpace: input.roomSpace,
     designFingerprint: designFingerprint({
       roomType: input.roomType,
       primaryStyle: input.primaryStyle,

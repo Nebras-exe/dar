@@ -33,9 +33,13 @@ import { ImageUpload } from "./image-upload";
 import { VisionPanel } from "./vision-panel";
 import { useRoomImage } from "./room-image-context";
 import {
+  dimensionError,
+  draftRoomSpace,
   MAX_BUDGET,
   MIN_BUDGET,
   parseBudget,
+  parseDimension,
+  type RoomDimension,
   type WizardAction,
   type WizardState,
 } from "./wizard-state";
@@ -207,7 +211,177 @@ export function RoomStep({ state, dispatch, t }: StepProps) {
   );
 }
 
-// ── Step 3: Budget ──────────────────────────────────────────────────────────
+// ── Step 3: Room space ──────────────────────────────────────────────────────
+
+/** Quick presets so a user who hasn't measured still gets a sensible scale. */
+const SPACE_PRESETS: { key: "small" | "medium" | "large"; widthM: number; lengthM: number }[] = [
+  { key: "small", widthM: 3, lengthM: 3.5 },
+  { key: "medium", widthM: 4, lengthM: 5 },
+  { key: "large", widthM: 5.5, lengthM: 6.5 },
+];
+
+function DimensionField({
+  id,
+  dimension,
+  value,
+  label: fieldLabel,
+  placeholder,
+  dispatch,
+  t,
+}: {
+  id: string;
+  dimension: RoomDimension;
+  value: string;
+  label: string;
+  placeholder: string;
+  dispatch: React.Dispatch<WizardAction>;
+  t: D["space"];
+}) {
+  const problem = dimensionError(value, dimension);
+  const errorId = `${id}-error`;
+  const message =
+    problem === "invalid"
+      ? t.errorInvalid
+      : problem === "range"
+        ? dimension === "height"
+          ? t.errorCeilingRange
+          : t.errorRange
+        : null;
+
+  return (
+    <div>
+      <label htmlFor={id} className="text-sm font-medium text-foreground">
+        {fieldLabel}
+      </label>
+      <div className="relative mt-1.5">
+        <input
+          id={id}
+          type="text"
+          inputMode="decimal"
+          dir="ltr"
+          value={value}
+          placeholder={placeholder}
+          aria-invalid={Boolean(message)}
+          aria-describedby={message ? errorId : undefined}
+          onChange={(e) =>
+            dispatch({ type: "SET_ROOM_DIMENSION", dimension, text: e.target.value })
+          }
+          className={cn(
+            "h-12 w-full rounded-lg border bg-elevated ps-4 pe-12 text-lg text-foreground tabular shadow-[var(--shadow-xs)]",
+            "focus:outline-none focus:ring-2 focus:ring-brand/25",
+            message ? "border-danger focus:border-danger" : "border-border focus:border-brand",
+          )}
+        />
+        <span className="pointer-events-none absolute inset-y-0 end-4 flex items-center text-sm font-medium text-subtle">
+          {t.unit}
+        </span>
+      </div>
+      {message && (
+        <p id={errorId} className="mt-2 text-sm text-danger" role="alert">
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Room dimensions. Entirely optional — the design itself never depends on them —
+ * but they are what makes the before/after preview place furniture at TRUE
+ * scale, and what turns the fit check from "needs measurement" into an answer.
+ */
+export function SpaceStep({ state, dispatch, t, locale }: StepProps) {
+  const d = state.draft;
+  const ts = t.space;
+  const space = draftRoomSpace(d);
+  const area = space ? space.widthM * space.lengthM : null;
+  // Half-measured: one side typed, the other still blank.
+  const partial =
+    !space &&
+    (d.roomWidthText.trim() !== "" || d.roomLengthText.trim() !== "") &&
+    dimensionError(d.roomWidthText, "width") === null &&
+    dimensionError(d.roomLengthText, "length") === null;
+
+  const presetSelected = (w: number, l: number) =>
+    parseDimension(d.roomWidthText) === w && parseDimension(d.roomLengthText) === l;
+
+  return (
+    <div>
+      <StepHeader title={ts.title} subtitle={ts.subtitle} />
+
+      <div className="grid max-w-lg gap-4 sm:grid-cols-2">
+        <DimensionField
+          id="room-width"
+          dimension="width"
+          value={d.roomWidthText}
+          label={ts.width}
+          placeholder="4"
+          dispatch={dispatch}
+          t={ts}
+        />
+        <DimensionField
+          id="room-length"
+          dimension="length"
+          value={d.roomLengthText}
+          label={ts.length}
+          placeholder="5"
+          dispatch={dispatch}
+          t={ts}
+        />
+        <DimensionField
+          id="room-height"
+          dimension="height"
+          value={d.roomHeightText}
+          label={`${ts.height} · ${t.preferences.optional}`}
+          placeholder="2.8"
+          dispatch={dispatch}
+          t={ts}
+        />
+      </div>
+
+      <div className="mt-6">
+        <p className="mb-2.5 text-sm font-medium text-foreground">{ts.presets}</p>
+        <div className="flex flex-wrap gap-2">
+          {SPACE_PRESETS.map((preset) => (
+            <Chip
+              key={preset.key}
+              selected={presetSelected(preset.widthM, preset.lengthM)}
+              onClick={() => {
+                dispatch({ type: "SET_ROOM_DIMENSION", dimension: "width", text: String(preset.widthM) });
+                dispatch({ type: "SET_ROOM_DIMENSION", dimension: "length", text: String(preset.lengthM) });
+              }}
+            >
+              {ts.presetLabels[preset.key]} · {formatNumber(preset.widthM, locale)}×
+              {formatNumber(preset.lengthM, locale)} {ts.unit}
+            </Chip>
+          ))}
+          {(d.roomWidthText || d.roomLengthText || d.roomHeightText) && (
+            <Chip selected={false} onClick={() => dispatch({ type: "CLEAR_ROOM_SPACE" })}>
+              {ts.clear}
+            </Chip>
+          )}
+        </div>
+      </div>
+
+      {area !== null ? (
+        <p className="mt-5 rounded-lg border border-brand/30 bg-brand-soft/40 px-4 py-3 text-sm text-foreground">
+          {ts.areaLabel}: <strong className="tabular">{formatNumber(Number(area.toFixed(1)), locale)}</strong>{" "}
+          {ts.areaUnit} · {ts.scaleOn}
+        </p>
+      ) : partial ? (
+        <p className="mt-5 rounded-lg border border-warning/40 bg-warning-soft px-4 py-3 text-sm text-foreground">
+          {ts.needBoth}
+        </p>
+      ) : (
+        <DemoHint>{ts.skipNote}</DemoHint>
+      )}
+
+      <p className="mt-3 text-xs text-subtle">{ts.measureHint}</p>
+    </div>
+  );
+}
+
+// ── Step 4: Budget ──────────────────────────────────────────────────────────
 export function BudgetStep({ state, dispatch, t, locale }: StepProps) {
   const text = state.draft.budgetText;
   const value = parseBudget(text);
@@ -274,7 +448,7 @@ export function BudgetStep({ state, dispatch, t, locale }: StepProps) {
   );
 }
 
-// ── Step 4: Style ───────────────────────────────────────────────────────────
+// ── Step 5: Style ───────────────────────────────────────────────────────────
 export function StyleStep({ state, dispatch, t, locale }: StepProps) {
   const { primaryStyle, secondaryStyle } = state.draft;
   return (
@@ -336,7 +510,7 @@ export function StyleStep({ state, dispatch, t, locale }: StepProps) {
   );
 }
 
-// ── Step 5: Existing furniture ──────────────────────────────────────────────
+// ── Step 6: Existing furniture ──────────────────────────────────────────────
 const DISPOSITIONS: FurnitureDisposition[] = ["keep", "replace", "unsure"];
 
 export function ExistingStep({ state, dispatch, t, locale }: StepProps) {
@@ -406,7 +580,7 @@ export function ExistingStep({ state, dispatch, t, locale }: StepProps) {
   );
 }
 
-// ── Step 6: Preferences ─────────────────────────────────────────────────────
+// ── Step 7: Preferences ─────────────────────────────────────────────────────
 export function PreferencesStep({ state, dispatch, t, locale }: StepProps) {
   const { preferredColors, preferredMaterials, note } = state.draft;
   return (
@@ -489,10 +663,12 @@ export function PreferencesStep({ state, dispatch, t, locale }: StepProps) {
   );
 }
 
-// ── Step 7: Review ──────────────────────────────────────────────────────────
+// ── Step 8: Review ──────────────────────────────────────────────────────────
 export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
   const d = state.draft;
   const budget = parseBudget(d.budgetText);
+
+  const space = draftRoomSpace(d);
 
   const rows: { key: string; label: string; value: string; step: number }[] = [
     {
@@ -502,10 +678,25 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
       step: 1,
     },
     {
+      key: "space",
+      label: t.review.space,
+      value: space
+        ? [
+            `${formatNumber(space.widthM, locale)} × ${formatNumber(space.lengthM, locale)} ${t.space.unit}`,
+            space.heightM
+              ? `${t.space.height} ${formatNumber(space.heightM, locale)} ${t.space.unit}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")
+        : t.review.spaceUnmeasured,
+      step: 2,
+    },
+    {
       key: "budget",
       label: t.review.budget,
       value: Number.isFinite(budget) ? budgetLabel(budget, locale) : t.review.none,
-      step: 2,
+      step: 3,
     },
     {
       key: "style",
@@ -516,7 +707,7 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
             .map((s) => label(styleLabels[s as StyleTag], locale))
             .join(" · ")
         : t.review.none,
-      step: 3,
+      step: 4,
     },
     {
       key: "keeping",
@@ -529,7 +720,7 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
             return c ? label(c.name, locale) : cat;
           })
           .join("، ") || t.review.none,
-      step: 4,
+      step: 5,
     },
     {
       key: "colors",
@@ -537,7 +728,7 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
       value:
         d.preferredColors.map((c) => label(colorSwatches[c].label, locale)).join("، ") ||
         t.review.none,
-      step: 5,
+      step: 6,
     },
     {
       key: "materials",
@@ -545,7 +736,7 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
       value:
         d.preferredMaterials.map((m) => label(materialLabels[m], locale)).join("، ") ||
         t.review.none,
-      step: 5,
+      step: 6,
     },
     {
       key: "photo",
@@ -555,7 +746,7 @@ export function ReviewStep({ state, dispatch, t, locale }: StepProps) {
     },
   ];
   if (d.note.trim()) {
-    rows.push({ key: "note", label: t.review.note, value: d.note.trim(), step: 5 });
+    rows.push({ key: "note", label: t.review.note, value: d.note.trim(), step: 6 });
   }
 
   return (

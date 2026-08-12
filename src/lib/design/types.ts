@@ -53,6 +53,22 @@ export interface DesignInput {
   note?: string;
   /** Display-only name of an uploaded room image (image itself never leaves the browser). */
   imageName?: string;
+  /**
+   * The room's real size in metres, as entered by the user. Optional — the
+   * design itself never depends on it, but the before/after preview places
+   * furniture to scale with it, and the fit check needs it to be conclusive.
+   */
+  roomSpace?: RoomSpace;
+}
+
+/** The user's own room measurements. Never inferred from a photo. */
+export interface RoomSpace {
+  /** The wall facing the camera, in metres. */
+  widthM: number;
+  /** Depth away from the camera, in metres. */
+  lengthM: number;
+  /** Ceiling height in metres; a default is assumed when omitted. */
+  heightM?: number;
 }
 
 /** The three deterministic budget tiers. */

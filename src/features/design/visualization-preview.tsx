@@ -2,11 +2,10 @@
 
 import * as React from "react";
 import type { Locale } from "@/i18n/config";
-import { getProductBySlug, type Product } from "@/lib/catalog";
 import type { DemoScheme, VisualizationPreview } from "@/lib/visualization";
 import { RoomIllustration } from "@/features/home/room-illustration";
-import { ProductArt } from "@/components/shop/product-art";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
+import { RoomComposition } from "./room-composition";
 
 /** Room photo (or a labelled sample room) used as the "before" base. */
 function RoomBase({ url, alt }: { url: string | null; alt: string }) {
@@ -18,70 +17,30 @@ function RoomBase({ url, alt }: { url: string | null; alt: string }) {
 }
 
 /**
- * The demo "after" composition, rendered HONESTLY over the room photo: the same
- * photo, a restrained warm mood-wash derived deterministically from the design's
- * real catalog colours, and a tray of the actual product artwork. It is a
+ * The demo "after", rendered HONESTLY over the room photo: the design's real
+ * catalog pieces placed into the room to scale, over the same photo, under a
+ * restrained mood wash derived from the design's own catalog colours. It is a
  * styling preview — clearly a demo composition, never presented as a real render.
  */
 function DemoAfter({
   url,
   alt,
   scheme,
-  products,
 }: {
   url: string | null;
   alt: string;
   scheme: DemoScheme;
-  products: Product[];
 }) {
-  const [a, b] = [scheme.palette[0] ?? "#E3D4BD", scheme.palette[1] ?? scheme.palette[0] ?? "#C9BFB1"];
-  const tray = products.slice(0, 5);
-  const extra = products.length - tray.length;
+  const from = scheme.palette[0] ?? "#E3D4BD";
+  const to = scheme.palette[1] ?? scheme.palette[0] ?? "#C9BFB1";
 
   return (
-    <div className="relative size-full">
-      {url ? (
-        // eslint-disable-next-line @next/next/no-img-element -- local object URL, never remote/optimized
-        <img src={url} alt={alt} className="size-full object-cover" />
-      ) : (
-        <RoomIllustration variant="after" />
-      )}
-
-      {/* Deterministic warm mood wash — restrained so the room stays visible. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 mix-blend-soft-light"
-        style={{
-          backgroundImage: `linear-gradient(${scheme.overlayAngle}deg, ${a}, ${b})`,
-          opacity: scheme.washStrength,
-        }}
-      />
-      {/* Gentle scrim so the product tray reads over any photo. */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-2/5"
-        style={{ backgroundImage: "linear-gradient(to top, rgba(38,32,25,0.55), transparent)" }}
-      />
-
-      {/* Tray of the real catalog pieces styled into the room. */}
-      {tray.length > 0 && (
-        <div className="absolute inset-x-0 bottom-0 flex items-center gap-2 p-3">
-          {tray.map((p) => (
-            <span
-              key={p.slug}
-              className="size-12 overflow-hidden rounded-lg ring-1 ring-white/40 shadow-[var(--shadow-sm)] sm:size-14"
-            >
-              <ProductArt product={p} className="size-full" />
-            </span>
-          ))}
-          {extra > 0 && (
-            <span className="flex size-12 items-center justify-center rounded-lg bg-charcoal/70 text-xs font-medium text-background ring-1 ring-white/30 backdrop-blur-sm sm:size-14">
-              +{extra}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
+    <RoomComposition
+      url={url}
+      alt={alt}
+      plan={scheme.plan}
+      wash={{ angle: scheme.overlayAngle, strength: scheme.washStrength, from, to }}
+    />
   );
 }
 
@@ -108,13 +67,6 @@ export function VisualizationCompare({
   labels: { before: string; after: string; slider: string };
   locale: Locale;
 }) {
-  const products =
-    preview.kind === "demo-composition"
-      ? preview.scheme.items
-          .map((i) => getProductBySlug(i.slug))
-          .filter((p): p is Product => Boolean(p))
-      : [];
-
   return (
     <BeforeAfterSlider
       dir={dir}
@@ -126,7 +78,7 @@ export function VisualizationCompare({
         preview.kind === "generated" ? (
           <GeneratedAfter src={preview.imageDataUrl} alt={labels.after} />
         ) : (
-          <DemoAfter url={roomUrl} alt={labels.after} scheme={preview.scheme} products={products} />
+          <DemoAfter url={roomUrl} alt={labels.after} scheme={preview.scheme} />
         )
       }
     />

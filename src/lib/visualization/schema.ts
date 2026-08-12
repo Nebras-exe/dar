@@ -29,6 +29,7 @@ import {
 import type { DesignRoomType } from "@/lib/design";
 import { designFingerprint } from "./fingerprint";
 import type {
+  RoomSpace,
   VisualizationItemRef,
   VisualizationRequest,
 } from "./types";
@@ -51,6 +52,16 @@ export function isDesignRoomType(v: unknown): v is DesignRoomType {
 const MAX_ITEMS = 24;
 const MAX_CATEGORIES = 30;
 const MAX_PALETTE = 8;
+
+/**
+ * Plausible room bounds in metres. A value outside these is a typo or an
+ * attempt to skew the projection, so it is dropped rather than clamped — the
+ * preview then falls back to a clearly-labelled assumed room size.
+ */
+export const MIN_ROOM_M = 1.2;
+export const MAX_ROOM_M = 30;
+export const MIN_CEILING_M = 1.8;
+export const MAX_CEILING_M = 8;
 
 export interface ParseOk {
   ok: true;
@@ -88,6 +99,26 @@ export function resolveItem(raw: unknown): VisualizationItemRef | null {
   }
 
   return { slug: product.slug, category: product.category, colorId };
+}
+
+/**
+ * Resolve the client-sent room size. Returns undefined for anything missing,
+ * non-numeric or out of plausible bounds — the layout planner then uses a
+ * labelled default instead of trusting a bad number.
+ */
+export function resolveRoomSpaceInput(raw: unknown): RoomSpace | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const body = raw as Record<string, unknown>;
+
+  const inRange = (v: unknown, min: number, max: number): number | undefined =>
+    typeof v === "number" && Number.isFinite(v) && v >= min && v <= max ? v : undefined;
+
+  const widthM = inRange(body.widthM, MIN_ROOM_M, MAX_ROOM_M);
+  const lengthM = inRange(body.lengthM, MIN_ROOM_M, MAX_ROOM_M);
+  if (widthM === undefined || lengthM === undefined) return undefined;
+
+  const heightM = inRange(body.heightM, MIN_CEILING_M, MAX_CEILING_M);
+  return heightM === undefined ? { widthM, lengthM } : { widthM, lengthM, heightM };
 }
 
 function uniqueCategories(v: unknown): CategorySlug[] {
@@ -165,6 +196,7 @@ export function parseVisualizationRequest(raw: unknown): ParseOk | ParseErr {
     keep,
     replace,
     paletteColors,
+    roomSpace: resolveRoomSpaceInput(body.roomSpace),
     designFingerprint: fingerprint,
     options: { preserveArchitecture: true },
   };

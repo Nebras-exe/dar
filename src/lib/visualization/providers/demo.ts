@@ -3,8 +3,9 @@
  *
  * When no real image-generation credential is configured, Athathi does NOT
  * pretend an AI render occurred. Instead this provider builds a DETERMINISTIC
- * composition scheme from the validated request — real catalog products + a mood
- * palette derived from the design's own colours — which the client renders
+ * composition scheme from the validated request — real catalog products, a
+ * floor plan built from their REAL dimensions and the user's room size, and a
+ * mood palette derived from the design's own colours — which the client renders
  * honestly OVER the room photo as a clearly-labelled "Demo Preview".
  *
  * It never looks at the room image, calls no network, and reads no secrets. The
@@ -14,6 +15,7 @@
 import { colorSwatches } from "@/lib/catalog";
 import { getProductBySlug } from "@/lib/catalog";
 import { canonicalDesignString } from "../fingerprint";
+import { planRoomLayout } from "../layout";
 import type { DemoScheme, VisualizationRequest } from "../types";
 import type { ProviderOutput, VisualizationProvider } from "./types";
 
@@ -60,6 +62,9 @@ export function buildDemoScheme(request: VisualizationRequest): DemoScheme {
     overlayAngle: seed % 360,
     // A restrained wash (0.14–0.30) so the room stays clearly visible.
     washStrength: 0.14 + ((seed >> 9) % 17) / 100,
+    // The floor plan the client draws over the photo: real catalog dimensions
+    // arranged in the user's own room footprint (or a labelled default).
+    plan: planRoomLayout(request.roomType, request.items, request.roomSpace),
   };
 }
 

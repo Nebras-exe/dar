@@ -168,6 +168,9 @@ test("USER WINS: applyPrefill never overwrites user-set fields", () => {
   const prefill = analysisToPrefill(parseRoomAnalysis(GOOD_RAW, META).analysis!);
   // User already chose bedroom + japandi + a colour + a sofa decision.
   const userDraft = {
+    roomWidthText: "",
+    roomLengthText: "",
+    roomHeightText: "",
     budgetText: "",
     roomType: "bedroom" as const,
     primaryStyle: "japandi" as const,
@@ -186,6 +189,9 @@ test("USER WINS: applyPrefill never overwrites user-set fields", () => {
 test("applyPrefill fills only empty fields", () => {
   const prefill = analysisToPrefill(parseRoomAnalysis(GOOD_RAW, META).analysis!);
   const empty = {
+    roomWidthText: "",
+    roomLengthText: "",
+    roomHeightText: "",
     budgetText: "",
     decisions: {},
     preferredColors: [],
