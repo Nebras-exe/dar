@@ -641,6 +641,24 @@
       "consentLabel": "I agree to send my photo to generate the preview.",
       "usedTitle": "Products in this design",
       "usedSubtitle": "Every piece resolves to a real catalog product — no invented names or prices.",
+      "boardTitle": "What will be added",
+      "boardSubtitle": "Only these real catalog products are used — switch a colour, then generate.",
+      "approveHint": "The visualization inserts only these products; it won't add furniture that isn't listed here.",
+      "stages": {
+        "preparing": "Preparing selected furniture",
+        "creating": "Creating room visualization",
+        "checking": "Checking product match",
+        "finalizing": "Finalizing design"
+      },
+      "fidelityLabel": "Product fidelity",
+      "fidelity": {
+        "HIGH": "High",
+        "MEDIUM": "Medium",
+        "LOW": "Low"
+      },
+      "approved": "Product match approved",
+      "notApproved": "Product match not confirmed",
+      "notApprovedNote": "The generated render couldn't fully preserve product fidelity, so it isn't marked approved. Use the product board below as the authoritative selection.",
       "colorLabel": "Colour",
       "dimensionsLabel": "Dimensions",
       "dimensionsWidth": "W",

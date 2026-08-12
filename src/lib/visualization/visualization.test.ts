@@ -16,8 +16,12 @@ import { buildVisualizationRequest, currentDesignFingerprint } from "./mapping";
 import { buildDemoScheme } from "./providers/demo";
 import { generateVisualization } from "./service";
 import { buildVisualizationPrompt, VISUALIZATION_PROMPT_VERSION } from "./prompt";
+import { buildCatalogReferences, buildCatalogReference, VISUALIZATION_NEGATIVE_CONSTRAINTS } from "./references";
+import { critique } from "./critic";
+import { externalImageProvider } from "./providers/external";
+import * as clientBarrel from "./index";
 import type { VisualizationProvider } from "./providers/types";
-import type { VisualizationRequest } from "./types";
+import type { CatalogReference, VisualizationRequest } from "./types";
 import type { DesignInput, DesignItem } from "../design";
 
 // The real catalog is empty; inject fixtures (the source of truth for grounding).
@@ -281,4 +285,160 @@ test("prompt: references real product names + injection defense, no scale claims
   assert.match(prompt, /do not.*guarantee/i);
   assert.match(prompt, new RegExp(SOFA_NAME)); // real catalog product name
   assert.match(prompt, new RegExp(VISUALIZATION_PROMPT_VERSION));
+});
+
+// ── Catalog references / allow-list (§3/§9) ───────────────────────────────────
+
+test("references: build a real catalog reference per selected item; drop fakes", () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const refs = buildCatalogReferences(parsed.request);
+  assert.equal(refs.length, 2);
+  const realSlugs = new Set([SOFA, RUG]);
+  for (const r of refs) {
+    assert.ok(realSlugs.has(r.slug), `${r.slug} is a selected real product`);
+    assert.ok(r.productId.length > 0);
+    assert.ok(typeof r.referenceImage === "string");
+    assert.ok(r.placement.length > 0);
+  }
+  // A fabricated slug never yields a reference.
+  assert.equal(buildCatalogReference("totally-fake-slug", "beige"), null);
+});
+
+test("references: carry the SELECTED colour — switching a variant updates the reference", () => {
+  const beige = buildCatalogReference(SOFA, "beige");
+  const sage = buildCatalogReference(SOFA, "sage");
+  assert.ok(beige && sage);
+  assert.equal(beige!.colorId, "beige");
+  assert.equal(sage!.colorId, "sage");
+  assert.notEqual(beige!.colorId, sage!.colorId);
+  // The colour is only accepted if it's a real variant of THIS product.
+  const bogus = buildCatalogReference(SOFA, "navy"); // not a SOFA colour
+  assert.ok(bogus);
+  assert.notEqual(bogus!.colorId, "navy");
+});
+
+test("negative constraints forbid inventing/altering furniture", () => {
+  assert.ok(VISUALIZATION_NEGATIVE_CONSTRAINTS.includes("do_not_invent_extra_furniture"));
+  assert.ok(VISUALIZATION_NEGATIVE_CONSTRAINTS.includes("do_not_add_furniture_not_in_references"));
+  assert.ok(VISUALIZATION_NEGATIVE_CONSTRAINTS.includes("do_not_change_selected_product_colour"));
+});
+
+// ── Visual critic + fidelity (§10/§15) ────────────────────────────────────────
+
+function refWith(image: string): CatalogReference {
+  return {
+    productId: "p", slug: SOFA, variantId: SOFA + "-beige", nameEn: "n", nameAr: "n",
+    category: "sofas", colorId: "beige", referenceImage: image, placement: "x",
+  };
+}
+
+test("critic: rejects a missing render; approves a produced render with references", () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const refs = [refWith("/images/catalog/x/beige.jpg")];
+
+  const missing = critique(parsed.request, refs, { kind: "generated", imageDataUrl: "" }, parsed.request.items);
+  assert.equal(missing.verdict, "REJECTED");
+  assert.ok(missing.issues.includes("missing_generated_image"));
+
+  const ok = critique(parsed.request, refs, { kind: "generated", imageDataUrl: "data:image/png;base64,AAAA" }, parsed.request.items);
+  assert.equal(ok.verdict, "APPROVED");
+  assert.equal(ok.fidelity, "HIGH"); // exact local variant reference
+});
+
+test("critic: rejects an unauthorized item not on the selected allow-list", () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const refs = [refWith("/images/catalog/x/beige.jpg")];
+  const used = [...parsed.request.items, { slug: "intruder-sofa", category: "sofas" as const }];
+  const c = critique(parsed.request, refs, { kind: "generated", imageDataUrl: "data:img" }, used);
+  assert.equal(c.verdict, "REJECTED");
+  assert.ok(c.issues.includes("unauthorized_item"));
+});
+
+test("critic: LOW fidelity + rejection when a reference image is missing", () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const refs = [refWith("")];
+  const c = critique(parsed.request, refs, { kind: "generated", imageDataUrl: "data:img" }, parsed.request.items);
+  assert.equal(c.fidelity, "LOW");
+  assert.equal(c.verdict, "REJECTED");
+});
+
+// ── External provider config + provider-missing fallback (§6/§8/§19) ──────────
+
+test("external image provider is NOT configured without env → demo fallback runs", async () => {
+  // No IMAGE_API_KEY / IMAGE_PROVIDER in the test env.
+  assert.equal(externalImageProvider.isConfigured(), false);
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const res = await generateVisualization(parsed.request, {}); // auto → no real provider
+  assert.ok(res.ok);
+  assert.equal(res.mode, "demo");
+  assert.equal(res.preview.kind, "demo-composition");
+});
+
+// ── Bounded retry (§11/§18) ───────────────────────────────────────────────────
+
+test("retry: re-renders after an empty output and returns a produced render, bounded", async () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  let calls = 0;
+  const flaky: VisualizationProvider = {
+    name: "mock", model: "m", isConfigured: () => true,
+    async generate() {
+      calls++;
+      return calls === 1
+        ? { kind: "generated", imageDataUrl: "" }        // empty → does not count as a render, retry
+        : { kind: "generated", imageDataUrl: "data:ok" }; // a real render is produced
+    },
+  };
+  const res = await generateVisualization(parsed.request, {
+    providerOverride: flaky, image: { bytes: new Uint8Array([1]), mimeType: "image/png" }, consent: true, maxAttempts: 3,
+  });
+  // A produced render is returned (never the empty one), and retry is bounded.
+  assert.ok(res.ok);
+  assert.equal(res.preview.kind, "generated");
+  assert.ok(calls >= 2, "retried past the empty output");
+  assert.ok(calls <= 3, "never exceeds maxAttempts");
+  assert.equal(res.attempts, calls);
+});
+
+test("retry: is bounded — never exceeds maxAttempts", async () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  let calls = 0;
+  const alwaysEmpty: VisualizationProvider = {
+    name: "mock", model: "m", isConfigured: () => true,
+    async generate() { calls++; return { kind: "generated", imageDataUrl: "" }; },
+  };
+  const res = await generateVisualization(parsed.request, {
+    providerOverride: alwaysEmpty, image: { bytes: new Uint8Array([1]), mimeType: "image/png" }, consent: true, maxAttempts: 2,
+  });
+  assert.equal(res.ok, false);
+  assert.equal(calls, 2); // no infinite loop
+});
+
+// ── Client-safe boundary (§17) ────────────────────────────────────────────────
+
+test("client barrel never exports the server-only service/providers/critic/references", () => {
+  const names = Object.keys(clientBarrel);
+  for (const forbidden of ["generateVisualization", "buildCatalogReferences", "critique", "externalImageProvider", "buildVisualizationPrompt"]) {
+    assert.equal(names.includes(forbidden), false, `${forbidden} must stay server-only`);
+  }
+});
+
+test("a live result never carries a secret-shaped field", async () => {
+  const parsed = parseVisualizationRequest(validRequest());
+  assert.ok(parsed.ok);
+  const mock: VisualizationProvider = {
+    name: "mock", model: "m", isConfigured: () => true,
+    async generate() { return { kind: "generated", imageDataUrl: "data:img" }; },
+  };
+  const res = await generateVisualization(parsed.request, {
+    providerOverride: mock, image: { bytes: new Uint8Array([1]), mimeType: "image/png" }, consent: true,
+  });
+  const serialized = JSON.stringify(res);
+  assert.equal(/IMAGE_API_KEY|authorization|x-api-key|sk-ant|bearer /i.test(serialized), false);
 });

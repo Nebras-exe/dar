@@ -65,6 +65,7 @@ export function VisualizationSection({
   const [preview, setPreview] = React.useState<VisualizationSuccess | null>(null);
   const [error, setError] = React.useState<VisualizationErrorCode | null>(null);
   const [usedSample, setUsedSample] = React.useState(false);
+  const [stage, setStage] = React.useState(0);
 
   // Capability probe — booleans/enum only, no secrets.
   React.useEffect(() => {
@@ -78,6 +79,17 @@ export function VisualizationSection({
     };
   }, []);
 
+  // Staged loading messages (§12) — cycle while a render is in flight.
+  const stageKeys = React.useMemo(
+    () => [tv.stages.preparing, tv.stages.creating, tv.stages.checking, tv.stages.finalizing],
+    [tv.stages],
+  );
+  React.useEffect(() => {
+    if (!busy) return;
+    const id = setInterval(() => setStage((s) => Math.min(s + 1, stageKeys.length - 1)), 1100);
+    return () => clearInterval(id);
+  }, [busy, stageKeys.length]);
+
   const currentFingerprint = React.useMemo(
     () => currentDesignFingerprint(input, items),
     [input, items],
@@ -86,6 +98,7 @@ export function VisualizationSection({
 
   const generate = React.useCallback(async () => {
     if (busy || items.length === 0) return;
+    setStage(0);
     setBusy(true);
     setError(null);
     // Demo path: the room photo stays in the browser; only the structured,
@@ -181,17 +194,53 @@ export function VisualizationSection({
               {tv.needPhotoTitle}
             </p>
           )}
+
+          {/* Product board (§13): exactly what will be inserted — approve before generating. */}
+          {items.length > 0 && (
+            <div className="mt-5 rounded-xl border border-border-subtle bg-elevated p-4">
+              <h3 className="text-base font-semibold text-foreground">{tv.boardTitle}</h3>
+              <p className="mt-0.5 text-sm text-muted">{tv.boardSubtitle}</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {items.map((item, i) => (
+                  <VisualizationProductCard
+                    key={`board-${item.slug}-${i}`}
+                    slug={item.slug}
+                    colorId={item.colorId}
+                    index={i}
+                    t={tv}
+                    locale={locale}
+                    onColor={onColor}
+                  />
+                ))}
+              </div>
+              <p className="mt-3 flex items-start gap-2 text-xs text-subtle">
+                <Info className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+                {tv.approveHint}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* ── Generating ───────────────────────────────────────────────────────── */}
+      {/* ── Generating (staged progress, §12) ────────────────────────────────── */}
       {busy && (
         <div
           className="mt-5 flex aspect-[16/10] w-full flex-col items-center justify-center gap-3 rounded-xl border border-border-subtle bg-elevated"
           aria-live="polite"
         >
           <Loader2 className="size-6 animate-spin text-brand" aria-hidden="true" />
-          <p className="text-sm text-muted">{tv.generating}</p>
+          <p className="text-sm font-medium text-foreground">{stageKeys[stage]}</p>
+          <div className="flex gap-1.5" aria-hidden="true">
+            {stageKeys.map((_, i) => (
+              <span
+                key={i}
+                className={cn(
+                  "size-1.5 rounded-full transition-colors",
+                  i <= stage ? "bg-brand" : "bg-border",
+                )}
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -229,6 +278,32 @@ export function VisualizationSection({
               labels={{ before: tv.beforeLabel, after: tv.afterLabel, slider: tv.sliderLabel }}
             />
           </div>
+
+          {/* Visual critic + honest product fidelity (§10/§15) — live renders only */}
+          {preview.mode === "live" && preview.critic && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Badge tone={preview.critic.verdict === "APPROVED" ? "success" : "warning"}>
+                {preview.critic.verdict === "APPROVED" ? tv.approved : tv.notApproved}
+              </Badge>
+              <Badge
+                tone={
+                  preview.critic.fidelity === "HIGH"
+                    ? "success"
+                    : preview.critic.fidelity === "MEDIUM"
+                      ? "neutral"
+                      : "warning"
+                }
+              >
+                {tv.fidelityLabel}: {tv.fidelity[preview.critic.fidelity]}
+              </Badge>
+            </div>
+          )}
+          {preview.mode === "live" && preview.critic?.verdict === "REJECTED" && (
+            <p className="mt-2 flex items-start gap-2 rounded-lg border border-warning/40 bg-warning-soft px-3.5 py-2.5 text-xs text-foreground">
+              <TriangleAlert className="mt-0.5 size-3.5 shrink-0 text-warning" strokeWidth={1.75} aria-hidden="true" />
+              {tv.notApprovedNote}
+            </p>
+          )}
 
           {/* Honest disclosures */}
           <p className="mt-3 flex items-start gap-2 text-xs text-muted">

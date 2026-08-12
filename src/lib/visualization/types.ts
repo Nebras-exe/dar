@@ -16,6 +16,7 @@
 import type {
   CategorySlug,
   ColorId,
+  MaterialId,
   StyleTag,
 } from "@/lib/catalog";
 import type { DesignRoomType } from "@/lib/design";
@@ -95,6 +96,54 @@ export type VisualizationPreview =
   | { kind: "generated"; imageDataUrl: string }
   | { kind: "demo-composition"; scheme: DemoScheme };
 
+/**
+ * One REAL catalog product reference sent to an external image provider — the
+ * SELECTED variant's actual reference photo (never "imagine olive from beige"),
+ * resolved server-side from CatalogRepository. This is the allow-list the image
+ * model may draw from; nothing outside it may be introduced.
+ */
+export interface CatalogReference {
+  productId: string;
+  slug: string;
+  variantId?: string;
+  nameEn: string;
+  nameAr: string;
+  category: CategorySlug;
+  colorId?: ColorId;
+  colorLabelEn?: string;
+  colorLabelAr?: string;
+  materialId?: MaterialId;
+  /** Real dimensions when known (never invented). */
+  dimensions?: { widthCm: number; depthCm: number; heightCm: number };
+  /** The SELECTED variant's reference image (local catalog path or CDN URL). */
+  referenceImage: string;
+  /** Optional extra reference angles for the same variant. */
+  gallery?: string[];
+  /** A short, deterministic placement hint derived from the category. */
+  placement: string;
+}
+
+/**
+ * Honest product-fidelity band for a generated render — generative output is
+ * never guaranteed pixel-identical to the catalog product.
+ */
+export type ProductFidelity = "HIGH" | "MEDIUM" | "LOW";
+
+/** The visual critic's verdict for a generated render. */
+export type CriticVerdict = "APPROVED" | "REJECTED";
+
+/**
+ * The visual critic result. Deterministic in this phase (validates the catalog
+ * allow-list contract + reference completeness); a future vision-based pixel
+ * critic can enrich `issues` without changing this shape.
+ */
+export interface VisualizationCritique {
+  verdict: CriticVerdict;
+  fidelity: ProductFidelity;
+  /** Stable issue keys (the UI renders friendly text), empty when clean. */
+  issues: string[];
+}
+
 /** A successful visualization (matches §17's output contract). */
 export interface VisualizationSuccess {
   ok: true;
@@ -107,6 +156,10 @@ export interface VisualizationSuccess {
   designFingerprint: string;
   /** The real catalog products actually used in this preview. */
   usedItems: VisualizationItemRef[];
+  /** Present for a real generated render: the visual critic's verdict + fidelity. */
+  critic?: VisualizationCritique;
+  /** How many provider attempts were made (live path, bounded retry). */
+  attempts?: number;
   createdAt: number;
 }
 

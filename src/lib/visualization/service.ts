@@ -23,18 +23,31 @@ import type {
   VisualizationProvider,
 } from "./providers/types";
 import { demoVisualizationProvider } from "./providers/demo";
+import { externalImageProvider } from "./providers/external";
+import { buildCatalogReferences } from "./references";
+import { critique } from "./critic";
 
 const TIMEOUT_MS = 30_000;
 
 /**
- * Real image-generation providers in resolution order. Intentionally EMPTY:
- * this environment has no verified image-generation credential + supported model
- * to legitimately support, so — per §6 — Athathi does not pretend one exists. It
- * runs the deterministic demo composition instead. Adding a verified vendor is
- * one file implementing `VisualizationProvider` registered here; nothing else in
- * the app changes.
+ * Real image-generation providers in resolution order. The vendor-agnostic
+ * `external` provider is registered but stays INERT until the operator sets
+ * `IMAGE_PROVIDER` + `IMAGE_API_KEY` (+ endpoint) — with no key `isConfigured()`
+ * is false, so the deterministic demo composition runs and NO paid call happens.
+ * Adding another verified vendor is one more file implementing
+ * `VisualizationProvider` registered here; nothing else in the app changes.
  */
-const REAL_PROVIDERS: Record<string, VisualizationProvider> = {};
+const REAL_PROVIDERS: Record<string, VisualizationProvider> = {
+  [externalImageProvider.name]: externalImageProvider,
+  external: externalImageProvider,
+};
+
+/** Bounded render attempts (§11/§18): clamp IMAGE_MAX_ATTEMPTS to [1, 3], default 2. */
+function renderAttempts(): number {
+  const raw = Number(process.env.IMAGE_MAX_ATTEMPTS);
+  if (!Number.isFinite(raw)) return 2;
+  return Math.max(1, Math.min(3, Math.trunc(raw)));
+}
 
 /** The active real provider, or null when none is configured. */
 export function resolveProvider(): VisualizationProvider | null {
@@ -76,6 +89,8 @@ export interface GenerateOptions {
   consent?: boolean;
   /** Inject a provider for tests (exercises timeout/error/success without network). */
   providerOverride?: VisualizationProvider;
+  /** Override the bounded retry count (tests); defaults to IMAGE_MAX_ATTEMPTS/[1,3]. */
+  maxAttempts?: number;
 }
 
 function classifyError(err: unknown): VisualizationErrorCode {
@@ -126,38 +141,68 @@ export async function generateVisualization(
     return { ok: false, code: "no-consent" };
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-  log({ event: "start", provider: provider.name, model: provider.model });
+  // Server-resolved catalog allow-list (catalog truth) drives references + critic.
+  const references = buildCatalogReferences(request);
+  const maxAttempts = options.maxAttempts ?? renderAttempts();
 
-  try {
-    const output = await provider.generate(request, options.image, controller.signal);
-    if (output.kind === "generated" && !output.imageDataUrl) {
-      log({ event: "invalid-output", provider: provider.name });
-      return { ok: false, code: "invalid-output" };
+  let lastError: VisualizationErrorCode | null = null;
+  let approved: { output: import("./providers/types").ProviderOutput; critic: ReturnType<typeof critique> } | null = null;
+  let lastAny: { output: import("./providers/types").ProviderOutput; critic: ReturnType<typeof critique> } | null = null;
+  let attempts = 0;
+
+  // Bounded retry (§11/§18): re-render only when the critic REJECTS a produced
+  // image. No infinite loop; each attempt has its own timeout.
+  for (let i = 0; i < maxAttempts; i++) {
+    attempts = i + 1;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    log({ event: "start", provider: provider.name, model: provider.model, attempt: attempts });
+    try {
+      const output = await provider.generate(request, options.image, controller.signal);
+      if (output.kind === "generated" && !output.imageDataUrl) {
+        lastError = "invalid-output";
+        continue;
+      }
+      const critic = critique(request, references, output, request.items);
+      lastAny = { output, critic };
+      if (critic.verdict === "APPROVED") {
+        approved = { output, critic };
+        break;
+      }
+      log({ event: "critic-rejected", provider: provider.name, attempt: attempts, issues: critic.issues });
+    } catch (err) {
+      lastError = classifyError(err);
+      log({ event: "error", provider: provider.name, code: lastError, attempt: attempts });
+    } finally {
+      clearTimeout(timer);
     }
-    log({
-      event: "success",
-      provider: provider.name,
-      durationMs: Date.now() - started,
-      items: request.items.length,
-    });
-    return {
-      ok: true,
-      status: "ready",
-      mode: "live",
-      preview: output,
-      provider: provider.name,
-      promptVersion: VISUALIZATION_PROMPT_VERSION,
-      designFingerprint: request.designFingerprint,
-      usedItems: request.items,
-      createdAt: Date.now(),
-    };
-  } catch (err) {
-    const code = classifyError(err);
-    log({ event: "error", provider: provider.name, code, durationMs: Date.now() - started });
-    return { ok: false, code };
-  } finally {
-    clearTimeout(timer);
   }
+
+  // Prefer an APPROVED render; otherwise fall back to the last produced render
+  // (marked REJECTED so the UI never presents it as approved). If nothing was
+  // ever produced, surface the classified error and let the caller show the plan.
+  const chosen = approved ?? lastAny;
+  if (!chosen) {
+    return { ok: false, code: lastError ?? "provider-error" };
+  }
+  log({
+    event: chosen.critic.verdict === "APPROVED" ? "success" : "unapproved",
+    provider: provider.name,
+    durationMs: Date.now() - started,
+    fidelity: chosen.critic.fidelity,
+    attempts,
+  });
+  return {
+    ok: true,
+    status: "ready",
+    mode: "live",
+    preview: chosen.output,
+    provider: provider.name,
+    promptVersion: VISUALIZATION_PROMPT_VERSION,
+    designFingerprint: request.designFingerprint,
+    usedItems: request.items,
+    critic: chosen.critic,
+    attempts,
+    createdAt: Date.now(),
+  };
 }
