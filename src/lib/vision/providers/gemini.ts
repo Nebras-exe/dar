@@ -11,17 +11,23 @@ import {
 
 /**
  * Google Gemini vision provider via the Generative Language REST API — no SDK
- * dependency. Server-side only; `GOOGLE_GENERATIVE_AI_API_KEY` is never
- * exposed. Enable by setting the key (and optionally `ATHATHI_VISION_MODEL`).
+ * dependency. Server-side only; the Google key is never exposed. Uses the single
+ * documented `GOOGLE_AI_API_KEY` (falling back to the legacy
+ * `GOOGLE_GENERATIVE_AI_API_KEY`), and optionally `ATHATHI_VISION_MODEL`.
  */
 const MODEL = process.env.ATHATHI_VISION_MODEL || "gemini-1.5-flash";
+
+/** The single documented server-side Google key (legacy name kept as a fallback). */
+function googleKey(): string | undefined {
+  return process.env.GOOGLE_AI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+}
 
 export const geminiProvider: VisionProvider = {
   name: "gemini",
   model: MODEL,
-  isConfigured: () => Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY),
+  isConfigured: () => Boolean(googleKey()),
   async analyze(input: VisionImageInput, signal: AbortSignal): Promise<unknown> {
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    const apiKey = googleKey();
     if (!apiKey) throw new Error("gemini: not configured");
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`;

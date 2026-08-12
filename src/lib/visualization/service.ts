@@ -24,6 +24,7 @@ import type {
 } from "./providers/types";
 import { demoVisualizationProvider } from "./providers/demo";
 import { externalImageProvider } from "./providers/external";
+import { googleImageProvider } from "./providers/google";
 import { buildCatalogReferences } from "./references";
 import { critique } from "./critic";
 
@@ -38,7 +39,7 @@ const TIMEOUT_MS = 30_000;
  * `VisualizationProvider` registered here; nothing else in the app changes.
  */
 const REAL_PROVIDERS: Record<string, VisualizationProvider> = {
-  [externalImageProvider.name]: externalImageProvider,
+  google: googleImageProvider,
   external: externalImageProvider,
 };
 
@@ -71,6 +72,15 @@ export function visualizationMode(): "live" | "demo" {
   return isVisualizationConfigured() ? "live" : "demo";
 }
 
+/**
+ * Non-secret capability info for the GET route: the active provider name + model
+ * id (both safe for the client), or nulls in demo mode. Never a credential.
+ */
+export function visualizationProviderInfo(): { provider: string | null; model: string | null } {
+  const p = resolveProvider();
+  return { provider: p?.name ?? null, model: p?.model ?? null };
+}
+
 /** Structured, secret-free diagnostics. */
 function log(event: Record<string, unknown>) {
   try {
@@ -97,6 +107,7 @@ function classifyError(err: unknown): VisualizationErrorCode {
   if (err instanceof Error) {
     if (err.name === "AbortError") return "timeout";
     if (/http 429/.test(err.message)) return "rate-limited";
+    if (/no image returned|returned the original|invalid.*image/i.test(err.message)) return "invalid-output";
     if (/http \d/.test(err.message)) return "provider-error";
   }
   return "unknown";

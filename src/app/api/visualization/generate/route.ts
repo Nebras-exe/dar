@@ -3,6 +3,7 @@ import {
   generateVisualization,
   visualizationMode,
   isVisualizationConfigured,
+  visualizationProviderInfo,
 } from "@/lib/visualization/service";
 import { parseVisualizationRequest } from "@/lib/visualization/schema";
 import type { VisualizationErrorCode } from "@/lib/visualization/types";
@@ -60,8 +61,15 @@ function sniffMime(bytes: Uint8Array): string | null {
 }
 
 export async function GET(): Promise<Response> {
-  // Capability only — never reveals a provider name or credential.
-  return json({ configured: isVisualizationConfigured(), mode: visualizationMode() });
+  // Capability only — the provider name + model id are safe (non-secret); the
+  // credential is never read here or returned.
+  const info = visualizationProviderInfo();
+  return json({
+    configured: isVisualizationConfigured(),
+    mode: visualizationMode(),
+    provider: info.provider,
+    model: info.model,
+  });
 }
 
 export async function POST(request: NextRequest): Promise<Response> {

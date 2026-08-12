@@ -58,7 +58,7 @@ export function VisualizationSection({
 }) {
   const tv = t.visualization;
   const dir = getDirection(locale);
-  const { url: roomUrl } = useRoomImage();
+  const { url: roomUrl, file: roomFile } = useRoomImage();
 
   const [mode, setMode] = React.useState<"live" | "demo" | null>(null);
   const [busy, setBusy] = React.useState(false);
@@ -98,19 +98,36 @@ export function VisualizationSection({
 
   const generate = React.useCallback(async () => {
     if (busy || items.length === 0) return;
+    // LIVE mode needs the actual room photo (it is sent to the image provider to
+    // EDIT). Never silently produce a demo when a real render was expected.
+    if (mode === "live" && !roomFile) {
+      setError("no-image");
+      return;
+    }
     setStage(0);
     setBusy(true);
     setError(null);
-    // Demo path: the room photo stays in the browser; only the structured,
-    // catalog-validated request is sent. Track whether a sample room is used.
     setUsedSample(!roomUrl);
     try {
       const request = buildVisualizationRequest(input, items, locale);
-      const res = await fetch("/api/visualization/generate", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(request),
-      });
+      let res: Response;
+      if (mode === "live" && roomFile) {
+        // Multipart: the room photo + explicit consent go to the server, which
+        // runs the real provider (Google Gemini) and returns a NEW image.
+        const form = new FormData();
+        form.set("request", JSON.stringify(request));
+        form.set("consent", "true");
+        form.set("image", roomFile);
+        res = await fetch("/api/visualization/generate", { method: "POST", body: form });
+      } else {
+        // Demo path: the room photo stays in the browser; only the structured,
+        // catalog-validated request is sent.
+        res = await fetch("/api/visualization/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(request),
+        });
+      }
       const data = (await res.json()) as
         | VisualizationSuccess
         | { ok: false; code: VisualizationErrorCode };
@@ -124,13 +141,16 @@ export function VisualizationSection({
     } finally {
       setBusy(false);
     }
-  }, [busy, items, input, locale, roomUrl]);
+  }, [busy, items, input, locale, roomUrl, roomFile, mode]);
 
   const onColor = (index: number, color: ColorId) =>
     dispatch({ type: "SET_ITEM_COLOR", index, color });
 
   const hasPreview = Boolean(preview);
-  const showBadge = mode === "demo" ? tv.demoBadge : tv.aiBadge;
+  // Label by the ACTUAL result: a real generated render is "AI Generated"; only a
+  // genuine demo composition is labelled "Demo". Falls back to capability before a run.
+  const resultMode: "live" | "demo" = preview ? preview.mode : mode ?? "demo";
+  const showBadge = resultMode === "demo" ? tv.demoBadge : tv.aiBadge;
 
   return (
     <section
@@ -148,8 +168,8 @@ export function VisualizationSection({
             <p className="mt-0.5 text-sm text-muted">{tv.subtitle}</p>
           </div>
         </div>
-        {mode && hasPreview && (
-          <Badge tone={mode === "demo" ? "neutral" : "accent"}>{showBadge}</Badge>
+        {hasPreview && (
+          <Badge tone={resultMode === "demo" ? "neutral" : "accent"}>{showBadge}</Badge>
         )}
       </div>
 
@@ -181,10 +201,16 @@ export function VisualizationSection({
               >
                 {tv.cta}
               </Button>
-              {!roomUrl && (
+              {!roomUrl ? (
                 <p className="max-w-xs text-xs font-medium text-background/90">
                   {tv.needPhotoBody}
                 </p>
+              ) : (
+                mode === "live" && (
+                  <p className="max-w-xs text-xs font-medium text-background/90">
+                    {tv.liveConsentNote}
+                  </p>
+                )
               )}
             </div>
           </div>
@@ -265,11 +291,9 @@ export function VisualizationSection({
 
           <div className={cn("relative", stale && "opacity-90")}>
             {/* Persistent preview-type badge over the comparison */}
-            {mode && (
-              <span className="pointer-events-none absolute start-3 top-3 z-10">
-                <Badge tone={mode === "demo" ? "neutral" : "accent"}>{showBadge}</Badge>
-              </span>
-            )}
+            <span className="pointer-events-none absolute start-3 top-3 z-10">
+              <Badge tone={resultMode === "demo" ? "neutral" : "accent"}>{showBadge}</Badge>
+            </span>
             <VisualizationCompare
               dir={dir}
               preview={preview.preview}
